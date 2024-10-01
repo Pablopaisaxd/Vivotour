@@ -1,0 +1,114 @@
+*{
+	padding: 0;
+	margin: 0;
+	box-sizing: border-box;
+	overflow-x: hidden;
+	scrollbar-width: none;
+	-ms-overflow-style: none;
+}
+
+
+body{ 
+    background-color: rgba(101, 206, 60);
+	width:100vw;
+	height: 300vh;
+	position:relative;
+	overflow-x: hidden;
+}
+
+.e1_0 { 
+	background-color:rgba(255, 255, 255, 1); 
+	width:99vw;
+    height: 299vh;
+	position:relative; 
+	display: flex;
+	justify-content: center;
+	border-top-left-radius:50px;
+	border-top-right-radius:50px;
+	border-bottom-left-radius:50px;
+	border-bottom-right-radius:50px;
+}
+
+.e1_1 { 
+	background-image: url(IMG/fondo666.jpg);
+	width:100vw;
+    height:100vh;
+	position:absolute; 
+	display: flex;
+	background-size: cover; 
+    background-position: center;
+    background-repeat: no-repeat; 
+}
+
+.e1_2 { 
+    background-color: #3366007e;
+	width:100vw;
+    height: 8vh;
+	position:relative; 
+    display: flex;
+    flex-wrap: wrap; 
+	overflow-x: auto; 
+    white-space: nowrap;
+}
+
+.Btbarra{
+	font-family:'Times New Roman', Times, serif;
+	text-decoration: none;
+	color: rgb(0, 0, 0); 
+	position:relative; 
+	display: flex;
+	font-weight: bold; 
+	font-size:1.2rem;
+	padding-left: 3rem;
+	left: 30%;
+	top: 35%;
+}
+.separado{
+	position:relative; 
+	display: flex;
+	left: 55%;
+}
+
+.BtbL{
+	width: 60px;
+	height: 60px;
+	position:relative; 
+	display: flex;
+	left: 05%;
+}
+.e2_0 { 
+	background-color: rgba(18, 18, 20, 0.200);
+	width: 100vw;
+    height: 100vh;
+	position: absolute; 
+	display: flex;
+	top: 100vh;
+}
+
+.caja{
+	background-color: rgb(18, 18, 20);
+	width:40vw;
+    height: 15vh;
+	position:relative; 
+	display: flex;
+	color: rgb(255, 255, 255);
+}
+.caja img{
+	width: 60px;
+	height: 60px;
+	position:relative; 
+	display: flex;
+}
+
+.elem1{
+	left: 10%;
+	top: 20%;
+}
+.elem2{
+	left: 20%;
+	top: 45%;
+}
+.elem3{
+	right: 57%;
+	top: 70%;
+}
