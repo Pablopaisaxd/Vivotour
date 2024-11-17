@@ -67,6 +67,14 @@ nav{
     color: aliceblue;
 }
 
+.hhead{
+    color: aliceblue;
+    display: flex;
+    justify-content: center;
+    margin-top: 5%;
+    font-size: 40px;
+}
+
 .nosotros{
     display: flex;
     height: 50vh;
@@ -90,7 +98,9 @@ nav{
     width: 40vw;
     height: 13vh;
     margin-top: -7vh;
-    padding: 10px;
+    padding-top: 5px;
+    padding-left: 10px;
+    padding-right: 10px;
     background-color: #d9ebd0;
     display: flex;
     flex-direction: column;
