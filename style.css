@@ -7,7 +7,7 @@
 .head{
     background-image: url(./Media/Fondos/Río.jpg);
     background-size: cover;
-    height: 60vh;
+    height: 50vh;
 }
 
 nav{
@@ -15,6 +15,7 @@ nav{
     width: 100%;
     display: flex;
     align-items: center;
+    background-color: rgba(240, 248, 255, 0.12);
 }
 
 .logo{
@@ -30,7 +31,7 @@ nav{
 }
 
 .ps{
-    color: white;
+    color: aliceblue;
 }
 
 .ps1{
@@ -52,5 +53,36 @@ nav{
     border-style: none;
     border-radius: 50px;
     margin-left: 25px;
-    color: white;
+    color: aliceblue;
+}
+
+.nosotros{
+    display: flex;
+    height: 50vh;
+}
+
+.nosleft{
+    display: flex;
+    width: 50%;
+}
+
+.nosright{
+    background-color: aquamarine;
+    display: flex;
+    width: 50%;
+}
+
+.somos{
+    margin-top: 3vh;
+    margin-left: 5vw;
+    background-color: #d9ebd0;
+    justify-content: center;
+    align-items: center;
+    display: flex;
+    flex-direction: column;
+    width: 40vw;
+    height: 13vh;
+    border-radius: 10px;
+    font-size: 13px;
+    padding: 5px;
 }
