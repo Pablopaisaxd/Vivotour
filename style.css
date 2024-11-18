@@ -89,7 +89,6 @@ nav{
 }
 
 .nosright{
-    background-color: aquamarine;
     display: flex;
     width: 50%;
 }
@@ -239,4 +238,21 @@ nav{
     border-radius: 12px;
     padding-left: 1.1%;
     padding-top: 1px;
+}
+
+.princi{
+    width: 50vw;
+    height: 50vh;
+    display: flex;
+    justify-content: center;
+}
+
+.img1{
+    background-image: url(./Media/Fondos/Fondo2.jpg);
+    background-size: cover;
+    width: 28vw;
+    height: 28vh;
+    margin-top: 5vh;
+    border-radius: 10px;
+    border: 3px solid;
 }
