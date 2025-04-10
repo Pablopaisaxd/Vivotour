@@ -11,10 +11,10 @@ body{
     display: flex;
     align-items: center;
     justify-content: space-between;
-    height: 63px;
-    background-color: #171717;
-    position: fixed;
     width: 100%;
+    height: 18%;
+    background: linear-gradient(180deg, #FFFFFF 0%, rgba(255, 255, 255, 0.4) 70.5%, rgba(255, 255, 255, 0) 100%);
+    position: fixed;
     z-index: 100;
 }
 .navbar{
@@ -33,15 +33,28 @@ body{
 }
 .navbar a{
     display: block;
-    padding: 23px 20px;
-    color: white;
+    padding: 15px 18px;
+    color: rgba(0, 128, 10, 1);
     text-decoration: none;
     text-transform: uppercase;
     font-size: 20px;
-    margin-top: 60px;
+    margin: 5px;
+    border-radius: 10px;
 }
 .navbar a:hover{
-    background-color: #3f3f3f;
+    background-color: #ffffff;
+}
+.navbar a.btnlogin {
+    background-color: black;
+    color: white;
+}
+.navbar a.btnlogin:hover{
+    background-color: rgba(0, 128, 10, 1);
+}
+.grupbar{
+    display: flex;
+    position: absolute;
+    right: 30%;
 }
 .header{
     display: flex;
@@ -85,7 +98,7 @@ p{
     margin: 0 10px;
 }
 .content{
-    height: 50vh;
+    height: 70vh;
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -93,55 +106,71 @@ p{
 }
 .sau{
     padding: 30px;
-    background: #0c0c0c;
-}
-.box-container{
-    display: flex;
-    justify-content: center;
-    flex-wrap: wrap;
-    text-align: center;
-}
-.box-container .box{
-    height: 11rem;
-    width: 17rem;
-    background: #101010;
-    text-align: center;
-    border-radius: 1rem;
-    box-shadow: 0 .3 5rem rgb(0, 0, 0);
-    margin: 2rem;
-}
-.box-container .box i{
-    height: 3rem;
-    width: 3rem;
-    line-height: 3rem;
-    text-align: center;
-    border-radius: 50%;
-    color: white;
-    background: rgba(0, 128, 10, 1);
-    font-size: 2rem;
-    margin: 1rem 0;
+    background: #06141D;
 }
 
-.box-container .box h3{
-    font-size:  28px;
-    color: rgba(0, 128, 10, 1);
-}
-.box-container .box p{
-    font-size: 16px;
-    padding: 0 15px;
-}
 .about {
-    background: #171717;
+    background: #06141D;
 }
-.price {
+.imgs {
     background: url(IMG/fondo2.png) no-repeat center;
     background-attachment: fixed;
     background-size: cover;
     text-align: center;
 }
-.contact {
+
+
+/* fase test img  scroll*/
+
+
+.scroll-wrapper {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    max-width: 90vw;
+    margin: 0 auto;
+    position: relative;
+  }
+  
+  .scroll-marker-group {
+    display: flex;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    scroll-behavior: smooth;
+    gap: 10px;
+    max-width: 80vw;
+    padding: 10px;
+    border-radius: 10px;
+  }
+  
+  .scroll-item {
+    scroll-snap-align: center;
+    flex: 0 0 auto;
+    width: 300px;
+    height: 200px;
+    object-fit: cover;
+    border-radius: 10px;
+  }
+  
+  .scroll-button {
+    font-size: 2rem;
+    cursor: pointer;
+    user-select: none;
+    padding: 5px 10px;
+    background: #333;
+    color: white;
+    border-radius: 10px;
+  }
+  
+
+
+
+
+
+.mapandcomme {
     padding: 30px;
-    background: #171717;
+    background: #06141D;
     padding-top: 0;
 }
 @media (max-width: 768px) {
