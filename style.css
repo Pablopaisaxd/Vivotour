@@ -105,6 +105,7 @@ p{
     flex-direction: column;
     justify-content: center;
     align-items: center;
+    transition: all 1.5s ease;
 }
 .sau{
     padding: 30px;
@@ -169,57 +170,40 @@ p{
     padding-top: 0;
 }
 
-/* #toggle{
-    display: none;
+
+.dark .sau{
+    color: white;
+    background: #06141D;
+    transition: all 1.5s ease;
 }
-#label_toggle{
-    position: absolute;
+.dark .about{
+    color: white;
+    background: #06141D;
+    transition: all 1.5s ease;
+}
+.dark .mapandcomme{
+    color: white;
+    background: #06141D;
+    transition: all 1.5s ease;
+}
+
+.dark h2{
+    color: white;
+    transition: all 1.5s ease;
+}
+.dark p{
+    color: white;
+    transition: all 1.5s ease;
+}
+
+#modo{
+    transition: all 1.5s ease;
+    position: fixed;
     z-index: 100;
-    top: 95%;
+    top: 90%;
     left: 95%;
     font-size: 3rem;
     cursor: pointer;
-}
-
-.dark{
-    background: #06141D;
-    color: white;
-    transition: all 1.5s ease;
-} */
-
-.dark .sau{
-    background: #06141D;
-}
-.dark .about{
-    background: #06141D;
-}
-.dark .mapandcomme{
-    background: #06141D;
-}
-
-.dark h2{
-    color: white;
-}
-.dark p{
-    color: rgb(209, 208, 208);
-}
-.dark #modo{
-    color: orange;
-}
-.dark .card__perfil{
-    background: #06141D;
-}
-.dark p{
-    color: rgb(211, 211, 211);
-}
-.dark h2{
-    color: white;
-}
-.dark .enlace{
-    background: #06141D;
-}
-.dark .card__perfil:hover{
-    border: solid green 2px;
 }
 
 

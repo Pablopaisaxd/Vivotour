@@ -10,6 +10,10 @@ let valor=localStorage.getItem("modo")
 
 if (valor=="true") {
     body.classList.add("dark")
+    modo.innerHTML='<i class="fa-solid fa-sun"></i>';
+    modo.style.color="whitesmoke"
 } else {
     body.classList.remove("dark")
+        modo.innerHTML='<i class="fa-solid fa-moon"></i>';
+    modo.style.color="black"
 }
