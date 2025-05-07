@@ -8,7 +8,7 @@ body{
     font-family: sans-serif;
     background-color: #ebebeb;
 }
-.head{
+.header{
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -17,6 +17,7 @@ body{
     background: linear-gradient(180deg, #FFFFFF 0%, rgba(255, 255, 255, 0.4) 70.5%, rgba(255, 255, 255, 0) 100%);
     position: fixed;
     z-index: 100;
+    transition: all 1.5s ease;
 }
 .navbar{
     display: flex;
@@ -57,7 +58,7 @@ body{
     position: absolute;
     right: 30%;
 }
-.header{
+/* .header{
     display: flex;
     justify-content: center;
     align-items: center;
@@ -66,7 +67,7 @@ body{
     height: 100vh !important;
     background: url(IMG/fondo.png) no-repeat center;
     background-size: cover;
-}
+} */
 .title {
     margin-bottom: 40px;
     font-size: 60px;
@@ -193,6 +194,10 @@ p{
 }
 .dark p{
     color: white;
+    transition: all 1.5s ease;
+}
+.dark .header{
+    background: linear-gradient(180deg, #06141D, #06141d54, #06141d00);
     transition: all 1.5s ease;
 }
 
