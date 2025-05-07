@@ -6,6 +6,7 @@
 body{
     text-align: center;
     font-family: sans-serif;
+    background-color: #ebebeb;
 }
 .head{
     display: flex;
@@ -27,7 +28,7 @@ body{
 }
 .logo a{
     text-decoration: none;
-    color: white;
+    color: rgb(0, 0, 0);
     text-transform: uppercase;
     font-size: 20px;
 }
@@ -71,12 +72,13 @@ body{
     font-size: 60px;
     font-weight: 600;
     text-transform: uppercase;
-    color: white;
+    color: rgb(0, 0, 0);
 }
+
 p{
     margin-bottom: 40px;
     font-size: 18px;
-    color: white;
+    color: rgb(0, 0, 0);
     padding: 0 100px;
 }
 .btn{
@@ -84,7 +86,7 @@ p{
     margin-top: 15px;
     padding: 10px 40px;
     border: 2px solid rgba(0, 128, 10, 1);
-    color: white;
+    color: rgb(0, 0, 0);
     text-decoration: none;
     background: rgba(0, 128, 10, 1);
 }
@@ -106,14 +108,14 @@ p{
 }
 .sau{
     padding: 30px;
-    background: #06141D;
+    background: #ebebeb;
 }
 
 .about {
-    background: #06141D;
+    background: #ebebeb;
 }
 .imgs {
-    background: url(IMG/fondo2.png) no-repeat center;
+    background: url(IMG/fondo10.jpg) no-repeat center;
     background-attachment: fixed;
     background-size: cover;
     text-align: center;
@@ -163,11 +165,62 @@ p{
 
 .mapandcomme {
     padding: 30px;
-    background: #06141D;
+    background: #ebebeb;
     padding-top: 0;
 }
 
-/* footer (hace falta corregir unas cosas) */
+/* #toggle{
+    display: none;
+}
+#label_toggle{
+    position: absolute;
+    z-index: 100;
+    top: 95%;
+    left: 95%;
+    font-size: 3rem;
+    cursor: pointer;
+}
+
+.dark{
+    background: #06141D;
+    color: white;
+    transition: all 1.5s ease;
+} */
+
+.dark .sau{
+    background: #06141D;
+}
+.dark .about{
+    background: #06141D;
+}
+.dark .mapandcomme{
+    background: #06141D;
+}
+
+.dark h2{
+    color: white;
+}
+.dark p{
+    color: rgb(209, 208, 208);
+}
+.dark #modo{
+    color: orange;
+}
+.dark .card__perfil{
+    background: #06141D;
+}
+.dark p{
+    color: rgb(211, 211, 211);
+}
+.dark h2{
+    color: white;
+}
+.dark .enlace{
+    background: #06141D;
+}
+.dark .card__perfil:hover{
+    border: solid green 2px;
+}
 
 
 footer{
@@ -243,6 +296,7 @@ a:hover{
     display: flex;
     position: relative;
 }
+
 
 
 
