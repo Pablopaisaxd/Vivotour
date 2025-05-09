@@ -3,71 +3,85 @@
     margin: 0;
     padding: 0;
 }
+
+@font-face {
+    font-family: "comic";
+    src: url("./Media/Fonts/COMIC.TTF") format("truetype");
+}
+
 body{
     text-align: center;
-    font-family: sans-serif;
-    background-color: #ebebeb;
+    font-family: comic;
+    background-color: #ececec;
 }
+
 .header{
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    width: 100%;
-    height: 18%;
-    background: linear-gradient(180deg, #FFFFFF 0%, rgba(255, 255, 255, 0.4) 70.5%, rgba(255, 255, 255, 0) 100%);
-    position: fixed;
-    z-index: 100;
-    transition: all 1.5s ease;
+    width: 100vw;
+    height: 90vh;
 }
-.navbar{
-    display: flex;
+
+.nav{
+    position: absolute;
+    top: 0;
+    width: 100vw;
+    height: 12vh;
+    background-color: aliceblue;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    grid-template-rows: repeat(3, 1fr);
+    box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.256);
+}
+
+.logos{
+    grid-row: 2;
+    grid-column: 1;
+    margin-right: 20rem;
+    padding-left: 50px;
+}
+
+.imgvivo{
+    margin-bottom: 5px;
     margin-right: 5px;
 }
-.logo{
-    margin-left: 30px;
-    background: url(IMG/logo.webp);
+
+.navbar{
+    grid-row: 2;
+    grid-column: 2;
+    display: flex;
+    margin-top: 10px;
+    margin-left: 100px;
 }
-.logo a{
-    text-decoration: none;
-    color: rgb(0, 0, 0);
-    text-transform: uppercase;
-    font-size: 20px;
-}
-.navbar a{
-    display: block;
-    padding: 15px 18px;
-    color: rgba(0, 128, 10, 1);
-    text-decoration: none;
-    text-transform: uppercase;
-    font-size: 20px;
-    margin: 5px;
+
+.btnav{
+    width: 5rem;
+    height: 2rem;
+    border: none;
     border-radius: 10px;
+    background-color: aliceblue;
+    margin-right: 10px;
+    font-family: comic;
+    color: inherit;
+    font-size: 17px;
+    text-decoration: underline;
 }
-.navbar a:hover{
-    background-color: #ffffff;
+
+.btnlog{
+    width: 6.3rem;
+    height: 2.5rem;
+    background-color: #55b236;
+    border: none;
+    border-radius: 20px;
+    text-decoration: none;
 }
-.navbar a.btnlogin {
-    background-color: black;
-    color: white;
+
+.acces{
+    grid-row: 2;
+    grid-column: 3;
+    margin-left: 70px;
+    margin-top: 5px;
 }
-.navbar a.btnlogin:hover{
-    background-color: rgba(0, 128, 10, 1);
-}
-.grupbar{
-    display: flex;
-    position: absolute;
-    right: 30%;
-}
-/* .header{
-    display: flex;
-    justify-content: center;
-    align-items: center;
-}
-.header{
-    height: 100vh !important;
-    background: url(IMG/fondo.png) no-repeat center;
-    background-size: cover;
-} */
+
+
 .title {
     margin-bottom: 40px;
     font-size: 60px;
@@ -266,10 +280,7 @@ h3{
 .list li:hover::before{
     width: 70px;
 }
-a{
-    text-decoration: none;
-    color: white;
-}
+
 a:hover{
     color: rgba(0, 128, 10, 1);
 }
