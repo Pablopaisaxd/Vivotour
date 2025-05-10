@@ -15,15 +15,11 @@ body{
     background-color: #ececec;
 }
 
-.header{
-    width: 100vw;
-    height: 90vh;
-}
 
 .intro {
     position: absolute;
     top: 0;
-    width: 100vw;
+    width: auto;
     height: 1.8rem;
     background-color: #52ab34;
     font-family: sans-serif;
@@ -55,10 +51,11 @@ body{
 
 .nav{
     position: absolute;
-    width: 100vw;
+    width: auto;
     height: 12vh;
     background-color: aliceblue;
     display: grid;
+    z-index: 100;
     grid-template-columns: repeat(3, 1fr);
     grid-template-rows: repeat(3, 1fr);
     box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.256);
@@ -213,7 +210,6 @@ p{
 
 
 .mapandcomme {
-    padding: 30px;
     background: #ebebeb;
     padding-top: 0;
 }
@@ -274,6 +270,10 @@ footer{
 }
 .footer-content{
     width: 33.3%;
+}
+.footeropc{
+    text-decoration: none;
+    color: white;
 }
 h3{
     color: white;

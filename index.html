@@ -17,29 +17,34 @@
 
 <body>
     <div class="header">
+        <header>
 
-        <div class="intro">
-        <p class="pint">Tu próximo viaje en lugares increíbles</p>
-        <p class="pint">Escápate a un paraíso de ensueño</p>
-        <p class="pint">Cotiza ahora</p>
-    </div>
-
-        <div class="nav">
-            <div class="logos">
-                <img src="IMG/logo.png" alt="logoVentana" width="35%" height="90%" class="imgven">
-                <img src="IMG/vivoTour.png" alt="logoVivo" width="56%" height="60%" class="imgvivo">
+            <div class="intro">
+                <p class="pint">Tu próximo viaje en lugares increíbles</p>
+                <p class="pint">Escápate a un paraíso de ensueño</p>
+                <p class="pint">Cotiza ahora</p>
+            </div>
+    
+            <div class="nav" id="navaccess">
+                <div class="logos">
+                    <img src="IMG/logo.png" alt="logoVentana" width="35%" height="90%" class="imgven">
+                    <img src="IMG/vivoTour.png" alt="logoVivo" width="56%" height="60%" class="imgvivo">
+                </div>
+    
+                <nav class="navbar" id="navbar">
+                    <a class="btnav" id="btnnav" href="#Inicio">Inicio</a>
+                    <a class="btnav" id="btnnav" href="#Descubre">Descubre</a>
+                    <a class="btnav">Reservar</a>
+                </nav>
+                    <div class="acces">
+                        <button class="btnav btnlog">Acceder</button>
+                    </div>      
             </div>
 
-            <nav class="navbar">
-                        <button class="btnav">Inicio</button>
-                        <button class="btnav">Descubre</button>
-                        <button class="btnav">Reservar</button>
-                    </nav>
-                    <div class="acces">
-                <button class="btnav btnlog">Acceder</button>
-</div>
-        </div>
-        <section class="content sau">
+        </header>
+
+
+        <section class="content sau" id="Inicio">
             <h2 class="title">¿Qué es Vivo Tour?</h2>
             <p>¿Qué es Vivo Tour?
                 Vivo Tour es tu conexión con la naturaleza en La Ventana del Río Melcocho, un destino único entre El
@@ -62,7 +67,7 @@
             y días de sol en el río. Además, podrás disfrutar de una gastronomía local auténtica. Con Vivo Tour, cada
             visita se convierte en una aventura inolvidable. ¡Descúbrelo!</p>
     </section>
-    <section class="content imgs">
+    <section class="content imgs" id="Descubre">
 
         <div class="slider">
             <div class="slide-track">
@@ -80,7 +85,7 @@
         <figure>
             <iframe
                 src="https://www.google.com/maps/embed?pb=!1m14!1m8!1m3!1d126991.79048466755!2d-75.15647527476965!3d5.926494261696179!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x8e46b923f976857b%3A0x6b67113b937a0097!2sPuente%20amarillo%20reservas!5e0!3m2!1ses-419!2sco!4v1746585523357!5m2!1ses-419!2sco"
-                width="500" height="450" style="border:0;" allowfullscreen="" loading="lazy"
+                width="500vw" height="450vh" style="border:0;" allowfullscreen="" loading="lazy"
                 referrerpolicy="no-referrer-when-downgrade">
             </iframe>
         </figure>
@@ -101,9 +106,9 @@
             <div class="footer-content">
                 <h3>REDES SOCIALES</h3>
                 <ul class="list">
-                    <li><a href="">FACEBOOK</a></li>
-                    <li><a href="">INSTAGRAM</a></li>
-                    <li><a href="">WHATSAPP</a></li>
+                    <li><a class="footeropc" href="">FACEBOOK</a></li>
+                    <li><a class="footeropc" href="">INSTAGRAM</a></li>
+                    <li><a class="footeropc" href="">WHATSAPP</a></li>
                 </ul>
             </div>
             <div class="footer-content">
@@ -111,15 +116,15 @@
                 <p1>Telefono: +57 322 4435315</p1>
                 <p1>Telefono: +57 321 6921773</p1>
                 <ul class="list">
-                    <li>Email:<a href=""> laventanadelriomelcocho@gmail.com</a></li>
+                    <li>Email:<a class="footeropc" href=""> laventanadelriomelcocho@gmail.com</a></li>
                 </ul>
             </div>
             <div class="footer-content">
                 <h3>VIVO TOUR</h3>
                 <ul class="list">
-                    <li><a href="">Inicio</a></li>
-                    <li><a href="">Descubre</a></li>
-                    <li><a href="">Reservar</a></li>
+                    <li><a class="footeropc" href="#Inicio">Inicio</a></li>
+                    <li><a class="footeropc" href="#Descubre">Descubre</a></li>
+                    <li><a class="footeropc" href="">Reservar</a></li>
                 </ul>
             </div>
             <div class="footer-logo">
@@ -128,12 +133,12 @@
         </div>
         <div class="footer-content footerend">
             <ul class="list listend">
-                <li><a href="">Terminos Y Condiciones</a></li>
+                <li><a class="footeropc" href="">Terminos Y Condiciones</a></li>
                 <p1>°</p1>
-                <li><a href="">Soporte Tecnico</a></li>
+                <li><a class="footeropc" href="">Soporte Tecnico</a></li>
             </ul>
             <ul class="list">
-                <li><a href="">WRHV+69 COCORNA, ANTIOQUIA</a></li>
+                <li><a class="footeropc" href="">WRHV+69 COCORNA, ANTIOQUIA</a></li>
             </ul>
         </div>
     </footer>
