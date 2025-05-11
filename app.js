@@ -67,3 +67,25 @@ window.onscroll = () => {
         };
     });
 };
+
+// animacion header al scrollear -----------------
+
+
+function stickyNav() {
+  let triggerSection = document.querySelector("#about");
+  let nav = document.querySelector("#navaccess");
+
+  if (!triggerSection || !nav) return;
+
+  let triggerPoint = triggerSection.offsetTop - 100; 
+  let scrollValue = window.scrollY;
+
+  if (scrollValue > triggerPoint) {
+    nav.classList.add("header-sticky");
+  } else {
+    nav.classList.remove("header-sticky");
+  }
+}
+
+window.addEventListener("scroll", stickyNav);
+
