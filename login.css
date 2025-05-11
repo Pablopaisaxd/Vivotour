@@ -1,10 +1,15 @@
-*{
+* {
     box-sizing: border-box;
     margin: 0;
     padding: 0;
 }
+
+body {
+    color: white;
+}
+
 /* estilos del Login */
-.maindiv{
+.maindiv {
     background-image: url(./IMG/fondo666.png);
     height: 100vh;
     background-position: center;
@@ -12,7 +17,7 @@
     background-repeat: no-repeat;
 }
 
-.divlogin{
+.divlogin {
     position: absolute;
     top: 50%;
     left: 50%;
@@ -27,13 +32,208 @@
     border: 1px solid rgba(255, 255, 255, 0.2);
 }
 
+.divlogin h1 {
+    text-align: center;
+    margin-bottom: 30px;
+    font-size: 28px;
+    color: white;
+    font-weight: normal;
+}
+
+.inputslogin {
+    margin-bottom: 20px;
+}
+
+.inputslogin label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+}
+
+.inputslogin input {
+    width: 100%;
+    padding: 12px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+    background-color: white;
+    font-size: 16px;
+}
+
+.password-div {
+    position: relative;
+}
+
+.password-div .toggle-password {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    cursor: pointer;
+    color: #333;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+    background: transparent;
+    border: none;
+}
+
+.toggle-password svg {
+    width: 20px;
+    height: 20px;
+    fill: none;
+    stroke: #555;
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+.remember-div {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    font-size: 14px;
+}
+
+.check {
+    display: flex;
+    align-items: center;
+}
+
+.check input {
+    margin-right: 5px;
+}
+
+.forgot-password {
+    color: white;
+    text-decoration: none;
+}
+
+.forgot-password:hover {
+    text-decoration: underline;
+}
+
+.login-btn {
+    width: 100%;
+    padding: 12px;
+    background-color: #0f1a25;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    font-size: 16px;
+    cursor: pointer;
+    transition:  0.3s;
+    margin-bottom: 20px;
+}
+
+.login-btn:hover {
+    background-color: #1a2c3e;
+}
+
+/* Division de los metodos de login */
+.divider {
+    display: flex;
+    align-items: center;
+    text-align: center;
+    margin: 20px 0;
+    color: white;
+    font-size: 14px;
+}
+.divider span{
+    position: relative;
+}
+
+.divider::before,
+.divider::after {
+    content: "";
+    flex: 1;
+    border-bottom: 4px solid white;
+}
+
+.divider::before {
+    margin-right: 10px;
+}
+
+.divider::after {
+    margin-left: 10px;
+}
+
+
+.circle-left,
+.circle-right {
+    position: relative;
+    width: 0;
+    height: 0;
+}
+
+/* Círculo en el extremo izquierdo */
+.circle-left::before {
+    content: "";
+    position: absolute;
+    left: -180px;
+    top: 50%;
+    width: 10px;
+    height: 20px;
+    background-color: white;
+    border-top-right-radius: 10px;
+    border-bottom-right-radius: 10px;
+    transform: translateY(-50%);
+}
+
+/* Círculo en el extremo derecho */
+.circle-right::after {
+    content: "";
+    position: absolute;
+    right: -180px;
+    top: 50%;
+    width: 10px;
+    height: 20px;
+    background-color: white;
+    border-top-left-radius: 10px;
+    border-bottom-left-radius: 10px;
+    transform: translateY(-50%);
+}
+
+/* estilo de metodos de login */
+
+.login-method{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.method{
+    margin-right: 20px;
+}
+.method img{
+    border-radius: 50%;
+    height: 70px;
+}
+
+.register{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    margin-top: 30px;
+}
+
+.register h3{
+    font-size: 20px;
+    font-weight: bold;
+}
+
 /* Estilo del footer */
-footer{
+footer {
     background: #000000;
     padding-top: 80px;
     color: white;
+    position: absolute;
+    width: 100%;
 }
-.container{
+
+.container {
     width: 80%;
     margin: auto;
     display: flex;
@@ -41,37 +241,44 @@ footer{
     justify-content: center;
     right: 10%;
 }
-.footer-content{
+
+.footer-content {
     width: 33.3%;
 }
-h3{
+
+h3 {
     color: white;
     font-size: 28px;
     margin-bottom: 15px;
     text-align: center;
 }
-.footer-content p{
-    width:190px;
+
+.footer-content p {
+    width: 190px;
     margin: auto;
     padding: 7px;
 }
-.footer-content ul{
+
+.footer-content ul {
     text-align: center;
 }
-.list{
+
+.list {
     padding: 0;
 }
-.list li{
+
+.list li {
     width: auto;
     text-align: center;
-    list-style-type:none;
+    list-style-type: none;
     padding: 7px;
     position: relative;
 }
-.list li::before{
+
+.list li::before {
     content: '';
     position: absolute;
-    transform: translate(-50%,-50%);
+    transform: translate(-50%, -50%);
     left: 50%;
     top: 100%;
     width: 0;
@@ -79,17 +286,21 @@ h3{
     background: rgba(0, 128, 10, 1);
     transition-duration: .5s;
 }
-.list li:hover::before{
+
+.list li:hover::before {
     width: 70px;
 }
-a{
+
+a {
     text-decoration: none;
     color: white;
 }
-a:hover{
+
+a:hover {
     color: rgba(0, 128, 10, 1);
 }
-.footerend{
+
+.footerend {
     width: 91%;
     display: flex;
     margin: auto;
@@ -97,7 +308,8 @@ a:hover{
     padding: 1rem;
     gap: 25%;
 }
-.listend{
+
+.listend {
     display: flex;
     position: relative;
 }
