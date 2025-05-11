@@ -53,14 +53,31 @@ body{
     position: absolute;
     width: auto;
     height: 12vh;
-    background-color: aliceblue;
+    background-color: rgb(240, 248, 255);
     display: grid;
-    z-index: 100;
     grid-template-columns: repeat(3, 1fr);
     grid-template-rows: repeat(3, 1fr);
     box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.256);
     overflow: hidden;
+    transition: all 1.5s ease;
 }
+.header-sticky {
+    position: fixed;
+    top: 0;
+    width: auto;
+    box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.256);
+    z-index: 1000;
+    transform: translateY(-100%);
+    opacity: 0;
+    animation: slideDown 0.3s forwards ease-in-out;
+}
+@keyframes slideDown {
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
 
 .logos{
     grid-row: 2;
@@ -87,7 +104,6 @@ body{
     height: 2rem;
     border: none;
     border-radius: 10px;
-    background-color: aliceblue;
     margin-right: 10px;
     font-family: comic;
     color: inherit;
@@ -165,6 +181,7 @@ p{
     background-attachment: fixed;
     background-size: cover;
     text-align: center;
+    transition: all 1.5s ease;
 }
 
 
@@ -214,6 +231,10 @@ p{
     padding-top: 0;
 }
 
+.dark .nav{
+    background: linear-gradient(180deg, #d8d8d8, #cacaca, #c4c4c4ee);
+    transition: all 1.5s ease;
+}
 
 .dark .sau{
     color: white;
@@ -223,6 +244,10 @@ p{
 .dark .about{
     color: white;
     background: #06141D;
+    transition: all 1.5s ease;
+}
+.dark .imgs{
+    background: url(IMG/fondo2.png) no-repeat center;
     transition: all 1.5s ease;
 }
 .dark .mapandcomme{
@@ -237,10 +262,6 @@ p{
 }
 .dark p{
     color: white;
-    transition: all 1.5s ease;
-}
-.dark .header{
-    background: linear-gradient(180deg, #06141D, #06141d54, #06141d00);
     transition: all 1.5s ease;
 }
 
