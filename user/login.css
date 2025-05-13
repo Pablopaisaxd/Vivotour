@@ -224,6 +224,27 @@ body {
     font-weight: bold;
 }
 
+.registro{
+    position: relative;
+  display: inline-block;
+  cursor: pointer;
+}
+
+.registro::after{
+      content: "";
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 0%;
+  height: 2px;
+  background-color: rgb(255, 255, 255); /* o el color que quieras */
+  transition: width 0.3s ease;
+}
+
+.registro:hover::after {
+  width: 100%;
+}
+
 /* Estilo del footer */
 footer {
     background: #000000;
