@@ -138,7 +138,7 @@ body{
 }
 
 .presentacion{
-    height: 90vh;
+    height: 86vh;
     display: flex;
     align-items: center;
     background: #ebebeb;
@@ -161,7 +161,7 @@ body{
     justify-content: center;
     height: 50%;
     width: 90%;
-    background-color: #d4eccb;
+    background-color: #b3dda4;
     border-radius: 20px;
     padding: 20px;
 }
@@ -196,7 +196,7 @@ padding-bottom: 7px;
     align-items: center;
     border-radius: 20px;
     position: absolute;
-    top: 55vh;
+    top: 53vh;
 }
 
 .pservicios{
@@ -209,7 +209,7 @@ padding-bottom: 7px;
     width: 40vw;
     border: 3px solid #06141D;
     border-radius: 20px;
-    background: white;
+    background: aliceblue;
     display: grid;
     grid-template-columns: repeat(4, 1fr);
     grid-template-rows: repeat(1, 1fr);
@@ -269,7 +269,7 @@ padding-bottom: 7px;
     align-items: center;
     border-radius: 20px;
     position: absolute;
-    top: 80vh;
+    top: 78vh;
 }
 
 .imgsomos{
@@ -281,7 +281,7 @@ padding-bottom: 7px;
 }
 
 .imgprin{
-    height: 50vh;
+    height: 55vh;
     width: 45vw;
     overflow: hidden;
     border: 3px solid #06141D;
@@ -295,7 +295,7 @@ padding-bottom: 7px;
 
 .imgver{
     height: 27vh;
-    width: 17vh;
+    width: 18vh;
     border: 3px solid #06141D;
     border-radius: 15px;
     position: absolute;
@@ -310,7 +310,7 @@ padding-bottom: 7px;
 
 .imgver2{
     height: 27vh;
-    width: 17vh;
+    width: 18vh;
     border: 3px solid #06141D;
     border-radius: 15px;
     position: absolute;
@@ -326,18 +326,27 @@ padding-bottom: 7px;
 .line1{
     border: 2px solid #06141D;
     width: 100%;
-    margin-top: 10px;
-    margin-bottom: 60px;
+}
+
+.res{
+    height: 20vh;
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
 }
 
 .square1{
-    height: 15vh;
-    width: 7vw;
-    border: 3px solid #06141D;
+    height: 20vh;
+    width: 80vw;
+    border: 3.5px solid #06141D;
     border-radius: 15px;
-    position: absolute;
-    top: 630px;
+    background-color: #9ed78b;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
 }
+
+
 
 .title {
     margin-bottom: 40px;
