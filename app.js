@@ -90,5 +90,5 @@ function stickyNav() {
 window.addEventListener("scroll", stickyNav);
 
 document.querySelector(".btnlog").addEventListener("click", function() {
-    window.location.href = "./login/login.html";
+    window.location.href = "./user/login.html";
 });
