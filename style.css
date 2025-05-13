@@ -12,7 +12,7 @@
 body{
     text-align: center;
     font-family: comic;
-    background-color: #ececec;
+    background-color: aliceblue;
 }
 
 
@@ -32,7 +32,6 @@ body{
 }
 
 .pint {
-    padding-top: 2.3rem;
     color: aliceblue;
     font-size: 16px;
     opacity: 0;
@@ -118,6 +117,17 @@ body{
     border: none;
     border-radius: 20px;
     text-decoration: none;
+    cursor: pointer;
+    transition: 0.3s ease;
+    color: aliceblue;
+}
+
+.btndes{
+    margin-right: 30px;
+}
+
+.btnlog:hover{
+    background-color: #428a2a;
 }
 
 .acces{
@@ -127,6 +137,188 @@ body{
     margin-top: 5px;
 }
 
+.presentacion{
+    height: 90vh;
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+    padding-top: 80px;
+}
+
+.somos{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    height: 65vh;
+    width: 45vw;
+}
+
+.quesomos{
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+height: 50%;
+width: 90%;
+background-color: #d4eccb;
+border-radius: 20px;
+padding: 20px;
+}
+
+.hsomos{
+    padding-bottom: 7px;
+}
+
+.contentp{
+padding-bottom: 7px;
+}
+
+.pfinal{
+    padding-bottom: 5px;
+}
+
+.servicios{
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+    width: 100%;
+}
+
+.nuestro{
+    height: 5vh;
+    width: 25vh;
+    background-color: #52ab34;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 20px;
+    position: absolute;
+    top: 55vh;
+}
+
+.pservicios{
+    color: aliceblue;
+    font-size: 17px;
+}
+
+.sservicios{
+    height: 25vh;
+    width: 40vw;
+    border: 2px solid #06141D;
+    border-radius: 20px;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    grid-template-rows: repeat(1, 1fr);
+}
+
+.s1{
+    grid-column: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.s2{
+    grid-column: 2;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+.s3{
+    grid-column: 3;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+.s4{
+    grid-column: 4;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.circle{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 12vh;
+    width: 5.7vw;
+    border: 2px solid #06141D;
+    border-radius: 50px;
+    margin-bottom: 5px;
+}
+
+.ps{
+    font-size: 17px;
+}
+
+.mas{
+    height: 5vh;
+    width: 15vh;
+    background-color: #52ab34;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 20px;
+    position: absolute;
+    top: 80vh;
+}
+
+.imgsomos{
+    height: 65vh;
+    width: 45vw;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.imgprin{
+    height: 50vh;
+    width: 45vw;
+    overflow: hidden;
+    border: 2px solid #06141D;
+    border-radius: 20px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 30px;
+    margin-right: 30px;
+}
+
+.imgver{
+    height: 27vh;
+    width: 17vh;
+    border: 2px solid #06141D;
+    border-radius: 15px;
+    position: absolute;
+    left: 750px;
+    bottom: 130px;
+    transform: rotate(-10deg);
+    overflow: hidden;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.imgver2{
+    height: 27vh;
+    width: 17vh;
+    border: 2px solid #06141D;
+    border-radius: 15px;
+    position: absolute;
+    right: 35px;
+    bottom: 130px;
+    transform: rotate(7deg);
+    overflow: hidden;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
 
 .title {
     margin-bottom: 40px;
@@ -136,12 +328,6 @@ body{
     color: rgb(0, 0, 0);
 }
 
-p{
-    margin-bottom: 40px;
-    font-size: 18px;
-    color: rgb(0, 0, 0);
-    padding: 0 100px;
-}
 .btn{
     display: inline-block;
     margin-top: 15px;
