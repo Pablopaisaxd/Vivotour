@@ -205,7 +205,7 @@ padding-bottom: 7px;
 .sservicios{
     height: 25vh;
     width: 40vw;
-    border: 2px solid #06141D;
+    border: 3px solid #06141D;
     border-radius: 20px;
     display: grid;
     grid-template-columns: repeat(4, 1fr);
@@ -248,7 +248,7 @@ padding-bottom: 7px;
     align-items: center;
     height: 12vh;
     width: 5.7vw;
-    border: 2px solid #06141D;
+    border: 3px solid #06141D;
     border-radius: 50px;
     margin-bottom: 5px;
 }
@@ -281,7 +281,7 @@ padding-bottom: 7px;
     height: 50vh;
     width: 45vw;
     overflow: hidden;
-    border: 2px solid #06141D;
+    border: 3px solid #06141D;
     border-radius: 20px;
     display: flex;
     justify-content: center;
@@ -293,7 +293,7 @@ padding-bottom: 7px;
 .imgver{
     height: 27vh;
     width: 17vh;
-    border: 2px solid #06141D;
+    border: 3px solid #06141D;
     border-radius: 15px;
     position: absolute;
     left: 750px;
@@ -308,16 +308,32 @@ padding-bottom: 7px;
 .imgver2{
     height: 27vh;
     width: 17vh;
-    border: 2px solid #06141D;
+    border: 3px solid #06141D;
     border-radius: 15px;
     position: absolute;
     right: 35px;
-    bottom: 130px;
+    bottom: 125px;
     transform: rotate(7deg);
     overflow: hidden;
     display: flex;
     justify-content: center;
     align-items: center;
+}
+
+.line1{
+    border: 2px solid #06141D;
+    width: 100%;
+    margin-top: 10px;
+    margin-bottom: 60px;
+}
+
+.square1{
+    height: 15vh;
+    width: 7vw;
+    border: 3px solid #06141D;
+    border-radius: 15px;
+    position: absolute;
+    top: 630px;
 }
 
 .title {
