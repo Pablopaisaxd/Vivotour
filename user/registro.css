@@ -1,0 +1,271 @@
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    color: white;
+}
+
+/* estilos del Login */
+.maindiv {
+    background-image: url(../Media/Fondos/fondo666.png);
+    height: 100vh;
+    background-position: center;
+    background-size: 100vw 100vh;
+    background-repeat: no-repeat;
+}
+
+.divregistro {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: rgba(30, 58, 35, 0.8);
+    border-radius: 15px;
+    padding: 40px;
+    width: 90%;
+    max-width: 500px;
+    backdrop-filter: blur(5px);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.divregistro h1 {
+    text-align: center;
+    margin-bottom: 30px;
+    font-size: 28px;
+    color: white;
+    font-weight: normal;
+}
+
+.inputsregistro {
+    margin-bottom: 30px;
+}
+
+
+.inputsregistro input {
+    width: 100%;
+    padding: 12px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+    background-color: white;
+    font-size: 16px;
+    margin-bottom: 10px;
+}
+
+.iti{
+    width: 100%;
+    margin-bottom: 10px;
+
+}
+.iti__country-name{
+    color: #000000;
+}
+
+.input-documento {
+    display: flex;
+}
+
+.input-documento  select, input{
+    padding: 8px;
+    font-size: 16px;
+}
+
+  .choices__inner {
+    background-color: #1a1a1a;
+    color: #000000;
+    border: 1px solid #444;
+    border-radius: 6px;
+    padding: 8px 12px ;
+    min-height: 40px;
+    width: 100px;
+  }
+
+  .choices__list--dropdown {
+    background-color: #222;
+    border: 1px solid #444;
+  }
+
+
+  .choices__item--choice {
+    color: rgb(0, 0, 0);
+    padding: 8px;
+    border-bottom: 1px solid #333;
+  }
+
+  .choices__item--choice:hover {
+    background-color: #333;
+  }
+
+  .choices__placeholder {
+    color: #aaa;
+  }
+
+.choices[data-type*=select-one]::after{
+    right: 5.5px !important;
+}
+
+.password-div {
+    position: relative;
+}
+
+.password-div .toggle-password {
+    position: absolute;
+    right: 10px;
+    top: 40%;
+    transform: translateY(-50%);
+    cursor: pointer;
+    color: #333;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+    background: transparent;
+    border: none;
+}
+
+.toggle-password svg {
+    width: 20px;
+    height: 20px;
+    fill: none;
+    stroke: #555;
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+
+.register-btn {
+    width: 100%;
+    padding: 12px;
+    background-color: #0f1a25;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    font-size: 16px;
+    cursor: pointer;
+    transition:  0.3s;
+    margin-bottom: 20px;
+}
+
+.register-btn:hover {
+    background-color: #1a2c3e;
+}
+
+
+.register{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    margin-top: 30px;
+}
+
+.register h3{
+    font-size: 20px;
+    font-weight: bold;
+}
+
+/* Estilo del footer */
+footer {
+    background: #000000;
+    padding-top: 80px;
+    color: white;
+    position: absolute;
+    width: 100%;
+}
+
+.container {
+    width: 80%;
+    margin: auto;
+    display: flex;
+    position: relative;
+    justify-content: center;
+    right: 10%;
+}
+
+.footer-content {
+    width: 33.3%;
+}
+
+h3 {
+    color: white;
+    font-size: 28px;
+    margin-bottom: 15px;
+    text-align: center;
+}
+
+.footer-content p {
+    width: 190px;
+    margin: auto;
+    padding: 7px;
+}
+
+.footer-content ul {
+    text-align: center;
+}
+
+.list {
+    padding: 0;
+}
+
+.list li {
+    width: auto;
+    text-align: center;
+    list-style-type: none;
+    padding: 7px;
+    position: relative;
+}
+
+.list li::before {
+    content: '';
+    position: absolute;
+    transform: translate(-50%, -50%);
+    left: 50%;
+    top: 100%;
+    width: 0;
+    height: 2px;
+    background: rgba(0, 128, 10, 1);
+    transition-duration: .5s;
+}
+
+.list li:hover::before {
+    width: 70px;
+}
+
+a {
+    text-decoration: none;
+    color: white;
+}
+
+a:hover {
+    color: rgba(0, 128, 10, 1);
+}
+
+.footerend {
+    width: 91%;
+    display: flex;
+    margin: auto;
+    position: relative;
+    padding: 1rem;
+    gap: 25%;
+}
+
+.listend {
+    display: flex;
+    position: relative;
+}
+
+.choices {
+    position: relative;
+    overflow: hidden;
+    margin-bottom: 0px !important;
+    font-size: 16px;
+    width: 50;
+    width: 69px;
+    max-width: 63px;
+}
+
