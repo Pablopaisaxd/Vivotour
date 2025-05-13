@@ -141,8 +141,10 @@ body{
     height: 90vh;
     display: flex;
     align-items: center;
+    background: #ebebeb;
     justify-content: space-around;
     padding-top: 80px;
+    transition: all 1.5s ease;
 }
 
 .somos{
@@ -157,11 +159,11 @@ body{
     display: flex;
     flex-direction: column;
     justify-content: center;
-height: 50%;
-width: 90%;
-background-color: #d4eccb;
-border-radius: 20px;
-padding: 20px;
+    height: 50%;
+    width: 90%;
+    background-color: #d4eccb;
+    border-radius: 20px;
+    padding: 20px;
 }
 
 .hsomos{
@@ -207,6 +209,7 @@ padding-bottom: 7px;
     width: 40vw;
     border: 2px solid #06141D;
     border-radius: 20px;
+    background: white;
     display: grid;
     grid-template-columns: repeat(4, 1fr);
     grid-template-rows: repeat(1, 1fr);
@@ -359,11 +362,12 @@ padding-bottom: 7px;
     background: #ebebeb;
 }
 
+
 .about {
     background: #ebebeb;
 }
 .imgs {
-    background: url(IMG/fondo10.jpg) no-repeat center;
+    background: url(Media/Fondos/fondo10.jpg) no-repeat center;
     background-attachment: fixed;
     background-size: cover;
     text-align: center;
@@ -384,7 +388,7 @@ padding-bottom: 7px;
     gap: 1rem;
     padding: 2rem;
     animation: scroll 40s linear infinite;
-    -webkit-animation: scroll 40s linear infinite;
+    -webkit-animation: scroll 44s linear infinite;
     width: calc(1000px * 5);
 }
 
@@ -416,6 +420,10 @@ padding-bottom: 7px;
     background: #ebebeb;
     padding-top: 0;
 }
+.dark .presentacion{
+    background: #06141D;
+    transition: all 1.5s ease;
+}
 
 .dark .nav{
     background: linear-gradient(180deg, #d8d8d8, #cacaca, #c4c4c4ee);
@@ -433,7 +441,7 @@ padding-bottom: 7px;
     transition: all 1.5s ease;
 }
 .dark .imgs{
-    background: url(IMG/fondo2.png) no-repeat center;
+    background: url(Media/Fondos/Fenix\ noche.jpg) no-repeat center;
     transition: all 1.5s ease;
 }
 .dark .mapandcomme{
@@ -446,7 +454,7 @@ padding-bottom: 7px;
     color: white;
     transition: all 1.5s ease;
 }
-.dark p{
+.dark .darkp{
     color: white;
     transition: all 1.5s ease;
 }

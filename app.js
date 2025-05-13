@@ -72,7 +72,7 @@ window.onscroll = () => {
 
 
 function stickyNav() {
-  let triggerSection = document.querySelector("#about");
+  let triggerSection = document.querySelector("#inicio");
   let nav = document.querySelector("#navaccess");
 
   if (!triggerSection || !nav) return;
