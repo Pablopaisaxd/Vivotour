@@ -199,13 +199,16 @@ padding-bottom: 7px;
     color: aliceblue;
     font-size: 17px;
 }
+:root {
+  --border-color: #06141D; 
+}
+
 
 .sservicios{
     height: 25vh;
     width: 40vw;
-    border: 3px solid #06141D;
+    border: 3px solid var(--border-color);
     border-radius: 20px;
-    background: aliceblue;
     display: grid;
     grid-template-columns: repeat(4, 1fr);
     grid-template-rows: repeat(1, 1fr);
@@ -247,7 +250,7 @@ padding-bottom: 7px;
     align-items: center;
     height: 12vh;
     width: 5.7vw;
-    border: 3px solid #06141D;
+    border: 3px solid var(--border-color);
     border-radius: 50px;
     margin-bottom: 5px;
 }
@@ -280,7 +283,7 @@ padding-bottom: 7px;
     height: 55vh;
     width: 45vw;
     overflow: hidden;
-    border: 3px solid #06141D;
+    border: 3px solid var(--border-color);
     border-radius: 20px;
     display: flex;
     justify-content: center;
@@ -294,21 +297,22 @@ display: none;
 }
 
 .line1{
-    border: 2px solid #06141D;
+    border: 2px solid var(--border-color);
     width: 100%;
 }
-
 .res{
     height: 20vh;
     display: flex;
     align-items: center;
     justify-content: space-around;
+    background: aliceblue;
+    transition: all 1.5s ease;
 }
 
 .square1{
     height: 20vh;
     width: 80vw;
-    border: 3.5px solid #06141D;
+    border: 3.5px solid var(--border-color);
     border-radius: 15px;
     background-color: #9ed78b;
     display: flex;
@@ -415,6 +419,38 @@ display: none;
 }
 .dark .presentacion{
     background: #06141D;
+    transition: all 1.5s ease;
+}
+.dark .res{
+    background: #06141D;
+    transition: all 1.5s ease;
+}
+.dark .darkimgs{
+    filter: invert(1);
+    transition: all 1.5s ease;
+}
+.dark .sservicios{
+    --border-color: aliceblue;
+    transition: all 1.5s ease;
+}
+.dark .circle{
+    --border-color: aliceblue;
+    transition: all 1.5s ease;
+}
+.dark .ps{
+    color: white;
+    transition: all 1.5s ease;
+}
+.dark .line1{
+    --border-color: aliceblue;
+    transition: all 1.5s ease;
+}
+.dark .square1{
+    --border-color: aliceblue;
+    transition: all 1.5s ease;
+}
+.dark .imgprin{
+    --border-color: aliceblue;
     transition: all 1.5s ease;
 }
 
