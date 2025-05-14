@@ -109,6 +109,7 @@ body {
 .forgot-password {
     color: white;
     text-decoration: none;
+    cursor: pointer;
 }
 
 .forgot-password:hover {
@@ -167,7 +168,6 @@ body {
     width: 0;
     height: 0;
 }
-
 /* Círculo en el extremo izquierdo */
 .circle-left::before {
     content: "";

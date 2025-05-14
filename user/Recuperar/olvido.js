@@ -1,3 +1,5 @@
+// Escribir y borrar por input
+
 const inputs = document.querySelectorAll('.input-codigo');
 
 inputs.forEach((input, index) => {
@@ -25,19 +27,36 @@ inputs.forEach((input, index) => {
   });
 });
 
-
-document.querySelector('.toggle-password').addEventListener('click', function () {
+// Ocultar contraseña
+const togglePassword = document.querySelector('.toggle-password');
+if (togglePassword) {
+  togglePassword.addEventListener('click', () => {
     const passwordInput = document.getElementById('password');
     const eyeOpen = document.querySelectorAll('.eye-open');
     const eyeClosed = document.querySelectorAll('.eye-closed');
 
     if (passwordInput.type === 'password') {
-        passwordInput.type = 'text';
-        eyeOpen.forEach(el => el.style.display = 'none');
-        eyeClosed.forEach(el => el.style.display = 'block');
+      passwordInput.type = 'text';
+      eyeOpen.forEach(el => el.style.display = 'none');
+      eyeClosed.forEach(el => el.style.display = 'block');
     } else {
-        passwordInput.type = 'password';
-        eyeOpen.forEach(el => el.style.display = 'block');
-        eyeClosed.forEach(el => el.style.display = 'none');
+      passwordInput.type = 'password';
+      eyeOpen.forEach(el => el.style.display = 'block');
+      eyeClosed.forEach(el => el.style.display = 'none');
     }
+  });
+}
+
+const verificar = document.querySelector(".Recuperar-btn");
+if(verificar){
+verificar.addEventListener('click',()=>{
+    window.location.href="verificar.html"
 });
+};
+
+const NewPassword = document.querySelector(".btn-verificar");
+if (NewPassword) {
+  NewPassword.addEventListener("click", () => {
+    window.location.href = "nuevaContraseña.html";
+  });
+};
