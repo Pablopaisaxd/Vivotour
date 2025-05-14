@@ -92,3 +92,17 @@ window.addEventListener("scroll", stickyNav);
 document.querySelector(".btnlog").addEventListener("click", function() {
     window.location.href = "./user/login.html";
 });
+
+document.addEventListener("DOMContentLoaded", function () {
+    const images = document.querySelectorAll(".imgprin img");
+    let index = 0;
+
+    function changeImage() {
+        images.forEach(img => img.classList.add("imgprinactive")); // Oculta todas
+        images[index].classList.remove("imgprinactive"); // Muestra la actual
+        index = (index + 1) % images.length; // Ciclo infinito
+    }
+
+    changeImage(); // Mostrar la primera imagen
+    setInterval(changeImage, 10000); // Cambia cada 10 segundos
+});

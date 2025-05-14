@@ -14,3 +14,9 @@
         eyeClosed.forEach(el => el.style.display = 'none');
     }
 });
+
+
+const registro = document.querySelector('.registro');
+registro.addEventListener('click', ()=>{
+    window.location.href='registro.html'
+})
