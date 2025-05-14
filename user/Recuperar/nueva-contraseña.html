@@ -1,34 +1,37 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Verificar código</title>
-  <link rel="stylesheet" href="olvido.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cambiar Contraseña</title>
+    <link rel="stylesheet" href="olvido.css">
 </head>
 <body>
-<div class="maindiv">
+    <!-- login -->
+    <div class="maindiv">
         <div class="divRecuperar">
-           <h1>Verifica tu identidad</h1>
-    <p>Te hemos enviado un código a tu número/email registrado.</p>
-    
-    <form id="form-verificar">
-      <div class="codigo-inputs">
-        <input type="text" maxlength="1" class="input-codigo" />
-        <input type="text" maxlength="1" class="input-codigo" />
-        <input type="text" maxlength="1" class="input-codigo" />
-        <input type="text" maxlength="1" class="input-codigo" />
-        <input type="text" maxlength="1" class="input-codigo" />
-        <input type="text" maxlength="1" class="input-codigo" />
-      </div>
+            <h1>Recuperar Contraseña</h1>
+            <div class="inputsRecuperar">
+                 <div class="password-div">
+                    <input type="password" id="password" placeholder="Nueva Contraseña" required>
+                    <span class="toggle-password">
+                        <svg class="eye-icon" viewBox="0 0 24 24">
+                            <path class="eye-open" d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                            <circle class="eye-open" cx="12" cy="12" r="3"></circle>
+                            <path class="eye-closed" d="M2 2l20 20" style="display:none;"></path>
+                            <path class="eye-closed" d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"
+                                style="display:none;"></path>
+                            <path class="eye-closed" d="M9 9a3 3 0 1 1 6 6" style="display:none;"></path>
+                        </svg></span>
+                </div>
+                            <input type="password" name="confirmarPassword" class="confirmarPassword" placeholder="Confirmar contraseña">
+            </div>
 
-      <button type="submit" class="btn-verificar">Verificar</button>
-    </form>
-
-    <p class="reenviar">¿No recibiste el código? <a href="#">Reenviar</a></p>
-
+            <button class="Recuperar-btn">Recuperar</button>
+             
         </div>
     </div>
+
 
 <!--Footer -->
 
@@ -73,6 +76,6 @@
             </ul>
         </div>
     </footer>
-  <script src="olvido.js"></script>
+<script src="olvido.js"></script>
 </body>
 </html>

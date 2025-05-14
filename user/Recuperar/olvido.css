@@ -57,6 +57,7 @@ body {
     border: 1px solid #ccc;
     background-color: white;
     font-size: 16px;
+    margin-bottom: 20px;
 }
 
 
@@ -77,6 +78,7 @@ body {
     background-color: #1a2c3e;
 }
 
+/* Verificacion */
 .verificar-container {
   max-width: 400px;
   margin: 80px auto;
@@ -106,19 +108,54 @@ body {
   outline: none;
 }
 
-button {
+.btn-verificar {
   padding: 12px 30px;
-  background-color: #4A90E2;
+    background-color: #0f1a25;
   color: white;
   border: none;
   border-radius: 6px;
   cursor: pointer;
+  transition: 0.3s ease;
 }
-
+.btn-verificar:hover{
+        background-color: #0a1118;
+}
 .reenviar {
   margin-top: 15px;
   font-size: 14px;
 }
+
+/* Nueva contraseña */
+.password-div {
+    position: relative;
+}
+
+.password-div .toggle-password {
+    position: absolute;
+    right: 10px;
+    top: 35%;
+    transform: translateY(-50%);
+    cursor: pointer;
+    color: #333;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+    background: transparent;
+    border: none;
+}
+
+.toggle-password svg {
+    width: 20px;
+    height: 20px;
+    fill: none;
+    stroke: #555;
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
 
 /* Estilo del footer */
 footer {

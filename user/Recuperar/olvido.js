@@ -1,7 +1,43 @@
-document.querySelectorAll('.input-codigo').forEach((input, idx, arr) => {
-  input.addEventListener('input', () => {
-    if (input.value.length === 1 && idx < arr.length - 1) {
-      arr[idx + 1].focus();
+const inputs = document.querySelectorAll('.input-codigo');
+
+inputs.forEach((input, index) => {
+  input.addEventListener('input', (e) => {
+    const value = e.target.value;
+
+    // Solo acepta dígitos
+    if (!/^\d$/.test(value)) {
+      e.target.value = '';
+      return;
+    }
+
+    if (value && index < inputs.length - 1) {
+      inputs[index + 1].focus();
     }
   });
+
+  input.addEventListener('keydown', (e) => {
+    if (e.key === 'Backspace') {
+      if (input.value === '' && index > 0) {
+        inputs[index - 1].focus();
+        inputs[index - 1].value = '';
+      }
+    }
+  });
+});
+
+
+document.querySelector('.toggle-password').addEventListener('click', function () {
+    const passwordInput = document.getElementById('password');
+    const eyeOpen = document.querySelectorAll('.eye-open');
+    const eyeClosed = document.querySelectorAll('.eye-closed');
+
+    if (passwordInput.type === 'password') {
+        passwordInput.type = 'text';
+        eyeOpen.forEach(el => el.style.display = 'none');
+        eyeClosed.forEach(el => el.style.display = 'block');
+    } else {
+        passwordInput.type = 'password';
+        eyeOpen.forEach(el => el.style.display = 'block');
+        eyeClosed.forEach(el => el.style.display = 'none');
+    }
 });
