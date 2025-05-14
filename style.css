@@ -137,7 +137,7 @@ margin-left: 10px;
     height: 86vh;
     display: flex;
     align-items: center;
-    background: #ebebeb;
+    background: aliceblue;
     justify-content: space-around;
     padding-top: 80px;
     transition: all 1.5s ease;
@@ -352,12 +352,12 @@ display: none;
 }
 .sau{
     padding: 30px;
-    background: #ebebeb;
+    background: aliceblue;
 }
 
 
 .about {
-    background: #ebebeb;
+    background: aliceblue;
 }
 .imgs {
     background: url(Media/Fondos/fondo10.jpg) no-repeat center;
@@ -410,7 +410,7 @@ display: none;
 
 
 .mapandcomme {
-    background: #ebebeb;
+    background: aliceblue;
     padding-top: 0;
 }
 .dark .presentacion{
