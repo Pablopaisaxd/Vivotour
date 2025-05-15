@@ -106,3 +106,17 @@ document.addEventListener("DOMContentLoaded", function () {
     changeImage(); // Mostrar la primera imagen
     setInterval(changeImage, 10000); // Cambia cada 10 segundos
 });
+
+document.addEventListener("DOMContentLoaded", function () {
+    const images = document.querySelectorAll(".opimg img");
+    let index = 0;
+
+    function changeImage() {
+        images.forEach(img => img.classList.add("opimgactive")); // Oculta todas
+        images[index].classList.remove("opimgactive"); // Muestra la actual
+        index = (index + 1) % images.length; // Ciclo infinito
+    }
+
+    changeImage(); // Mostrar la primera imagen
+    setInterval(changeImage, 10000); // Cambia cada 10 segundos
+});
