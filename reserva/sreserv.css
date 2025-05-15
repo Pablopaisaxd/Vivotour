@@ -32,11 +32,6 @@ body {
 }
 
 
-*, *:before, *:after {
-    padding: 0;
-    margin: 0;
-    box-sizing: border-box;
-}
 
 :root {
     --color-bg-calendar: #1b1e22;
@@ -48,7 +43,6 @@ body {
     min-height: 100vh;
     padding: 0 15px;
     display: flex;
-    justify-content: center;
     align-items: center;
 }
 
@@ -115,6 +109,9 @@ body {
     color: var(--color-cell-disabled);
     cursor: not-allowed;
 }
+
+
+
 
 /* footer */
 footer {

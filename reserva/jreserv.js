@@ -1,7 +1,7 @@
 class Calendar {
     constructor(id) {
         this.cells = [];
-        this.selectedDate = null;
+        this.selectedDates = [];
         this.currentMonth = moment();
         this.elCalendar = document.getElementById(id);
         this.showTemplate();
@@ -11,16 +11,9 @@ class Calendar {
     }
 
     showTemplate() {
-        this.elCalendar.innerHTML = this.getTemplate();
-        this.addEventListenerToControls();
-    }
-
-    getTemplate() {
-        let template = `
+        this.elCalendar.innerHTML = `
             <div class="calendar__header">
-                <button type="button" class="control control--prev">&lt;</button>
-                <span class="month-name">dic 2019</span>
-                <button type="button" class="control control--next">&gt;</button>
+                <span class="month-name"></span>
             </div>
             <div class="calendar__body">
                 <div class="grid">
@@ -33,112 +26,80 @@ class Calendar {
                         <span class="grid__cell grid__cell--gh">Sáb</span>
                         <span class="grid__cell grid__cell--gh">Dom</span>
                     </div>
-                    <div class="grid__body">
-
-                    </div>
+                    <div class="grid__body"></div>
                 </div>
             </div>
         `;
-        return template;
-    }
-
-    addEventListenerToControls() {
-        let elControls = this.elCalendar.querySelectorAll('.control');
-        elControls.forEach(elControl => {
-            elControl.addEventListener('click', e => {
-                let elTarget = e.target;
-                if (elTarget.classList.contains('control--next')) {
-                    this.changeMonth(true);
-                } else {
-                    this.changeMonth(false);
-                }
-                this.showCells();
-            });
-        });
-    }
-
-    changeMonth(next = true) {
-        if (next) {
-            this.currentMonth.add(1, 'months');
-        } else {
-            this.currentMonth.subtract(1, 'months');
-        }
     }
 
     showCells() {
         this.cells = this.generateDates(this.currentMonth);
-        if (this.cells === null) {
-            console.error('No fue posible generar las fechas del calendario.');
-            return;
+        const today = moment().startOf('day');
+        this.elGridBody.innerHTML = '';
+
+        let template = '';
+        for (let i = 0; i < this.cells.length; i++) {
+            const cell = this.cells[i];
+            const cellDate = cell.date.clone().startOf('day');
+            let classes = 'grid__cell grid__cell--gd';
+
+            if (!cell.isInCurrentMonth || cellDate.isBefore(today)) {
+                classes += ' grid__cell--disabled';
+            }
+
+            if (this.selectedDates.some(d => d.isSame(cellDate, 'day'))) {
+                classes += ' grid__cell--selected';
+            }
+
+            template += `<span class="${classes}" data-cell-id="${i}">${cell.date.date()}</span>`;
         }
 
-        this.elGridBody.innerHTML = '';
-        let templateCells = '';
-        let disabledClass = '';
-        for (let i = 0; i < this.cells.length; i++) {
-            disabledClass = '';
-            if (!this.cells[i].isInCurrentMonth) {
-                disabledClass = 'grid__cell--disabled';
-            }
-            // <span class="grid__cell grid__cell--gd grid__cell--selected">1</span>
-            templateCells += `
-                <span class="grid__cell grid__cell--gd ${disabledClass}" data-cell-id="${i}">
-                    ${this.cells[i].date.date()}
-                </span>
-            `;
-        }
-        this.elMonthName.innerHTML = this.currentMonth.format('MMM YYYY');
-        this.elGridBody.innerHTML = templateCells;
+        this.elMonthName.textContent = this.currentMonth.format('MMM YYYY');
+        this.elGridBody.innerHTML = template;
         this.addEventListenerToCells();
     }
 
-    generateDates(monthToShow = moment()) {
-        if (!moment.isMoment(monthToShow)) {
-            return null;
-        }
-        let dateStart = moment(monthToShow).startOf('month');
-        let dateEnd = moment(monthToShow).endOf('month');
-        let cells = [];
+    generateDates(month) {
+        let start = moment(month).startOf('month');
+        let end = moment(month).endOf('month');
+        const cells = [];
 
-        // Encontrar la primer fecha que se va a mostrar en el calendario
-        while (dateStart.day() !== 1) {
-            dateStart.subtract(1, 'days');
-        }
+        while (start.day() !== 1) start.subtract(1, 'day');
+        while (end.day() !== 0) end.add(1, 'day');
 
-        // Encontrar la última fecha que se va a mostrar en el calendario
-        while (dateEnd.day() !== 0) {
-            dateEnd.add(1, 'days');
-        }
-
-        // Genera las fechas del grid
         do {
             cells.push({
-                date: moment(dateStart),
-                isInCurrentMonth: dateStart.month() === monthToShow.month()
+                date: moment(start),
+                isInCurrentMonth: start.month() === month.month()
             });
-            dateStart.add(1, 'days');
-        } while (dateStart.isSameOrBefore(dateEnd));
+            start.add(1, 'day');
+        } while (start.isSameOrBefore(end));
 
         return cells;
     }
 
     addEventListenerToCells() {
-        let elCells = this.elCalendar.querySelectorAll('.grid__cell--gd');
+        const elCells = this.elCalendar.querySelectorAll('.grid__cell--gd');
         elCells.forEach(elCell => {
             elCell.addEventListener('click', e => {
-                let elTarget = e.target;
-                if (elTarget.classList.contains('grid__cell--disabled') || elTarget.classList.contains('grid__cell--selected')) {
-                    return;
+                const el = e.target;
+                const cellIndex = parseInt(el.dataset.cellId);
+                const clickedDate = this.cells[cellIndex].date;
+
+                if (el.classList.contains('grid__cell--disabled')) return;
+
+                const isSelected = el.classList.contains('grid__cell--selected');
+
+                if (isSelected) {
+                    el.classList.remove('grid__cell--selected');
+                    this.selectedDates = this.selectedDates.filter(d =>
+                        !d.isSame(clickedDate, 'day')
+                    );
+                } else {
+                    el.classList.add('grid__cell--selected');
+                    this.selectedDates.push(clickedDate);
                 }
-                // Deselecionar la celda anterior
-                let selectedCell = this.elGridBody.querySelector('.grid__cell--selected');
-                if (selectedCell) {
-                    selectedCell.classList.remove('grid__cell--selected');
-                }
-                // Selecionar la nueva celda
-                elTarget.classList.add('grid__cell--selected');
-                this.selectedDate = this.cells[parseInt(elTarget.dataset.cellId)].date;
-                // Lanzar evento change
+
                 this.elCalendar.dispatchEvent(new Event('change'));
             });
         });
@@ -149,6 +110,6 @@ class Calendar {
     }
 
     value() {
-        return this.selectedDate;
+        return this.selectedDates;
     }
 }
