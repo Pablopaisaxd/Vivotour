@@ -18,7 +18,9 @@ window.intlTelInput(input, {
 
 
 // Ocultar la contraseña
-document.querySelector('.toggle-password').addEventListener('click', function () {
+const ocultar= document.querySelector('.toggle-password');
+if(ocultar){
+ocultar.addEventListener('click', function () {
     const passwordInput = document.getElementById('password');
     const eyeOpen = document.querySelectorAll('.eye-open');
     const eyeClosed = document.querySelectorAll('.eye-closed');
@@ -33,10 +35,48 @@ document.querySelector('.toggle-password').addEventListener('click', function ()
         eyeClosed.forEach(el => el.style.display = 'none');
     }
 });
-
+}
 
 // llevar al login
 const sesion = document.querySelector(".sesion");
 sesion.addEventListener("click", () => {
     window.location.href = "login.html"
 });
+
+
+// Insertar datos en Registro
+document.getElementById('form-registro').addEventListener('submit', async function (e) {
+  e.preventDefault();
+
+  const formData = new FormData(this);
+  const datos = Object.fromEntries(formData.entries());
+
+  // Validaciones
+  if (datos.Contraseña !== datos.ConfirmarContraseña) {
+    alert("Las contraseñas no coinciden");
+    return;
+  }
+
+  if (datos.Contraseña.length < 12) {
+    alert("La contraseña debe tener al menos 12 caracteres");
+    return;
+  }
+
+  // Enviar al servidor
+  const respuesta = await fetch("http://localhost:3000/registro", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+    Nombre: datos.Nombre,
+    Email: datos.Email,
+    Contraseña: datos.Contraseña,
+    Celular: datos.Celular,
+    NumeroDocumento:datos.documento,
+    TipoDocumento:datos.tipo
+    })
+  });
+
+  const resJson = await respuesta.json();
+  alert(resJson.mensaje || "Registro exitoso");
+});
+

@@ -22,29 +22,29 @@
 <body>
 
 
-    <!-- login -->
+    <!-- Registro -->
     <div class="maindiv">
-        <div class="divregistro">
-            <h1>Registro</h1>
-            <div class="inputsregistro">
+  <div class="divregistro">
+    <h1>Registro</h1>
 
-                <input type="text" name="nombreCompleto" id="nombreCompleto" placeholder="Nombres y Apellidos">
+    <form id="form-registro" class="inputsregistro" method="post">
+      <input type="text" name="Nombre" id="nombreCompleto" placeholder="Nombres y Apellidos" required>
+      <input type="email" name="Email" id="email" placeholder="Email" required>
+      <input type="tel" name="Celular" class="Telefono" placeholder="Teléfono" required>
 
-                <input type="email" id="email" placeholder="Email" Required>
+      <div class="input-documento">
+        <select name="tipo" class="tipo" required>
+          <option value="CC">CC</option>
+          <option value="TI">TI</option>
+          <option value="DNI">DNI</option>
+        </select>
+        <input type="text" name="documento" id="documento" placeholder="Número de documento" required>
+      </div>
 
-                <input type="tel" name="Telefono" class="Telefono" placeholder="Telefono">
-<div class="input-documento">
-  <select name="tipo" class="tipo">
-    <option value="CC">CC</option>
-    <option value="TI">TI</option>
-    <option value="DNI">DNI</option>
-  </select>
-  <input type="text" id="documento" name="documento" placeholder="Tipo de documento" >
-</div>
-                <div class="password-div">
-
-                    <input type="password" id="password" placeholder="Contraseña" required>
-                    <span class="toggle-password">
+      <div class="password-div">
+        <input type="password" name="Contraseña" id="password" placeholder="Contraseña" required>
+        <!-- Tu ícono de ojo -->
+         <span class="toggle-password">
                         <svg class="eye-icon" viewBox="0 0 24 24">
                             <path class="eye-open" d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
                             <circle class="eye-open" cx="12" cy="12" r="3"></circle>
@@ -53,17 +53,18 @@
                                 style="display:none;"></path>
                             <path class="eye-closed" d="M9 9a3 3 0 1 1 6 6" style="display:none;"></path>
                         </svg></span>
+      </div>
 
-                </div>
-                                        <input type="password" name="confirmarPassword" class="confirmarPassword" placeholder="Confirmar contraseña">
+      <input type="password" name="ConfirmarContraseña" class="confirmarPassword" placeholder="Confirmar contraseña" required>
 
-            </div>
-            <button class="register-btn">Acceder</button>
-            <div class="register">
-                <h3>Tienes una cuenta?</h3><h3 class="sesion">Inicia Sesion</h3>
-            </div>
-        </div>
+      <button type="submit" class="register-btn">Registrarse</button>
+    </form>
+
+    <div class="register">
+      <h3>¿Tienes una cuenta?</h3><h3 class="sesion">Inicia Sesión</h3>
     </div>
+  </div>
+</div>
 
 
 
