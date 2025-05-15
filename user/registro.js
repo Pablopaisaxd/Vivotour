@@ -39,4 +39,4 @@ document.querySelector('.toggle-password').addEventListener('click', function ()
 const sesion = document.querySelector(".sesion");
 sesion.addEventListener("click", () => {
     window.location.href = "login.html"
-})
+});

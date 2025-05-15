@@ -2,25 +2,22 @@
 
 
 
-let modo=document.getElementById("modo");
-let body=document.body;
+let modo = document.getElementById("modo");
+let body = document.body;
 
-modo.addEventListener("click", function(){
-    let val=body.classList.toggle("dark")
-    localStorage.setItem("modo",val)
-})
+modo.addEventListener("click", function () {
+    let val = body.classList.toggle("dark");
+    localStorage.setItem("modo", val);
 
-let valor=localStorage.getItem("modo")
+    if (val) {
+        modo.innerHTML = '<i class="fa-solid fa-sun"></i>';
+        modo.style.color = "whitesmoke";
+    } else {
+        modo.innerHTML = '<i class="fa-solid fa-moon"></i>';
+        modo.style.color = "black";
+    }
+});
 
-if (valor=="true") {
-    body.classList.add("dark")
-    modo.innerHTML='<i class="fa-solid fa-sun"></i>';
-    modo.style.color="whitesmoke"
-} else {
-    body.classList.remove("dark")
-        modo.innerHTML='<i class="fa-solid fa-moon"></i>';
-    modo.style.color="black"
-}
 
 // apartado del intro (header) -----------------------
 
@@ -72,7 +69,7 @@ window.onscroll = () => {
 
 
 function stickyNav() {
-  let triggerSection = document.querySelector("#inicio");
+  let triggerSection = document.querySelector("#quesomos");
   let nav = document.querySelector("#navaccess");
 
   if (!triggerSection || !nav) return;

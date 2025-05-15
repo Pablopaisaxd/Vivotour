@@ -17,6 +17,15 @@
 
 
 const registro = document.querySelector('.registro');
+if(registro){
 registro.addEventListener('click', ()=>{
     window.location.href='registro.html'
 })
+};
+
+const forgotpassword = document.querySelector(".forgot-password");
+if(forgotpassword){
+    forgotpassword.addEventListener('click',()=>{
+    window.location.href="/user/Recuperar/Recuperar.html";
+});
+};
