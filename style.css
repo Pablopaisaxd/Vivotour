@@ -13,6 +13,7 @@ body{
     text-align: center;
     font-family: comic;
     background-color: aliceblue;
+    overflow-x: hidden;
 }
 
 
@@ -335,6 +336,7 @@ display: none;
     display: grid;
     grid-template-columns: repeat(3, 1fr);
     grid-template-rows: repeat(3, 1fr);
+    background-color: aliceblue;
 }
 
 .desper{
@@ -375,6 +377,7 @@ margin-right: 5%;
   justify-self: center;
   align-self: center;
   cursor: pointer;
+  background-color: aliceblue;
 }
 
 
@@ -388,6 +391,7 @@ margin-right: 5%;
   justify-self: center;
   align-self: center;
   cursor: pointer;
+  background-color: aliceblue;
 }
 .op3{
     height: 25vh;
@@ -399,6 +403,7 @@ margin-right: 5%;
   justify-self: center;
   align-self: center;
   cursor: pointer;
+  background-color: aliceblue;
 }
 
 .opimg{
@@ -674,13 +679,20 @@ margin-right: 5%;
 .mapandcomme {
     background: aliceblue;
 }
-
+.dark .header{
+    background: #06141D;
+    transition: all 1.5s ease;
+}
 .dark .presentacion{
     background: #06141D;
     transition: all 1.5s ease;
 }
 .dark .res{
     background: #06141D;
+    transition: all 1.5s ease;
+}
+.dark .square1{
+    background: #52ab34;
     transition: all 1.5s ease;
 }
 .dark .darkimgs{
@@ -725,6 +737,10 @@ margin-right: 5%;
 
 .dark .about{
     color: white;
+    background: #06141D;
+    transition: all 1.5s ease;
+}
+.dark .opres{
     background: #06141D;
     transition: all 1.5s ease;
 }
