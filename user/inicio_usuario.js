@@ -149,3 +149,11 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 });
+
+
+const reserva = document.getElementsByClassName('btnlog')
+if(reserva){
+    reserva.addEventListener('click',()=>{
+        window.location.href="/reserva/hreserv.html"
+    })
+}
