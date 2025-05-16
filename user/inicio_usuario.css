@@ -55,7 +55,7 @@ body{
     height: 12vh;
     background-color: rgb(240, 248, 255);
     box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.256);
-    overflow: hidden;
+    overflow: visible;
     transition: all 1.5s ease;
     display: flex;
     justify-content: space-between;
@@ -132,6 +132,7 @@ margin-left: 10px;
     justify-content: center;
     align-items: center;
     margin-right: 50px;
+    position: relative;
 }
 
 .presentacion{
@@ -873,4 +874,67 @@ a:hover{
     .navbar{
         display: none;
     }
+}
+
+.usuario-menu {
+  position: relative;
+  display: inline-block;
+  cursor: pointer;
+  z-index: 100;
+}
+
+.usuario-nombre {
+  position: relative; /* Necesario para que ::after se posicione dentro */
+  font-weight: bold;
+  padding: 0.5rem;
+  border-radius: 5px;
+  display: inline-block; /* Asegura que tenga dimensiones */
+  cursor: pointer;
+}
+
+.usuario-nombre::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 0%; /* Se animará */
+  height: 2px;
+  background-color: rgb(0, 0, 0); /* Cambia si no se ve bien en tu fondo */
+  transition: width 0.3s ease;
+}
+
+.usuario-nombre:hover::after {
+  width: 100%;
+}
+
+
+.menu-opciones {
+  position: absolute;
+  top: 100%; /* debajo del nombre */
+  right: 100px;
+  background-color: white;
+  border: 1px solid #ccc;
+  padding: 0.5rem;
+  border-radius: 5px;
+  display: none;
+  z-index: 9999;
+
+}
+
+.menu-opciones button {
+  background: none;
+  border: none;
+  color: #333;
+  cursor: pointer;
+  padding: 0.3rem 1rem;
+  text-align: center;
+  font-weight: bold;
+}
+
+.menu-opciones button:hover {
+  background-color: #f0f0f0;
+}
+
+.menu-opciones.visible {
+  display: block;
 }

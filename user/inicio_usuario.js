@@ -121,15 +121,31 @@ document.addEventListener("DOMContentLoaded", function () {
 // Agregar usuario login
 document.addEventListener('DOMContentLoaded', () => {
   const nombre = localStorage.getItem('usuarioNombre');
+  const spanNombre = document.getElementById('nombreUsuario');
+  const menu = document.getElementById('menuOpciones');
+
   if (!nombre) {
-    window.location.href = '/user/login.html'; // si no hay sesión, redirige al login
+    window.location.href = '/user/login.html';
     return;
   }
 
-  document.getElementById('nombreUsuario').textContent = nombre;
+  spanNombre.textContent = `Hola ${nombre}` ;
 
+  // Toggle del menú al hacer clic en el nombre
+  spanNombre.addEventListener('click', () => {
+    menu.classList.toggle('visible');
+  });
+
+  // Cerrar sesión
   document.getElementById('logoutBtn').addEventListener('click', () => {
     localStorage.removeItem('usuarioNombre');
     window.location.href = '/index.html';
+  });
+
+  // Cierra el menú si se hace clic fuera
+  document.addEventListener('click', (e) => {
+    if (!document.querySelector('.usuario-menu').contains(e.target)) {
+      menu.classList.remove('visible');
+    }
   });
 });
