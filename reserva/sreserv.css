@@ -41,9 +41,48 @@ body {
 
 .root {
     min-height: 100vh;
-    padding: 0 15px;
+    padding: 40px;
     display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    gap: 40px;
+    flex-wrap: wrap;
+    background-size: cover;
+    background-position: center;
 }
+
+/* Contenedor izquierdo: personas + servicios */
+.primer-container {
+    display: flex;
+    flex-direction: column;
+    gap: 30px;
+}
+
+/* Contenedor derecho: hospedaje + alimentación */
+.segundo-container {
+    display: flex;
+    flex-direction: column;
+    gap: 30px;
+}
+
+/* Uniformar los sub-bloques */
+.personas-container,
+.servicios-container,
+.Hospedaje-container,
+.meriendas-container {
+    background-color: #1b1e22;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.4);
+}
+
+/* Espaciado entre etiquetas internas */
+.servicios-container label,
+.meriendas-container label,
+.Hospedaje-container .input-hospedaje {
+    margin-top: 10px;
+}
+
 
 .calendar {
     padding: 20px 10px;
@@ -113,7 +152,6 @@ body {
 
 
 .personas-container {
-        margin-top: 20px;
         font-family: sans-serif;
         color: #fff;
 }
@@ -121,7 +159,6 @@ body {
 .input-grupo {
         display: flex;
         align-items: center;
-        gap: 15px;
         margin-top: 8px;
         background-color: #1b1e22;
 }
@@ -129,7 +166,7 @@ body {
 .input-grupo button {
         width: 40px;
         height: 40px;
-        font-size: 20px;
+        font-size: 24px;
         border-radius: 15%;
         border: none;
         background-color: #1b1e22;
@@ -163,11 +200,10 @@ body {
 
 
 .servicios-container {
-        max-width: 280px;
-        margin-top: 20px;
+        max-width: 341px;
         font-family: sans-serif;
         color: white;
-        font-size: 18px;
+        font-size: 24px;
 }
 
 .servicios-container label {
@@ -179,6 +215,7 @@ body {
 
 #servicios-individuales {
         padding-left: 15px;
+        padding: 1.5rem;
 }
 
 .oculto {
@@ -189,7 +226,7 @@ body {
 .Hospedaje-container {
         font-family: sans-serif;
         color: #fff;
-        font-size: 16px;
+        font-size: 24px;
 }
 .title-hospedaje{
     background-color: #1b1e22;
@@ -204,7 +241,7 @@ body {
 .input-hospedaje button {
         width: 40px;
         height: 40px;
-        font-size: 20px;
+        font-size: 24px;
         border-radius: 15%;
         border: none;
         background-color: #1b1e22;
@@ -220,7 +257,7 @@ body {
 .input-hospedaje input {
         width: 60px;
         height: 40px;
-        font-size: 18px;
+        font-size: 24px;
         text-align: center;
         background-color: transparent;
         border: #ffffff00;
@@ -238,10 +275,9 @@ body {
 
 .meriendas-container {
         max-width: 280px;
-        margin-top: 20px;
         font-family: sans-serif;
         color: white;
-        font-size: 18px;
+        font-size: 24px;
 }
 
 .meriendas-container label {
@@ -250,7 +286,22 @@ body {
         cursor: pointer;
         background-color: #1b1e22;
 }
+.reserva-btn {
+    width: 100%;
+    padding: 12px;
+    background-color: #1b1e22;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    font-size: 16px;
+    cursor: pointer;
+    transition:  0.3s;
+    margin-bottom: 20px;
+}
 
+.reserva-btn:hover {
+    background-color: #081018;
+}
 
 
 /* footer */

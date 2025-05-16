@@ -65,7 +65,7 @@ window.onscroll = () => {
     });
 };
 
-// animacion header al scrollear -----------------
+// interactividad navbar -----------------
 
 
 function stickyNav() {
@@ -89,6 +89,11 @@ window.addEventListener("scroll", stickyNav);
 document.querySelector(".btnlog").addEventListener("click", function() {
     window.location.href = "./user/login.html";
 });
+
+document.getElementById("btnres").addEventListener("click", function() {
+    window.location.href = "./reserva/hreserv.html";
+});
+
 
 document.addEventListener("DOMContentLoaded", function () {
     const images = document.querySelectorAll(".imgprin img");

@@ -104,7 +104,9 @@ margin-left: 10px;
     font-family: comic;
     color: inherit;
     font-size: 18px;
+    cursor: pointer;
     text-decoration: underline;
+    
 }
 
 .btnlog{
@@ -798,6 +800,7 @@ footer{
 .footeropc{
     text-decoration: none;
     color: white;
+    cursor: pointer;
 }
 
 h3{
