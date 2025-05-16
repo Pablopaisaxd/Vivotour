@@ -20,6 +20,15 @@
         <div class="divreserv">
             <div class="root">
                 <div class="calendar" id="calendar"></div>
+                <div class="personas-container">
+                    <label for="cantidad-personas">Cantidad de personas:</label>
+                    <div class="input-grupo">
+                        <button type="button" id="restar">-</button>
+                        <input type="number" id="cantidad-personas" value="1" min="1" />
+                        <button type="button" id="sumar">+</button>
+                    </div>
+                </div>
+
             </div>
         </div>
     </div>
@@ -30,15 +39,20 @@
 
     <!-- Tu archivo JS -->
     <script src="jreserv.js"></script>
+
     <script>
         moment.locale('es');
         const calendar = new Calendar('calendar');
 
+        let fechasSeleccionadas = [];
+
         calendar.getElement().addEventListener('change', () => {
-            const fechas = calendar.value().map(d => d.format('LL'));
-            console.log('Fechas seleccionadas:', fechas);
+            fechasSeleccionadas = calendar.value().map(d => d.clone());
+
+            console.log('Fechas seleccionadas:', fechasSeleccionadas.map(f => f.format('LL')));
         });
     </script>
+
 
 
 

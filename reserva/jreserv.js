@@ -113,3 +113,20 @@ class Calendar {
         return this.selectedDates;
     }
 }
+
+
+
+const input = document.getElementById('cantidad-personas');
+const btnSumar = document.getElementById('sumar');
+const btnRestar = document.getElementById('restar');
+
+btnSumar.addEventListener('click', () => {
+    input.value = parseInt(input.value) + 1;
+});
+
+btnRestar.addEventListener('click', () => {
+    if (parseInt(input.value) > 1) {
+        input.value = parseInt(input.value) - 1;
+    }
+});
+
