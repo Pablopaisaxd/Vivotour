@@ -50,11 +50,11 @@ app.post('/login', (req, res) => {
     }
 
     if (resultados.length > 0) {
-      // Usuario autenticado
-      res.json({ mensaje: 'Login exitoso' });
-    } else {
-      res.status(401).json({ mensaje: 'Credenciales inválidas' });
-    }
+  const usuario = resultados[0];
+  res.json({ mensaje: 'Login exitoso', nombre: usuario.Nombre });
+} else {
+  res.status(401).json({ mensaje: 'Credenciales inválidas' });
+}
   });
 });
 

@@ -86,9 +86,6 @@ function stickyNav() {
 
 window.addEventListener("scroll", stickyNav);
 
-document.querySelector(".btnlog").addEventListener("click", function() {
-    window.location.href = "./user/login.html";
-});
 
 document.addEventListener("DOMContentLoaded", function () {
     const images = document.querySelectorAll(".imgprin img");
@@ -118,4 +115,21 @@ document.addEventListener("DOMContentLoaded", function () {
 
     changeImage(); // Mostrar la primera imagen
     setInterval(changeImage, 10000); // Cambia cada 10 segundos
+});
+
+
+// Agregar usuario login
+document.addEventListener('DOMContentLoaded', () => {
+  const nombre = localStorage.getItem('usuarioNombre');
+  if (!nombre) {
+    window.location.href = '/user/login.html'; // si no hay sesión, redirige al login
+    return;
+  }
+
+  document.getElementById('nombreUsuario').textContent = nombre;
+
+  document.getElementById('logoutBtn').addEventListener('click', () => {
+    localStorage.removeItem('usuarioNombre');
+    window.location.href = '/index.html';
+  });
 });

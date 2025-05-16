@@ -32,14 +32,12 @@ if(forgotpassword){
 
 
 // Logearse
-const loginform=document.getElementById('form-login')
-
-.addEventListener('submit', async (e) => {
+document.getElementById('form-login').addEventListener('submit', async (e) => {
   e.preventDefault();
 
   const datos = {
-    correo: document.getElementById('emailLogin').value,
-    contraseña: document.getElementById('passwordLogin').value
+    correo: document.getElementById('email').value,
+    contraseña: document.getElementById('password').value
   };
 
   const res = await fetch('http://localhost:3000/login', {
@@ -51,8 +49,12 @@ const loginform=document.getElementById('form-login')
   const resultado = await res.json();
 
   if (res.ok) {
-    alert('Inicio de sesión exitoso');
-    window.location.href = 'dashboard.html'; // o cualquier otra página protegida
+// contiene el nombre
+
+  // Guarda en localStorage (disponible entre páginas)
+  localStorage.setItem('usuarioNombre', resultado.nombre);
+
+    window.location.href = '/user/inicio_usuario.html'; // o cualquier otra página protegida
   } else {
     alert(resultado.mensaje);
   }
