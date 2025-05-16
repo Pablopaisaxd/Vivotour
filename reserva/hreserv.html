@@ -20,15 +20,74 @@
         <div class="divreserv">
             <div class="root">
                 <div class="calendar" id="calendar"></div>
+
+
+
                 <div class="personas-container">
-                    <label for="cantidad-personas">Cantidad de personas:</label>
                     <div class="input-grupo">
+                        <label for="cantidad-personas">Cantidad de personas:</label>
                         <button type="button" id="restar">-</button>
                         <input type="number" id="cantidad-personas" value="1" min="1" />
                         <button type="button" id="sumar">+</button>
                     </div>
                 </div>
 
+
+                <div class="servicios-container">
+
+                    <label>
+                        <input type="checkbox" id="todos-servicios" checked />
+                        <strong>Todos los servicios</strong>
+                    </label>
+                
+                    <div id="servicios-individuales" class="oculto">
+                        <label><input type="checkbox" checked /> Caminata</label>
+                        <label><input type="checkbox" checked /> Caminata a la cascada “Los Deseos”</label>
+                        <label><input type="checkbox" checked /> Caminata “Puente Amarillo”</label>
+                        <label><input type="checkbox" checked /> Avistamiento de aves</label>
+                        <label><input type="checkbox" checked /> Zona de motocross</label>
+                        <label><input type="checkbox" checked /> Día de sol</label>
+                        <label><input type="checkbox" checked /> Charco</label>
+                        <label><input type="checkbox" checked /> Cabalgatas</label>
+                    </div>
+                </div>
+                
+<div class="Hospedaje-container">
+
+    <label for="title-hospedaje">Hospedaje:</label>
+
+    <div class="input-hospedaje">
+        <label>Cabañas:</label>
+        <button type="button" class="restar">-</button>
+        <input type="number" class="cantidad" value="0" />
+        <button type="button" class="sumar">+</button>
+    </div>
+
+    <div class="input-hospedaje">
+        <label>Zona de Camping:</label>
+        <button type="button" class="restar">-</button>
+        <input type="number" class="cantidad" value="0" />
+        <button type="button" class="sumar">+</button>
+    </div>
+    
+</div>
+
+
+
+
+
+                <div class="meriendas-container">
+
+                    <label>
+                        <p>Alimentacion:</p>
+                    </label>
+                
+                    <div id="meriendas" class="meriendas">
+                        <label><input type="checkbox" checked />Desayuno</label>
+                        <label><input type="checkbox" checked />Almuerzo</label>
+                        <label><input type="checkbox" checked />Cena</label>
+                    </div>
+                </div>
             </div>
         </div>
     </div>

@@ -130,3 +130,32 @@ btnRestar.addEventListener('click', () => {
     }
 });
 
+
+const chkTodos = document.getElementById('todos-servicios');
+const serviciosDiv = document.getElementById('servicios-individuales');
+
+chkTodos.addEventListener('change', () => {
+    if (chkTodos.checked) {
+        serviciosDiv.classList.add('oculto');
+    } else {
+        serviciosDiv.classList.remove('oculto');
+    }
+});
+
+
+
+document.querySelectorAll('.input-hospedaje').forEach(div => {
+    const input = div.querySelector('.cantidad');
+    const btnSumar = div.querySelector('.sumar');
+    const btnRestar = div.querySelector('.restar');
+
+    btnSumar.addEventListener('click', () => {
+        input.value = parseInt(input.value) + 1;
+    });
+
+    btnRestar.addEventListener('click', () => {
+        if (parseInt(input.value) > 0) {
+            input.value = parseInt(input.value) - 1;
+        }
+    });
+});
