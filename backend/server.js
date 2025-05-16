@@ -10,7 +10,7 @@ app.use(express.json());
 const db = mysql.createConnection({
   host: 'localhost',
   user: 'root',
-  password: '', // sin contraseña por defecto en XAMPP
+  password: '',
   database: 'vivotour'
 });
 
@@ -34,6 +34,26 @@ app.post('/registro', (req, res) => {
       res.status(500).json({ mensaje: 'Error al registrar usuario' });
     } else {
       res.json({ mensaje: 'Usuario registrado correctamente' });
+    }
+  });
+});
+
+// Autenticar login
+app.post('/login', (req, res) => {
+  const { correo, contraseña } = req.body;
+
+  const query = 'SELECT * FROM registros WHERE Email = ? AND Contraseña = ?';
+  db.query(query, [correo, contraseña], (err, resultados) => {
+    if (err) {
+      console.error(err);
+      return res.status(500).json({ mensaje: 'Error interno' });
+    }
+
+    if (resultados.length > 0) {
+      // Usuario autenticado
+      res.json({ mensaje: 'Login exitoso' });
+    } else {
+      res.status(401).json({ mensaje: 'Credenciales inválidas' });
     }
   });
 });
