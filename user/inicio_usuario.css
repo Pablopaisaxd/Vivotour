@@ -884,11 +884,11 @@ a:hover{
 }
 
 .usuario-nombre {
-  position: relative; /* Necesario para que ::after se posicione dentro */
+  position: relative; 
   font-weight: bold;
   padding: 0.5rem;
   border-radius: 5px;
-  display: inline-block; /* Asegura que tenga dimensiones */
+  display: inline-block; 
   cursor: pointer;
 }
 
@@ -897,9 +897,9 @@ a:hover{
   position: absolute;
   bottom: 0;
   left: 0;
-  width: 0%; /* Se animará */
+  width: 0%; 
   height: 2px;
-  background-color: rgb(0, 0, 0); /* Cambia si no se ve bien en tu fondo */
+  background-color: rgb(0, 0, 0); 
   transition: width 0.3s ease;
 }
 
