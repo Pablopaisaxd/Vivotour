@@ -77,6 +77,8 @@ document.getElementById('form-registro').addEventListener('submit', async functi
   });
 
   const resJson = await respuesta.json();
-  alert(resJson.mensaje || "Registro exitoso");
+if(respuesta.ok){
+  window.location.href='login.html'
+}
 });
 

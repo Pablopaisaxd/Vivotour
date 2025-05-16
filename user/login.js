@@ -29,3 +29,33 @@ if(forgotpassword){
     window.location.href="/user/Recuperar/Recuperar.html";
 });
 };
+
+
+// Logearse
+document.getElementById('form-login').addEventListener('submit', async (e) => {
+  e.preventDefault();
+
+  const datos = {
+    correo: document.getElementById('email').value,
+    contraseña: document.getElementById('password').value
+  };
+
+  const res = await fetch('http://localhost:3000/login', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(datos)
+  });
+
+  const resultado = await res.json();
+
+  if (res.ok) {
+// contiene el nombre
+
+  // Guarda en localStorage (disponible entre páginas)
+  localStorage.setItem('usuarioNombre', resultado.nombre);
+
+    window.location.href = '/user/inicio_usuario.html'; // o cualquier otra página protegida
+  } else {
+    alert(resultado.mensaje);
+  }
+});
