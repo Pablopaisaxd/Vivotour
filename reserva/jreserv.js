@@ -54,7 +54,7 @@ class Calendar {
             template += `<span class="${classes}" data-cell-id="${i}">${cell.date.date()}</span>`;
         }
 
-        this.elMonthName.textContent = this.currentMonth.format('MMM YYYY');
+        this.elMonthName.textContent = this.currentMonth.format('MMMM YYYY');
         this.elGridBody.innerHTML = template;
         this.addEventListenerToCells();
     }
@@ -92,9 +92,7 @@ class Calendar {
 
                 if (isSelected) {
                     el.classList.remove('grid__cell--selected');
-                    this.selectedDates = this.selectedDates.filter(d =>
-                        !d.isSame(clickedDate, 'day')
-                    );
+                    this.selectedDates = this.selectedDates.filter(d => !d.isSame(clickedDate, 'day'));
                 } else {
                     el.classList.add('grid__cell--selected');
                     this.selectedDates.push(clickedDate);
@@ -115,35 +113,26 @@ class Calendar {
 }
 
 
-
+// Incrementar/decrementar cantidad de personas
 const input = document.getElementById('cantidad-personas');
-const btnSumar = document.getElementById('sumar');
-const btnRestar = document.getElementById('restar');
-
-btnSumar.addEventListener('click', () => {
+document.getElementById('sumar').addEventListener('click', () => {
     input.value = parseInt(input.value) + 1;
 });
-
-btnRestar.addEventListener('click', () => {
+document.getElementById('restar').addEventListener('click', () => {
     if (parseInt(input.value) > 1) {
         input.value = parseInt(input.value) - 1;
     }
 });
 
-
+// Mostrar u ocultar servicios individuales
 const chkTodos = document.getElementById('todos-servicios');
 const serviciosDiv = document.getElementById('servicios-individuales');
 
 chkTodos.addEventListener('change', () => {
-    if (chkTodos.checked) {
-        serviciosDiv.classList.add('oculto');
-    } else {
-        serviciosDiv.classList.remove('oculto');
-    }
+    serviciosDiv.classList.toggle('oculto', chkTodos.checked);
 });
 
-
-
+// Incrementar/decrementar hospedaje
 document.querySelectorAll('.input-hospedaje').forEach(div => {
     const input = div.querySelector('.cantidad');
     const btnSumar = div.querySelector('.sumar');
@@ -158,4 +147,31 @@ document.querySelectorAll('.input-hospedaje').forEach(div => {
             input.value = parseInt(input.value) - 1;
         }
     });
+});
+
+// Instancia del calendario
+const calendar = new Calendar('calendar');
+
+// Estado para las fechas seleccionadas
+let fechasSeleccionadas = [];
+
+// Mostrar/ocultar calendario al hacer clic en "Seleccione flechas"
+document.getElementById('mostrar-fechas').addEventListener('click', () => {
+    document.getElementById('calendar').classList.toggle('oculto');
+});
+
+// Escuchar cambios de selección del calendario
+calendar.getElement().addEventListener('change', () => {
+    fechasSeleccionadas = calendar.value().map(d => d.clone());
+    const contenedorDias = document.getElementById('dias-seleccionados');
+
+    if (fechasSeleccionadas.length === 0) {
+        contenedorDias.textContent = '(Sin días seleccionados)';
+    } else {
+        const dias = fechasSeleccionadas
+            .map(f => f.date())
+            .sort((a, b) => a - b) // opcional, por orden
+            .join('/');
+        contenedorDias.textContent = dias;
+    }
 });

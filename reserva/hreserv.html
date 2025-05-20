@@ -16,10 +16,10 @@
 <body>
 
 
+    <!-- CONTENIDO PRINCIPAL -->
     <div class="maindiv">
         <div class="divreserv">
             <div class="root">
-                
                 <div class="primer-container">
 
                     <div class="personas-container">
@@ -30,15 +30,12 @@
                             <button type="button" id="sumar">+</button>
                         </div>
                     </div>
-                    
-                    
+
                     <div class="servicios-container">
-                        
                         <label>
                             <input type="checkbox" id="todos-servicios" checked />
                             <strong>Todos los servicios</strong>
                         </label>
-                        
                         <div id="servicios-individuales" class="oculto">
                             <label><input type="checkbox" checked /> Caminata</label>
                             <label><input type="checkbox" checked /> Caminata a la cascada “Los Deseos”</label>
@@ -54,75 +51,67 @@
                 
                 <div class="segundo-container">
                     <div class="Hospedaje-container">
-                        
                         <h2>Hospedaje:</h2>
-                        
+
                         <div class="input-hospedaje">
                             <label>Cabañas:</label>
                             <button type="button" class="restar">-</button>
                             <input type="number" class="cantidad" value="0" />
                             <button type="button" class="sumar">+</button>
                         </div>
-                        
+
                         <div class="input-hospedaje">
                             <label>Zona de Camping:</label>
                             <button type="button" class="restar">-</button>
                             <input type="number" class="cantidad" value="0" />
                             <button type="button" class="sumar">+</button>
                         </div>
-
                     </div>
-                    
-                    
-                    
-                    
-                    
+
                     <div class="meriendas-container">
-                        
-                        <label>
-                            <h2>Alimentacion:</h2>
-                        </label>
-                        
+                        <h2>Alimentación:</h2>
                         <div id="meriendas" class="meriendas">
                             <label><input type="checkbox" checked />Desayuno</label>
                             <label><input type="checkbox" checked />Almuerzo</label>
                             <label><input type="checkbox" checked />Cena</label>
                         </div>
                     </div>
+
                     <button class="reserva-btn">Reservar</button>
                 </div>
-                
-                
-                
-                
-                <div class="calendar" id="calendar"></div>
-                
-                
-                
-                
+                <div class="tercer-container">
+
+                    <div class="mostrar-calendario" id="mostrar-fechas">
+                        <strong>Seleccione flechas</strong>
+                        <div id="dias-seleccionados" class="dias-seleccionados"></div>
+                    </div>
+
+                    <div class="calendar oculto" id="calendar"></div>
+
+
+                </div>
             </div>
         </div>
     </div>
 
-    <!-- Moment.js -->
+    <!-- MOMENT JS -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.24.0/moment.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.24.0/locale/es.js"></script>
 
-    <!-- Tu archivo JS -->
+    <!-- TU SCRIPT -->
     <script src="jreserv.js"></script>
 
+    <!-- CONFIGURACIÓN -->
     <script>
         moment.locale('es');
         const calendar = new Calendar('calendar');
 
-        let fechasSeleccionadas = [];
-
         calendar.getElement().addEventListener('change', () => {
-            fechasSeleccionadas = calendar.value().map(d => d.clone());
-
-            console.log('Fechas seleccionadas:', fechasSeleccionadas.map(f => f.format('LL')));
+            const fechasSeleccionadas = calendar.value().map(d => d.format('DD/MM/YYYY'));
+            console.log('Fechas seleccionadas:', fechasSeleccionadas);
         });
     </script>
+
 
 
 
