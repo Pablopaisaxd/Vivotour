@@ -6,14 +6,19 @@
 
 body {
     color: white;
+    font-family: sans-serif;
+}
+
+/* VARIABLES */
+:root {
+    --color-bg-calendar: #0f1a25;
+    --color-cell: #e3e3e3;
+    --color-cell-disabled: #424649;
 }
 
 .maindiv {
-    background-image: url(../Media/Fondos/fondo666.png);
+    background: url(../Media/Fondos/fondo666.png) center/100vw 100vh no-repeat;
     height: 100vh;
-    background-position: center;
-    background-size: 100vw 100vh;
-    background-repeat: no-repeat;
 }
 
 .divreserv {
@@ -31,80 +36,99 @@ body {
     border: 1px solid rgba(255, 255, 255, 0.2);
 }
 
-
-
-:root {
-    --color-bg-calendar: #0f1a25;
-    --color-cell: #e3e3e3;
-    --color-cell-disabled: #424649;
-}
-
 .root {
     min-height: 100vh;
     padding: 40px;
     display: flex;
+    flex-direction: column;
+    gap: 40px;
     justify-content: center;
     align-items: flex-start;
-    gap: 40px;
     flex-wrap: wrap;
     background-size: cover;
     background-position: center;
 }
 
-/* Contenedor izquierdo: personas + servicios */
-.primer-container {
-    display: flex;
-    flex-direction: column;
-    gap: 30px;
-}
-
-/* Contenedor derecho: hospedaje + alimentación */
+.primer-container,
 .segundo-container {
     display: flex;
     flex-direction: column;
     gap: 30px;
 }
-.tercer-container {
-    display: flex;
-    flex-direction: column;
-    gap: 30px;
-}
-/* Uniformar los sub-bloques */
+
+/* BLOQUES UNIFORMES */
 .personas-container,
-.mostrar-calendario,
 .servicios-container,
 .Hospedaje-container,
-.meriendas-container {
-    background-color: #0f1a25;
+.mostrar-calendario {
+    background-color: var(--color-bg-calendar);
     padding: 20px;
     border-radius: 10px;
-    box-shadow: 0 0 10px rgba(0,0,0,0.4);
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.4);
+    color: white;
+    font-size: 24px;
 }
 
-/* Espaciado entre etiquetas internas */
-.servicios-container label,
-.meriendas-container label,
-.Hospedaje-container .input-hospedaje {
-    margin-top: 10px;
+/* INPUT + BOTONES EN GRUPO */
+.input-grupo,
+.input-hospedaje {
+    display: flex;
+    align-items: center;
+    background-color: var(--color-bg-calendar);
+    margin-top: 8px;
 }
 
+.input-grupo input,
+.input-hospedaje input {
+    width: 60px;
+    height: 40px;
+    font-size: 18px;
+    text-align: center;
+    background-color: transparent;
+    border: none;
+    border-radius: 10px;
+    color: white;
+    outline: none;
+    transition: border-color 0.3s ease;
+}
 
+.input-grupo input:focus,
+.input-hospedaje input:focus {
+    border-color: #888;
+}
+
+.input-grupo button,
+.input-hospedaje button {
+    width: 40px;
+    height: 40px;
+    font-size: 24px;
+    border-radius: 15%;
+    border: none;
+    background-color: var(--color-bg-calendar);
+    color: white;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+.input-grupo button:hover,
+.input-hospedaje button:hover {
+    background-color: #555;
+}
+
+/* CALENDARIO */
 .calendar {
+    width: 100%;
+    max-width: 330px;
+    height: 100%;
     padding: 20px 10px;
     background-color: var(--color-bg-calendar);
-    border-radius: 3px;
-    width: 100%;
-    max-width: 300px;
-    height: 100%;
-    max-width: 330px;
-    font-family: sans-serif;
     border-radius: 10px;
 }
 
 .calendar__header {
-    color: white;
     display: flex;
     justify-content: space-between;
+    color: white;
     text-transform: uppercase;
     margin-bottom: 30px;
 }
@@ -112,13 +136,14 @@ body {
 .calendar .control {
     color: white;
     font-weight: bold;
-    background-color: transparent;
+    background: transparent;
     border: none;
     cursor: pointer;
     padding: 0 5px;
 }
 
-.grid__header, .grid__body {
+.grid__header,
+.grid__body {
     display: grid;
     grid-template-columns: repeat(7, 1fr);
 }
@@ -156,168 +181,67 @@ body {
     cursor: not-allowed;
 }
 
-
-.personas-container {
-        font-family: sans-serif;
-        color: #fff;
-}
-
-.input-grupo {
-        display: flex;
-        align-items: center;
-        margin-top: 8px;
-        background-color: #0f1a25;
-}
-
-.input-grupo button {
-        width: 40px;
-        height: 40px;
-        font-size: 24px;
-        border-radius: 15%;
-        border: none;
-        background-color: #0f1a25;
-        color: white;
-        cursor: pointer;
-        transition: background-color 0.2s ease;
-}
-
-.input-grupo button:hover {
-        background-color: #555;
-}
-
-.input-grupo input {
-        width: 60px;
-        height: 40px;
-        font-size: 18px;
-        text-align: center;
-        background-color: transparent;
-        border: #ffffff00;
-        border-radius: 10px;
-        color: white;
-        outline: none;
-        transition: border-color 0.3s ease;
-}
-
-.input-grupo input:focus {
-        border-color: #888;
-}
-
-
-.servicios-container {
-        max-width: 341px;
-        font-family: sans-serif;
-        color: white;
-        font-size: 24px;
-}
-.mostrar-calendario{
-        max-width: 341px;
-        font-family: sans-serif;
-        color: white;
-        font-size: 24px;
-        cursor: pointer;
-}
-
+/* SERVICIOS */
 .servicios-container label {
-        height: 40px;
-        display: block;
-        cursor: pointer;
-        background-color: #0f1a25;
+    height: 40px;
+    display: block;
+    cursor: pointer;
+    background-color: var(--color-bg-calendar);
+    margin-top: 10px;
 }
 
 #servicios-individuales {
-        padding-left: 15px;
-        padding: 1.5rem;
+    padding: 1.5rem 15px;
 }
 
-.oculto {
-        display: none;
+/* HOSPEDAJE */
+.title-hospedaje {
+    background-color: var(--color-bg-calendar);
 }
 
-
-.Hospedaje-container {
-        font-family: sans-serif;
-        color: #fff;
-        font-size: 24px;
-}
-.title-hospedaje{
-    background-color: #0f1a25;
-}
-
-.input-hospedaje {
-        display: flex;
-        align-items: center;
-        background-color: #0f1a25;
-}
-
-.input-hospedaje button {
-        width: 40px;
-        height: 40px;
-        font-size: 24px;
-        border-radius: 15%;
-        border: none;
-        background-color: #0f1a25;
-        color: white;
-        cursor: pointer;
-        transition: background-color 0.2s ease;
-}
-
-.input-hospedaje button:hover {
-        background-color: #555;
-}
-
-.input-hospedaje input {
-        width: 60px;
-        height: 40px;
-        font-size: 24px;
-        text-align: center;
-        background-color: transparent;
-        border: #ffffff00;
-        border-radius: 10px;
-        color: white;
-        outline: none;
-        transition: border-color 0.3s ease;
-}
-
-.input-hospedaje input:focus {
-        border-color: #888;
-}
-
-
-.meriendas-container {
-        max-width: 280px;
-        font-family: sans-serif;
-        color: white;
-        font-size: 24px;
-}
-
-.meriendas-container label {
-        height: 40px;
-        display: block;
-        cursor: pointer;
-        background-color: #0f1a25;
-}
+/* BOTÓN DE RESERVA */
 .reserva-btn {
     width: 100%;
     padding: 12px;
-    background-color: #0f1a25;
+    background-color: var(--color-bg-calendar);
     color: white;
     border: none;
     border-radius: 5px;
     font-size: 16px;
     cursor: pointer;
-    transition:  0.3s;
+    transition: 0.3s;
     margin-bottom: 20px;
 }
 
 .reserva-btn:hover {
     background-color: #081018;
 }
+
+/* OCULTO */
 .oculto {
     display: none;
 }
 
+/* CONTENEDOR DE ALIMENTACIÓN */
+/*
+.meriendas-container {
+    background-color: var(--color-bg-calendar);
+    padding: 20px;
+    border-radius: 10px;
+    font-family: sans-serif;
+    color: white;
+    font-size: 24px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.4);
+}
+.meriendas label {
+    margin-top: 10px;
+    display: block;
+}
+*/
 
-/* footer */
+
+
+/* FOOTER */
 footer {
     background: #000000;
     padding-top: 80px;
