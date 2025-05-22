@@ -34,6 +34,8 @@ body {
     backdrop-filter: blur(6px);
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
     border: 1px solid rgba(255, 255, 255, 0.2);
+    justify-content: center;
+    align-items: center;
 }
 
 .root {
@@ -41,19 +43,28 @@ body {
     padding: 40px;
     display: flex;
     flex-direction: column;
-    gap: 40px;
-    justify-content: center;
+    gap: 20px;
     align-items: flex-start;
     flex-wrap: wrap;
     background-size: cover;
     background-position: center;
 }
+.contenedor-central {
+  display: flex;
+  flex-direction: column;
+  justify-content: center; 
+  align-items: center;     
+  height: 100%;
+  width: 100%;
+  gap: 20px;
+}
+
 
 .primer-container,
 .segundo-container {
     display: flex;
-    flex-direction: column;
-    gap: 30px;
+    flex-direction: row;
+    gap: 20px;
 }
 
 /* BLOQUES UNIFORMES */
@@ -66,7 +77,20 @@ body {
     border-radius: 10px;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.4);
     color: white;
-    font-size: 24px;
+    font-size: 18px;
+}
+/* AJUSTE DE TAMAÑO */
+.personas-container,
+.mostrar-calendario {
+    max-height: 88px;
+    align-content: center;
+}
+.Hospedaje-container{
+    width: 330px;
+    height: 166px;
+}
+.servicios-container {
+    width: 335px;
 }
 
 /* INPUT + BOTONES EN GRUPO */
@@ -118,7 +142,7 @@ body {
 /* CALENDARIO */
 .calendar {
     width: 100%;
-    max-width: 330px;
+    max-width: 361px;
     height: 100%;
     padding: 20px 10px;
     background-color: var(--color-bg-calendar);
@@ -183,16 +207,13 @@ body {
 
 /* SERVICIOS */
 .servicios-container label {
-    height: 40px;
+    height: 30px;
     display: block;
     cursor: pointer;
     background-color: var(--color-bg-calendar);
     margin-top: 10px;
 }
 
-#servicios-individuales {
-    padding: 1.5rem 15px;
-}
 
 /* HOSPEDAJE */
 .title-hospedaje {
@@ -201,7 +222,7 @@ body {
 
 /* BOTÓN DE RESERVA */
 .reserva-btn {
-    width: 100%;
+    width: 10rem;
     padding: 12px;
     background-color: var(--color-bg-calendar);
     color: white;
@@ -220,6 +241,11 @@ body {
 /* OCULTO */
 .oculto {
     display: none;
+}
+#servicios-individuales{
+    max-width: 236px;
+    height: 310px;
+    margin-left: 2rem;
 }
 
 /* CONTENEDOR DE ALIMENTACIÓN */

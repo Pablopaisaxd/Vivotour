@@ -19,76 +19,78 @@
 <div class="maindiv">
   <div class="divreserv">
     <div class="root">
-      <!-- Contenedor principal de calendario y personas -->
-      <div class="primer-container">
-        <div class="mostrar-calendario" id="mostrar-fechas">
-          <strong>Seleccione flechas</strong>
-          <div id="dias-seleccionados" class="dias-seleccionados"></div>
-        </div>
-        <div class="calendar oculto" id="calendar"></div>
-
-        <div class="personas-container">
-          <div class="input-grupo">
-            <label for="cantidad-personas">Cantidad de personas:</label>
-            <button type="button" id="restar">-</button>
-            <input type="number" id="cantidad-personas" value="1" min="1" />
-            <button type="button" id="sumar">+</button>
+      <div class="contenedor-central">
+        <!-- Contenedor principal de calendario y personas -->
+        <div class="primer-container">
+          <div class="mostrar-calendario" id="mostrar-fechas">
+            <strong>Seleccione flechas</strong>
+            <div id="dias-seleccionados" class="dias-seleccionados"></div>
+          </div>
+          <div class="calendar oculto" id="calendar"></div>
+  
+          <div class="personas-container">
+            <div class="input-grupo">
+              <label for="cantidad-personas">Cantidad de personas:</label>
+              <button type="button" id="restar">-</button>
+              <input type="number" id="cantidad-personas" value="1" min="1" />
+              <button type="button" id="sumar">+</button>
+            </div>
           </div>
         </div>
-      </div>
-
-      <!-- Contenedor de hospedaje y servicios -->
-      <div class="segundo-container">
-        <div class="Hospedaje-container">
-          <h2>Hospedaje:</h2>
-
-          <div class="input-hospedaje">
-            <label>Cabañas:</label>
-            <button type="button" class="restar">-</button>
-            <input type="number" class="cantidad" value="0" />
-            <button type="button" class="sumar">+</button>
+  
+        <!-- Contenedor de hospedaje y servicios -->
+        <div class="segundo-container">
+          <div class="Hospedaje-container">
+            <h2>Hospedaje:</h2>
+  
+            <div class="input-hospedaje">
+              <label>Cabañas:</label>
+              <button type="button" class="restar">-</button>
+              <input type="number" class="cantidad" value="0" />
+              <button type="button" class="sumar">+</button>
+            </div>
+  
+            <div class="input-hospedaje">
+              <label>Zona de Camping:</label>
+              <button type="button" class="restar">-</button>
+              <input type="number" class="cantidad" value="0" />
+              <button type="button" class="sumar">+</button>
+            </div>
           </div>
-
-          <div class="input-hospedaje">
-            <label>Zona de Camping:</label>
-            <button type="button" class="restar">-</button>
-            <input type="number" class="cantidad" value="0" />
-            <button type="button" class="sumar">+</button>
+  
+          <div class="servicios-container">
+            <label>
+              <input type="checkbox" id="todos-servicios" checked />
+              <strong>Todos los servicios</strong>
+            </label>
+            <div id="servicios-individuales" class="oculto">
+              <label><input type="checkbox" checked /> Caminata</label>
+              <label><input type="checkbox" checked /> Caminata a la cascada “Los Deseos”</label>
+              <label><input type="checkbox" checked /> Caminata “Puente Amarillo”</label>
+              <label><input type="checkbox" checked /> Avistamiento de aves</label>
+              <label><input type="checkbox" checked /> Zona de motocross</label>
+              <label><input type="checkbox" checked /> Día de sol</label>
+              <label><input type="checkbox" checked /> Charco</label>
+              <label><input type="checkbox" checked /> Cabalgatas</label>
+            </div>
           </div>
+  
         </div>
-
-        <div class="servicios-container">
-          <label>
-            <input type="checkbox" id="todos-servicios" checked />
-            <strong>Todos los servicios</strong>
-          </label>
-          <div id="servicios-individuales" class="oculto">
-            <label><input type="checkbox" checked /> Caminata</label>
-            <label><input type="checkbox" checked /> Caminata a la cascada “Los Deseos”</label>
-            <label><input type="checkbox" checked /> Caminata “Puente Amarillo”</label>
-            <label><input type="checkbox" checked /> Avistamiento de aves</label>
-            <label><input type="checkbox" checked /> Zona de motocross</label>
-            <label><input type="checkbox" checked /> Día de sol</label>
-            <label><input type="checkbox" checked /> Charco</label>
-            <label><input type="checkbox" checked /> Cabalgatas</label>
-          </div>
-        </div>
-
         <!-- Botón de reserva -->
         <button class="reserva-btn">Reservar</button>
-      </div>
-
-      <!-- CONTENIDO COMENTADO: ALIMENTACIÓN -->
-      <!--
-      <div class="meriendas-container">
-        <h2>Alimentación:</h2>
-        <div id="meriendas" class="meriendas">
-          <label><input type="checkbox" checked />Desayuno</label>
-          <label><input type="checkbox" checked />Almuerzo</label>
-          <label><input type="checkbox" checked />Cena</label>
+  
+        <!-- CONTENIDO COMENTADO: ALIMENTACIÓN -->
+        <!--
+        <div class="meriendas-container">
+          <h2>Alimentación:</h2>
+          <div id="meriendas" class="meriendas">
+            <label><input type="checkbox" checked />Desayuno</label>
+            <label><input type="checkbox" checked />Almuerzo</label>
+            <label><input type="checkbox" checked />Cena</label>
+          </div>
         </div>
+        -->
       </div>
-      -->
     </div>
   </div>
 </div>
