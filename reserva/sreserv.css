@@ -60,12 +60,23 @@ body {
 }
 
 
-.primer-container,
-.segundo-container {
-    display: flex;
-    flex-direction: row;
-    gap: 20px;
+/* Contenedor horizontal que divide en dos columnas */
+.contenedor-principal-horizontal {
+  display: flex;
+  flex-direction: row;
+  gap: 40px;
+  justify-content: center;
+  align-items: flex-start;
+  flex-wrap: wrap;
 }
+
+/* Primer contenedor (fechas, personas, hospedaje) en columna */
+.primer-container {
+  display: flex;
+  flex-direction: column;
+  gap: 40px;
+}
+
 
 /* BLOQUES UNIFORMES */
 .personas-container,
@@ -141,12 +152,21 @@ body {
 
 /* CALENDARIO */
 .calendar {
-    width: 100%;
+    position: fixed;
+    z-index: 100; 
+    top: 0; 
+    left: 0;
+    display: none; 
     max-width: 361px;
-    height: 100%;
+    width: 100%;
     padding: 20px 10px;
     background-color: var(--color-bg-calendar);
     border-radius: 10px;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.7);
+    transition: opacity 0.3s ease;
+}
+.mostrar-calendario{
+    cursor: pointer;
 }
 
 .calendar__header {

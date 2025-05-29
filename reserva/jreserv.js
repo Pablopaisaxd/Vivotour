@@ -112,7 +112,6 @@ class Calendar {
     }
 }
 
-
 // Incrementar/decrementar cantidad de personas
 const input = document.getElementById('cantidad-personas');
 document.getElementById('sumar').addEventListener('click', () => {
@@ -124,24 +123,17 @@ document.getElementById('restar').addEventListener('click', () => {
     }
 });
 
-// Mostrar u ocultar servicios individuales
-const chkTodos = document.getElementById('todos-servicios');
-const serviciosDiv = document.getElementById('servicios-individuales');
-
-chkTodos.addEventListener('change', () => {
-    serviciosDiv.classList.toggle('oculto', chkTodos.checked);
-});
 
 // Incrementar/decrementar hospedaje
 document.querySelectorAll('.input-hospedaje').forEach(div => {
     const input = div.querySelector('.cantidad');
     const btnSumar = div.querySelector('.sumar');
     const btnRestar = div.querySelector('.restar');
-
+    
     btnSumar.addEventListener('click', () => {
         input.value = parseInt(input.value) + 1;
     });
-
+    
     btnRestar.addEventListener('click', () => {
         if (parseInt(input.value) > 0) {
             input.value = parseInt(input.value) - 1;
@@ -155,23 +147,64 @@ const calendar = new Calendar('calendar');
 // Estado para las fechas seleccionadas
 let fechasSeleccionadas = [];
 
-// Mostrar/ocultar calendario al hacer clic en "Seleccione flechas"
-document.getElementById('mostrar-fechas').addEventListener('click', () => {
-    document.getElementById('calendar').classList.toggle('oculto');
-});
-
 // Escuchar cambios de selección del calendario
 calendar.getElement().addEventListener('change', () => {
     fechasSeleccionadas = calendar.value().map(d => d.clone());
     const contenedorDias = document.getElementById('dias-seleccionados');
-
+    
     if (fechasSeleccionadas.length === 0) {
         contenedorDias.textContent = '(Sin días seleccionados)';
     } else {
         const dias = fechasSeleccionadas
-            .map(f => f.date())
-            .sort((a, b) => a - b) // opcional, por orden
-            .join('/');
+        .map(f => f.date())
+        .sort((a, b) => a - b)
+        .join('/');
         contenedorDias.textContent = dias;
     }
 });
+
+// Mostrar/ocultar calendario al hacer clic en "Seleccione flechas"
+// Y actualizar visualización de fechas
+document.getElementById('mostrar-fechas').addEventListener('click', () => {
+    const calendarEl = document.getElementById('calendar');
+    calendarEl.classList.toggle('oculto');
+    
+    // Mostrar inmediatamente las fechas seleccionadas
+    const contenedorDias = document.getElementById('dias-seleccionados');
+    if (fechasSeleccionadas.length === 0) {
+        contenedorDias.textContent = '(Sin días seleccionados)';
+    } else {
+        const dias = fechasSeleccionadas
+        .map(f => f.date())
+        .sort((a, b) => a - b)
+        .join('/');
+        contenedorDias.textContent = dias;
+    }
+});
+const botonFechas = document.getElementById('mostrar-fechas');
+const calendario = document.getElementById('calendar');
+let calendarioVisible = false;
+
+botonFechas.addEventListener('click', () => {
+    calendarioVisible = !calendarioVisible;
+
+    if (calendarioVisible) {
+        // Obtener posición del botón
+        const rect = botonFechas.getBoundingClientRect();
+
+        // Posicionar el calendario justo debajo
+        calendario.style.top = `${rect.bottom + window.scrollY + 5}px`; // 5px de separación
+        calendario.style.left = `${rect.left + window.scrollX}px`;
+        calendario.style.display = 'block';
+    } else {
+        calendario.style.display = 'none';
+    }
+});
+
+// Mostrar u ocultar servicios individuales
+// const chkTodos = document.getElementById('todos-servicios');
+// const serviciosDiv = document.getElementById('servicios-individuales');
+
+// chkTodos?.addEventListener('change', () => {
+//     serviciosDiv.classList.toggle('oculto', chkTodos.checked);
+// });
