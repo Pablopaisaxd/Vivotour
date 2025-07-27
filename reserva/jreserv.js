@@ -1,210 +1,133 @@
-class Calendar {
-    constructor(id) {
-        this.cells = [];
-        this.selectedDates = [];
-        this.currentMonth = moment();
-        this.elCalendar = document.getElementById(id);
-        this.showTemplate();
-        this.elGridBody = this.elCalendar.querySelector('.grid__body');
-        this.elMonthName = this.elCalendar.querySelector('.month-name');
-        this.showCells();
-    }
-
-    showTemplate() {
-        this.elCalendar.innerHTML = `
-            <div class="calendar__header">
-                <span class="month-name"></span>
-            </div>
-            <div class="calendar__body">
-                <div class="grid">
-                    <div class="grid__header">
-                        <span class="grid__cell grid__cell--gh">Lun</span>
-                        <span class="grid__cell grid__cell--gh">Mar</span>
-                        <span class="grid__cell grid__cell--gh">Mié</span>
-                        <span class="grid__cell grid__cell--gh">Jue</span>
-                        <span class="grid__cell grid__cell--gh">Vie</span>
-                        <span class="grid__cell grid__cell--gh">Sáb</span>
-                        <span class="grid__cell grid__cell--gh">Dom</span>
-                    </div>
-                    <div class="grid__body"></div>
-                </div>
-            </div>
-        `;
-    }
-
-    showCells() {
-        this.cells = this.generateDates(this.currentMonth);
-        const today = moment().startOf('day');
-        this.elGridBody.innerHTML = '';
-
-        let template = '';
-        for (let i = 0; i < this.cells.length; i++) {
-            const cell = this.cells[i];
-            const cellDate = cell.date.clone().startOf('day');
-            let classes = 'grid__cell grid__cell--gd';
-
-            if (!cell.isInCurrentMonth || cellDate.isBefore(today)) {
-                classes += ' grid__cell--disabled';
-            }
-
-            if (this.selectedDates.some(d => d.isSame(cellDate, 'day'))) {
-                classes += ' grid__cell--selected';
-            }
-
-            template += `<span class="${classes}" data-cell-id="${i}">${cell.date.date()}</span>`;
-        }
-
-        this.elMonthName.textContent = this.currentMonth.format('MMMM YYYY');
-        this.elGridBody.innerHTML = template;
-        this.addEventListenerToCells();
-    }
-
-    generateDates(month) {
-        let start = moment(month).startOf('month');
-        let end = moment(month).endOf('month');
-        const cells = [];
-
-        while (start.day() !== 1) start.subtract(1, 'day');
-        while (end.day() !== 0) end.add(1, 'day');
-
-        do {
-            cells.push({
-                date: moment(start),
-                isInCurrentMonth: start.month() === month.month()
+        document.addEventListener('DOMContentLoaded', function() {
+            // Selección del tipo de alojamiento
+            const cabinCard = document.getElementById('cabin-card');
+            const campingCard = document.getElementById('camping-card');
+            const accommodationType = document.getElementById('accommodation-type');
+            
+            cabinCard.addEventListener('click', function() {
+                cabinCard.classList.add('selected');
+                campingCard.classList.remove('selected');
+                accommodationType.value = 'cabin';
             });
-            start.add(1, 'day');
-        } while (start.isSameOrBefore(end));
-
-        return cells;
-    }
-
-    addEventListenerToCells() {
-        const elCells = this.elCalendar.querySelectorAll('.grid__cell--gd');
-        elCells.forEach(elCell => {
-            elCell.addEventListener('click', e => {
-                const el = e.target;
-                const cellIndex = parseInt(el.dataset.cellId);
-                const clickedDate = this.cells[cellIndex].date;
-
-                if (el.classList.contains('grid__cell--disabled')) return;
-
-                const isSelected = el.classList.contains('grid__cell--selected');
-
-                if (isSelected) {
-                    el.classList.remove('grid__cell--selected');
-                    this.selectedDates = this.selectedDates.filter(d => !d.isSame(clickedDate, 'day'));
+            
+            campingCard.addEventListener('click', function() {
+                campingCard.classList.add('selected');
+                cabinCard.classList.remove('selected');
+                accommodationType.value = 'camping';
+            });
+        
+            cabinCard.click();
+            
+            // opciones de actividades y servicios
+            const allInclusiveCheckbox = document.getElementById('all-inclusive');
+            const activityOptions = document.getElementById('activity-options');
+            
+            allInclusiveCheckbox.addEventListener('change', function() {
+                if (!this.checked) {
+                    activityOptions.style.display = 'block';
                 } else {
-                    el.classList.add('grid__cell--selected');
-                    this.selectedDates.push(clickedDate);
+                    activityOptions.style.display = 'none';
+                    document.querySelectorAll('#activity-options input[type="checkbox"]').forEach(checkbox => {
+                        checkbox.checked = false;
+                    });
+                }
+            });
+            
+            // opnciones de comida
+            const mealAllInclusive = document.getElementById('meal-all-inclusive');
+            const individualMeals = document.getElementById('individual-meals');
+            const mealOptions = document.querySelectorAll('.meal-option');
+            
+            mealAllInclusive.addEventListener('change', function() {
+                if (this.checked) {
+                    individualMeals.style.display = 'none';
+                    mealOptions.forEach(option => {
+                        option.classList.remove('selected');
+                    });
+                } else {
+                    individualMeals.style.display = 'flex';
+                }
+            });
+            
+            mealOptions.forEach(option => {
+                option.addEventListener('click', function() {
+                    this.classList.toggle('selected');
+                });
+            });
+            
+            individualMeals.style.display = 'none';
+            
+            // Botón de reserva
+            const bookNowBtn = document.getElementById('book-now');
+            const bookingSummary = document.getElementById('booking-summary');
+            const summaryContent = document.getElementById('summary-content');
+            
+            bookNowBtn.addEventListener('click', function() {
+                // Chequeo de reserva
+                const dateS = document.getElementById('reservation-date-start').value;
+                const dateE = document.getElementById('reservation-date-end').value;
+                const adults = document.getElementById('adults').value;
+                const children = document.getElementById('children').value;
+                const accommodation = accommodationType.value;
+                const allInclusive = allInclusiveCheckbox.checked;
+                const mealAllInclusiveChecked = mealAllInclusive.checked;
+                
+                // alertas
+                if (!dateS) {
+                    alert('seleccione una fecha de inicio de reserva');
+                    return;
                 }
 
-                this.elCalendar.dispatchEvent(new Event('change'));
+                if (!dateE) {
+                    alert('seleccione una fecha de fin de reserva');
+                    return;
+                }
+
+                let activities = [];
+                if (!allInclusive) {
+                    document.querySelectorAll('#activity-options input[type="checkbox"]:checked').forEach(checkbox => {
+                        activities.push(checkbox.nextElementSibling.textContent);
+                    });
+                }
+
+                let meals = [];
+                if (mealAllInclusiveChecked) {
+                    meals.push('todas las comidas incluidas');
+                } else {
+                    document.querySelectorAll('.meal-option.selected').forEach(option => {
+                        meals.push(option.textContent);
+                    });
+                    
+                    if (meals.length === 0) {
+                        alert('porfavor seleccione al menos una opción de comida');
+                        return;
+                    }
+                }
+
+                
+                // Chequeo de reserva
+                let summaryHTML = `
+                    <p><strong>fecha inicio:</strong> ${new Date(dateS).toLocaleDateString()}</p>
+                    <p><strong>fecha final:</strong> ${new Date(dateE).toLocaleDateString()}</p>
+                    <p><strong>cantidad:</strong> ${adults} adulto(s), ${children} niños</p>
+                    <p><strong>alojamiento:</strong> ${accommodation === 'cabin' ? 'cabañas' : 'Zona de camping'}</p>
+                    <p><strong>Actividades y Servicios:</strong> ${allInclusive ? 'Todo incluido' : activities.join(', ') || 'Ninguno'}</p>
+                    <p><strong>Opciones de comida:</strong> ${meals.join(', ')}</p>
+                `;
+                
+                summaryContent.innerHTML = summaryHTML;
+                bookingSummary.style.display = 'block';
+                
+                bookingSummary.scrollIntoView({ behavior: 'smooth' });
+                
+                console.log('Booking submitted:', {
+                    dateS,
+                    dateE,
+                    adults,
+                    children,
+                    accommodation,
+                    activities: allInclusive ? ['all-inclusive'] : activities,
+                    meals
+                });
             });
         });
-    }
-
-    getElement() {
-        return this.elCalendar;
-    }
-
-    value() {
-        return this.selectedDates;
-    }
-}
-
-// Incrementar/decrementar cantidad de personas
-const input = document.getElementById('cantidad-personas');
-document.getElementById('sumar').addEventListener('click', () => {
-    input.value = parseInt(input.value) + 1;
-});
-document.getElementById('restar').addEventListener('click', () => {
-    if (parseInt(input.value) > 1) {
-        input.value = parseInt(input.value) - 1;
-    }
-});
-
-
-// Incrementar/decrementar hospedaje
-document.querySelectorAll('.input-hospedaje').forEach(div => {
-    const input = div.querySelector('.cantidad');
-    const btnSumar = div.querySelector('.sumar');
-    const btnRestar = div.querySelector('.restar');
-    
-    btnSumar.addEventListener('click', () => {
-        input.value = parseInt(input.value) + 1;
-    });
-    
-    btnRestar.addEventListener('click', () => {
-        if (parseInt(input.value) > 0) {
-            input.value = parseInt(input.value) - 1;
-        }
-    });
-});
-
-// Instancia del calendario
-const calendar = new Calendar('calendar');
-
-// Estado para las fechas seleccionadas
-let fechasSeleccionadas = [];
-
-// Escuchar cambios de selección del calendario
-calendar.getElement().addEventListener('change', () => {
-    fechasSeleccionadas = calendar.value().map(d => d.clone());
-    const contenedorDias = document.getElementById('dias-seleccionados');
-    
-    if (fechasSeleccionadas.length === 0) {
-        contenedorDias.textContent = '(Sin días seleccionados)';
-    } else {
-        const dias = fechasSeleccionadas
-        .map(f => f.date())
-        .sort((a, b) => a - b)
-        .join('/');
-        contenedorDias.textContent = dias;
-    }
-});
-
-// Mostrar/ocultar calendario al hacer clic en "Seleccione flechas"
-// Y actualizar visualización de fechas
-document.getElementById('mostrar-fechas').addEventListener('click', () => {
-    const calendarEl = document.getElementById('calendar');
-    calendarEl.classList.toggle('oculto');
-    
-    // Mostrar inmediatamente las fechas seleccionadas
-    const contenedorDias = document.getElementById('dias-seleccionados');
-    if (fechasSeleccionadas.length === 0) {
-        contenedorDias.textContent = '(Sin días seleccionados)';
-    } else {
-        const dias = fechasSeleccionadas
-        .map(f => f.date())
-        .sort((a, b) => a - b)
-        .join('/');
-        contenedorDias.textContent = dias;
-    }
-});
-const botonFechas = document.getElementById('mostrar-fechas');
-const calendario = document.getElementById('calendar');
-let calendarioVisible = false;
-
-botonFechas.addEventListener('click', () => {
-    calendarioVisible = !calendarioVisible;
-
-    if (calendarioVisible) {
-        // Obtener posición del botón
-        const rect = botonFechas.getBoundingClientRect();
-
-        // Posicionar el calendario justo debajo
-        calendario.style.top = `${rect.bottom + window.scrollY + 5}px`; // 5px de separación
-        calendario.style.left = `${rect.left + window.scrollX}px`;
-        calendario.style.display = 'block';
-    } else {
-        calendario.style.display = 'none';
-    }
-});
-
-// Mostrar u ocultar servicios individuales
-// const chkTodos = document.getElementById('todos-servicios');
-// const serviciosDiv = document.getElementById('servicios-individuales');
-
-// chkTodos?.addEventListener('change', () => {
-//     serviciosDiv.classList.toggle('oculto', chkTodos.checked);
-// });
