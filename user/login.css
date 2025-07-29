@@ -4,8 +4,14 @@
     padding: 0;
 }
 
+@font-face {
+    font-family: "comic";
+    src: url("../Media/Fonts/COMIC.TTF") format("truetype");
+}
+
 body {
     color: white;
+    font-family: comic;
 }
 
 /* estilos del Login */
