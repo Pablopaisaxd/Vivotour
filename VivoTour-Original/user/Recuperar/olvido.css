@@ -1,0 +1,264 @@
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    color: white;
+}
+
+/* estilos del Login */
+.maindiv {
+    background-image: url(/Media/Fondos/fondo666.png);
+    height: 100vh;
+    background-position: center;
+    background-size: 100vw 100vh;
+    background-repeat: no-repeat;
+}
+
+.divRecuperar {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: rgba(30, 58, 35, 0.8);
+    border-radius: 15px;
+    padding: 40px;
+    width: 90%;
+    max-width: 500px;
+    backdrop-filter: blur(5px);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.divRecuperar h1 {
+    text-align: center;
+    margin-bottom: 30px;
+    font-size: 28px;
+    color: white;
+    font-weight: normal;
+}
+
+.inputsRecuperar {
+    margin-bottom: 20px;
+}
+
+.inputsRecuperar label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+}
+
+.inputsRecuperar input {
+    width: 100%;
+    padding: 12px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+    background-color: white;
+    font-size: 16px;
+    margin-bottom: 20px;
+}
+
+
+.Recuperar-btn {
+    width: 100%;
+    padding: 12px;
+    background-color: #0f1a25;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    font-size: 16px;
+    cursor: pointer;
+    transition:  0.3s;
+    margin-bottom: 20px;
+}
+
+.Recuperar-btn:hover {
+    background-color: #1a2c3e;
+}
+
+.RecuperarContraseña-btn{
+        width: 100%;
+    padding: 12px;
+    background-color: #0f1a25;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    font-size: 16px;
+    cursor: pointer;
+    transition:  0.3s;
+    margin-bottom: 20px;
+}
+
+.RecuperarContraseña-btn:hover {
+    background-color: #1a2c3e;
+}
+/* Verificacion */
+.verificar-container {
+  max-width: 400px;
+  margin: 80px auto;
+  text-align: center;
+  font-family: Arial, sans-serif;
+}
+
+.codigo-inputs {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin: 20px 0;
+}
+
+.input-codigo {
+  width: 40px;
+  height: 50px;
+  font-size: 24px;
+  text-align: center;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  transition: border-color 0.3s;
+}
+
+.input-codigo:focus {
+  border-color: #4A90E2;
+  outline: none;
+}
+
+.btn-verificar {
+  padding: 12px 30px;
+    background-color: #0f1a25;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: 0.3s ease;
+}
+.btn-verificar:hover{
+        background-color: #0a1118;
+}
+.reenviar {
+  margin-top: 15px;
+  font-size: 14px;
+}
+
+/* Nueva contraseña */
+.password-div {
+    position: relative;
+}
+
+.password-div .toggle-password {
+    position: absolute;
+    right: 10px;
+    top: 35%;
+    transform: translateY(-50%);
+    cursor: pointer;
+    color: #333;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+    background: transparent;
+    border: none;
+}
+
+.toggle-password svg {
+    width: 20px;
+    height: 20px;
+    fill: none;
+    stroke: #555;
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+
+/* Estilo del footer */
+footer {
+    background: #000000;
+    padding-top: 80px;
+    color: white;
+    position: absolute;
+    width: 100%;
+}
+
+.container {
+    width: 80%;
+    margin: auto;
+    display: flex;
+    position: relative;
+    justify-content: center;
+    right: 10%;
+}
+
+.footer-content {
+    width: 33.3%;
+}
+
+h3 {
+    color: white;
+    font-size: 28px;
+    margin-bottom: 15px;
+    text-align: center;
+}
+
+.footer-content p {
+    width: 190px;
+    margin: auto;
+    padding: 7px;
+}
+
+.footer-content ul {
+    text-align: center;
+}
+
+.list {
+    padding: 0;
+}
+
+.list li {
+    width: auto;
+    text-align: center;
+    list-style-type: none;
+    padding: 7px;
+    position: relative;
+}
+
+.list li::before {
+    content: '';
+    position: absolute;
+    transform: translate(-50%, -50%);
+    left: 50%;
+    top: 100%;
+    width: 0;
+    height: 2px;
+    background: rgba(0, 128, 10, 1);
+    transition-duration: .5s;
+}
+
+.list li:hover::before {
+    width: 70px;
+}
+
+a {
+    text-decoration: none;
+    color: white;
+}
+
+a:hover {
+    color: rgba(0, 128, 10, 1);
+}
+
+.footerend {
+    width: 91%;
+    display: flex;
+    margin: auto;
+    position: relative;
+    padding: 1rem;
+    gap: 25%;
+}
+
+.listend {
+    display: flex;
+    position: relative;
+}

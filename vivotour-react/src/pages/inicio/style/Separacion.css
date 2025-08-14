@@ -1,0 +1,36 @@
+.line1 {
+    border: 2px solid var(--border-color);
+    width: 100%;
+}
+
+.res {
+    height: 20vh;
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+    background: aliceblue;
+    transition: all 1.5s ease;
+}
+
+.square1 {
+    height: 20vh;
+    width: 80vw;
+    border: 3.5px solid var(--border-color);
+    border-radius: 15px;
+    background-color: #9ed78b;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    cursor: pointer;
+}
+
+.imgres {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.ps {
+    margin-top: 10px;
+    text-align: center;
+}

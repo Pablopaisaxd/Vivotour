@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registro</title>
+    <link rel="stylesheet" href="registro.css">
+    <script src="https://kit.fontawesome.com/03a89292db.js" crossorigin="anonymous"></script>
+    <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet" />
+    <link rel="shortcut icon" href="../Media/Logos/vivoTour.png" type="image/x-icon" />
+
+    <!-- Libreria intl-tel-input -->
+    <link rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.8/css/intlTelInput.min.css" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.8/js/intlTelInput.min.js"></script>
+
+    <!-- Libreria Choisejs -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/choices.js/public/assets/styles/choices.min.css" />
+    <script src="https://cdn.jsdelivr.net/npm/choices.js/public/assets/scripts/choices.min.js"></script>
+</head>
+
+<body>
+
+
+    <!-- Registro -->
+    <div class="maindiv">
+        <div class="divregistro">
+            <h1>Registro</h1>
+
+            <form id="form-registro" class="inputsregistro" method="post">
+                <input type="text" name="Nombre" id="nombreCompleto" placeholder="Nombres y Apellidos" required>
+                <input type="email" name="Email" id="email" placeholder="Email" required>
+                <input type="tel" name="Celular" class="Telefono" placeholder="Teléfono" required>
+
+                <div class="input-documento">
+                    <select name="tipo" class="tipo" required>
+                        <option value="CC">CC</option>
+                        <option value="TI">TI</option>
+                        <option value="DNI">DNI</option>
+                    </select>
+                    <input type="text" name="documento" id="documento" placeholder="Número de documento" required>
+                </div>
+
+                <div class="password-div">
+                    <input type="password" name="Contraseña" id="password" placeholder="Contraseña" required>
+                    <!-- Tu ícono de ojo -->
+                    <span class="toggle-password">
+                        <svg class="eye-icon" viewBox="0 0 24 24">
+                            <path class="eye-open" d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                            <circle class="eye-open" cx="12" cy="12" r="3"></circle>
+                            <path class="eye-closed" d="M2 2l20 20" style="display:none;"></path>
+                            <path class="eye-closed" d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"
+                                style="display:none;"></path>
+                            <path class="eye-closed" d="M9 9a3 3 0 1 1 6 6" style="display:none;"></path>
+                        </svg></span>
+                </div>
+
+                <input type="password" name="ConfirmarContraseña" class="confirmarPassword"
+                    placeholder="Confirmar contraseña" required>
+
+                <button type="submit" class="register-btn">Registrarse</button>
+            </form>
+
+            <div class="register">
+                <h3>¿Tienes una cuenta?</h3>
+                <h3 class="sesion">Inicia Sesión</h3>
+            </div>
+        </div>
+    </div>
+
+
+
+
+    <!--Footer -->
+
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <h3>REDES SOCIALES</h3>
+                <ul class="list">
+                    <li><a href="">FACEBOOK</a></li>
+                    <li><a href="">INSTAGRAM</a></li>
+                    <li><a href="">WHATSAPP</a></li>
+                </ul>
+            </div>
+            <div class="footer-content">
+                <h3>CONTACTOS</h3>
+                <p>Telefono: +57 322 4435315</p>
+                <p>Telefono: +57 321 6921773</p>
+                <ul class="list">
+                    <li>Email:<a href=""> laventanadelriomelcocho@gmail.com</a></li>
+                </ul>
+            </div>
+            <div class="footer-content">
+                <h3>VIVO TOUR</h3>
+                <ul class="list">
+                    <li><a href="../index.html">Inicio</a></li>
+                    <li><a href="">Descubre</a></li>
+                    <li><a href="">Reservar</a></li>
+                </ul>
+            </div>
+            <div class="footer-logo">
+                <img class="logoend" src="IMG/logoend.png" alt="" width="60%">
+            </div>
+        </div>
+        <div class="footer-content footerend">
+            <ul class="list listend">
+                <li><a href="">Terminos Y Condiciones</a></li>
+                <p>°</p>
+                <li><a href="">Soporte Tecnico</a></li>
+            </ul>
+            <ul class="list">
+                <li><a href="">WRHV+69 COCORNA, ANTIOQUIA</a></li>
+            </ul>
+        </div>
+    </footer>
+
+    <script src="registro.js"></script>
+</body>
+
+</html>

@@ -1,0 +1,342 @@
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+@font-face {
+    font-family: "comic";
+    src: url("../Media/Fonts/COMIC.TTF") format("truetype");
+}
+
+body {
+    color: white;
+    font-family: comic;
+}
+
+/* estilos del Login */
+.maindiv {
+    background-image: url(../Media/Fondos/fondo666.png);
+    height: 100vh;
+    background-position: center;
+    background-size: 100vw 100vh;
+    background-repeat: no-repeat;
+}
+
+.divlogin {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: rgba(30, 58, 35, 0.8);
+    border-radius: 15px;
+    padding: 40px;
+    width: 90%;
+    max-width: 500px;
+    backdrop-filter: blur(5px);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.divlogin h1 {
+    text-align: center;
+    margin-bottom: 30px;
+    font-size: 28px;
+    color: white;
+    font-weight: normal;
+}
+
+.inputslogin {
+    margin-bottom: 20px;
+}
+
+.inputslogin label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+}
+
+.inputslogin input {
+    width: 100%;
+    padding: 12px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+    background-color: white;
+    font-size: 16px;
+}
+
+.password-div {
+    position: relative;
+}
+
+.password-div .toggle-password {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    cursor: pointer;
+    color: #333;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+    background: transparent;
+    border: none;
+}
+
+.toggle-password svg {
+    width: 20px;
+    height: 20px;
+    fill: none;
+    stroke: #555;
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+.remember-div {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    font-size: 14px;
+}
+
+.check {
+    display: flex;
+    align-items: center;
+}
+
+.check input {
+    margin-right: 5px;
+}
+
+.forgot-password {
+    color: white;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.forgot-password:hover {
+    text-decoration: underline;
+}
+
+.login-btn {
+    width: 100%;
+    padding: 12px;
+    background-color: #0f1a25;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    font-size: 16px;
+    cursor: pointer;
+    transition:  0.3s;
+    margin-bottom: 20px;
+}
+
+.login-btn:hover {
+    background-color: #1a2c3e;
+}
+
+/* Division de los metodos de login */
+.divider {
+    display: flex;
+    align-items: center;
+    text-align: center;
+    margin: 20px 0;
+    color: white;
+    font-size: 14px;
+}
+.divider span{
+    position: relative;
+}
+
+.divider::before,
+.divider::after {
+    content: "";
+    flex: 1;
+    border-bottom: 4px solid white;
+}
+
+.divider::before {
+    margin-right: 10px;
+}
+
+.divider::after {
+    margin-left: 10px;
+}
+
+
+.circle-left,
+.circle-right {
+    position: relative;
+    width: 0;
+    height: 0;
+}
+/* Círculo en el extremo izquierdo */
+.circle-left::before {
+    content: "";
+    position: absolute;
+    left: -180px;
+    top: 50%;
+    width: 10px;
+    height: 20px;
+    background-color: white;
+    border-top-right-radius: 10px;
+    border-bottom-right-radius: 10px;
+    transform: translateY(-50%);
+}
+
+/* Círculo en el extremo derecho */
+.circle-right::after {
+    content: "";
+    position: absolute;
+    right: -180px;
+    top: 50%;
+    width: 10px;
+    height: 20px;
+    background-color: white;
+    border-top-left-radius: 10px;
+    border-bottom-left-radius: 10px;
+    transform: translateY(-50%);
+}
+
+/* estilo de metodos de login */
+
+.login-method{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.method{
+    margin-right: 20px;
+}
+.method img{
+    border-radius: 50%;
+    height: 55px;
+}
+
+.register{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    margin-top: 30px;
+}
+
+.register h3{
+    font-size: 20px;
+    font-weight: bold;
+}
+
+.registro{
+    position: relative;
+  display: inline-block;
+  cursor: pointer;
+}
+
+.registro::after{
+      content: "";
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 0%;
+  height: 2px;
+  background-color: rgb(255, 255, 255); /* o el color que quieras */
+  transition: width 0.3s ease;
+}
+
+.registro:hover::after {
+  width: 100%;
+}
+
+/* Estilo del footer */
+footer {
+    background: #000000;
+    padding-top: 80px;
+    color: white;
+    position: absolute;
+    width: 100%;
+}
+
+.container {
+    width: 80%;
+    margin: auto;
+    display: flex;
+    position: relative;
+    justify-content: center;
+    right: 10%;
+}
+
+.footer-content {
+    width: 33.3%;
+}
+
+h3 {
+    color: white;
+    font-size: 28px;
+    margin-bottom: 15px;
+    text-align: center;
+}
+
+.footer-content p {
+    width: 190px;
+    margin: auto;
+    padding: 7px;
+}
+
+.footer-content ul {
+    text-align: center;
+}
+
+.list {
+    padding: 0;
+}
+
+.list li {
+    width: auto;
+    text-align: center;
+    list-style-type: none;
+    padding: 7px;
+    position: relative;
+}
+
+.list li::before {
+    content: '';
+    position: absolute;
+    transform: translate(-50%, -50%);
+    left: 50%;
+    top: 100%;
+    width: 0;
+    height: 2px;
+    background: rgba(0, 128, 10, 1);
+    transition-duration: .5s;
+}
+
+.list li:hover::before {
+    width: 70px;
+}
+
+a {
+    text-decoration: none;
+    color: white;
+}
+
+a:hover {
+    color: rgba(0, 128, 10, 1);
+}
+
+.footerend {
+    width: 91%;
+    display: flex;
+    margin: auto;
+    position: relative;
+    padding: 1rem;
+    gap: 25%;
+}
+
+.listend {
+    display: flex;
+    position: relative;
+}
