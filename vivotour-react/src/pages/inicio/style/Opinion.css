@@ -1,6 +1,7 @@
 .opinion {
     height: 90vh;
     display: flex;
+    margin-bottom: 5rem;
 }
 
 .opres {
@@ -24,10 +25,20 @@
     background-color: #52ab34;
     height: 5.5vh;
     width: 2.5vw;
-    border-radius: 30px;
+    border-radius: 50%;  
     overflow: hidden;
     margin-right: 5%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
+
+.imgcircle img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover; 
+}
+
 
 .opr {
     display: flex;

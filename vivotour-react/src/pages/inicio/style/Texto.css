@@ -1,0 +1,29 @@
+.intro {
+  position: relative;
+  width: auto;
+  height: 1.8rem;
+  background-color: #52ab34;
+  font-family: sans-serif;
+  text-align: center;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden;
+}
+
+.pint {
+  color: aliceblue;
+  font-size: 16px;
+  opacity: 0;
+  visibility: hidden;
+  position: absolute;
+  width: 100%;
+  text-align: center;
+  transition: opacity 1.5s ease-in-out;
+}
+
+.pint.visible {
+  opacity: 1;
+  visibility: visible;
+  position: static;
+}

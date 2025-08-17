@@ -10,6 +10,7 @@
     justify-content: space-around;
     background: aliceblue;
     transition: all 1.5s ease;
+    margin-bottom: 5rem;
 }
 
 .square1 {

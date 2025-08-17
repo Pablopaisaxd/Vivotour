@@ -1,10 +1,16 @@
 import React, { useEffect, useState } from 'react';
 import './style/Opinion.css';
+
+
 import imgs1 from '../../assets/Fondos/columpio delante.jpg';
 import imgs2 from '../../assets/Fondos/turista acostado en hamaca.jpg';
 import imgs3 from '../../assets/Fondos/turistas en rio 2.jpg';
 import imgs4 from '../../assets/Fondos/columpio detras.jpg';
 import imgs5 from '../../assets/Fondos/turistas en rio.jpg';  
+
+import imgs6 from '../../assets/Personas/Rubius.png';
+import imgs7 from '../../assets/Personas/Persona.png';
+import imgs8 from '../../assets/Personas/Petro.png';  
 
 const Opinion = () => {
     const [currentImageIndex, setCurrentImageIndex] = useState(0);
@@ -27,15 +33,18 @@ const Opinion = () => {
     const opinions = [
         {
             name: 'Roberto Jacinto Ramírez',
-            text: 'La Ventana del Río Melcocho es un paraíso escondido, con aguas cristalinas y paisajes espectaculares. La organización del tour fue impecable.'
+            text: 'La Ventana del Río Melcocho es un paraíso escondido, con aguas cristalinas y paisajes espectaculares. La organización del tour fue impecable.',
+            image: imgs6
         },
         {
             name: 'Luis Giraldo Vargas',
-            text: 'Pasé un fin de semana inolvidable con Vivo Tour. Desde las fogatas bajo las estrellas hasta las cabalgatas por los senderos de Cocorná, cada momento fue especial.'
+            text: 'Pasé un fin de semana inolvidable con Vivo Tour. Desde las fogatas bajo las estrellas hasta las cabalgatas por los senderos de Cocorná, cada momento fue especial.',
+            image: imgs7
         },
         {
             name: 'Gustavo Petro Urrego',
-            text: 'Si buscas desconectarte del ruido y disfrutar de la naturaleza, este es el lugar.'
+            text: 'Si buscas desconectarte del ruido y disfrutar de la naturaleza, este es el lugar.',
+            image: imgs8
         }
     ];
 
@@ -46,7 +55,7 @@ const Opinion = () => {
                     <div className={`op${index + 1}`} key={index}>
                         <div className="desper">
                             <div className="imgcircle">
-                                <img src={`https://example.com/person${index + 1}.jpg`} alt={opinion.name} />
+                                <img src={opinion.image} alt={opinion.name} />
                             </div>
                             <p>{opinion.name}</p>
                         </div>
@@ -58,17 +67,22 @@ const Opinion = () => {
 
                 <div className="opimg">
                     {images.map((image, index) => (
-                        <img key={index} src={image} alt="" className={currentImageIndex === index ? '' : 'opimgactive'} />
+                        <img 
+                            key={index} 
+                            src={image} 
+                            alt="" 
+                            className={currentImageIndex === index ? '' : 'opimgactive'} 
+                        />
                     ))}
                 </div>
                 
                 <div className="masres">
                     <h3>Reserva ahora</h3>
                 </div>
-
             </div>
         </div>
     );
+
 };
 
 export default Opinion;
