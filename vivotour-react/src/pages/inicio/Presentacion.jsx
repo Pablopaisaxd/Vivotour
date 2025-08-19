@@ -1,7 +1,5 @@
 import React, { useEffect, useState } from 'react';
 import './style/Presentacion.css';
-
-
 import img1 from '../../assets/Fondos/Río.jpg';
 import img2 from '../../assets/Fondos/Fondo5.jpg';
 import img3 from '../../assets/Fondos/Entrada.jpg';
@@ -10,8 +8,15 @@ import icon1 from '../../assets/icons/swimming.png';
 import icon2 from '../../assets/icons/campfire.png';
 import icon3 from '../../assets/icons/horse-head.png';
 import icon4 from '../../assets/icons/camping-tent.png';
+import Nav from './Navbar';
+import Texto from './Texto';
+import Separacion from './Separacion';
+import Opinion from './Opinion';
+import Footer from '../../components/use/Footer';
+import Mapa from './Mapa';
+import Galeria from './Galeria';
 
-const Presentacion = () => {
+const Presentacion = ({cambiarvista}) => {
     const [currentImageIndex, setCurrentImageIndex] = useState(0);
     const images = [
         img1,
@@ -37,7 +42,11 @@ const Presentacion = () => {
     
 
     return (
+        <>  
+        <Texto/>
+        <Nav cambiarvista={cambiarvista}/>
         <section className="presentacion" id="Inicio">
+
             <div className="somos">
                 <div className="quesomos">
                     <h4 className="hsomos">¿Qué somos?</h4>
@@ -76,7 +85,7 @@ const Presentacion = () => {
                     </div>
                 </div>
             </div>
-
+            
             <div className="imgsomos">
                 <div className="imgprin">
                     {images.map((image, index) => (
@@ -90,7 +99,14 @@ const Presentacion = () => {
                     ))}
                 </div>
             </div>
+                    
         </section>
+        <Separacion/>
+        <Opinion />
+        <Galeria/>
+        <Mapa/>
+        <Footer/>
+        </>
     );
 };
 

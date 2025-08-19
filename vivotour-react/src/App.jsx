@@ -1,23 +1,15 @@
-import React from 'react';
+import React, { useState } from 'react';
 import Presentacion from './pages/inicio/Presentacion.jsx'
-import Navbar from './pages/inicio/Navbar.jsx'
-import Separacion from './pages/inicio/Separacion.jsx';
-import Opinion from './pages/inicio/Opinion.jsx';
-import Footer from './components/use/Footer.jsx';
-import Galeria from './pages/inicio/Galeria.jsx';
-import Mapa from './pages/inicio/Mapa.jsx';
-import Texto from './pages/inicio/Texto.jsx';
+import { Login } from './pages/inicio/Login.jsx';
 const App = () => {
+
+  const [vista,setVista] = useState('Principal')
+
+  const cambiarvista=(vista)=> setVista(vista)
   return (
     <div>
-        <Texto/>
-        <Navbar/>
-        <Presentacion/>
-        <Separacion/>
-        <Opinion/>
-        <Galeria/>
-        <Mapa/>
-        <Footer/>
+        {vista == 'Principal' && <Presentacion cambiarvista={cambiarvista}/>}
+        {vista=='Login' && <Login cambiarvista={cambiarvista}/>}
     </div>
   );
 };

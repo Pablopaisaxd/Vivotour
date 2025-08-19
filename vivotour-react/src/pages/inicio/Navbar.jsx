@@ -3,7 +3,7 @@ import './style/Navbar.css';
 import logo from '../../assets/Logos/logo.png';
 import vivoTour from '../../assets/Logos/vivoTour.png';
 
-const Nav = () => {
+const Nav = ({cambiarvista}) => {
   return (
     <div className="nav" id="navaccess">
       <div className="logos">
@@ -18,7 +18,7 @@ const Nav = () => {
       </nav>
 
       <div className="acces">
-        <button className="btnav btnlog">Acceder</button>
+        <button className="btnav btnlog" onClick={()=>cambiarvista('Login')}>Acceder</button>
       </div>
     </div>
   );
