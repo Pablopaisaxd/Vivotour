@@ -84,20 +84,22 @@ export const Login = ({ cambiarvista }) => {
                     <div className="login-method">
                         <div className="method">
                             <img
-                                src="../../assets/Icons/Facebook.png"
+                                src="/src/assets/Icons/Facebook.png"
                                 alt="facebook"
                             />
                         </div>
-                        <div className="method">
+                        <div className="method google">
                             <img
-                                src="../../assets/Icons/Google.png"
+                                src="/src/assets/Icons/Google.png"
                                 alt="google"
+                                className="Google"
                             />
                         </div>
-                        <div className="method">
+                        <div className="method apple">
                             <img
-                                src="../../assets/Icons/Apple.png"
+                                src="/src/assets/Icons/Apple.png"
                                 alt="apple"
+                                className="Apple"
                             />
                         </div>
                     </div>
