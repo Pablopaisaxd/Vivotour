@@ -127,8 +127,8 @@ body {
 }
 
 .forgot-password {
-    position: relative; /* 👈 importante */
-    display: inline-block; /* 👈 para que la línea solo ocupe el texto */
+    position: relative;
+    display: inline-block; 
     color: white;
     text-decoration: none;
     cursor: pointer;
@@ -138,7 +138,7 @@ body {
 .forgot-password::after {
     content: "";
     position: absolute;
-    bottom: -2px; /* 👈 justo debajo del texto */
+    bottom: -2px; 
     left: 0;
     width: 0%;
     height: 2px;
@@ -287,6 +287,10 @@ body {
     position: relative;
     display: inline-block;
     cursor: pointer;
+    font-size: 20px;
+    font-weight: bold;
+    color: #ffffff;
+    text-decoration: none;
 }
 
 .registro::after {

@@ -1,16 +1,17 @@
-import React, { useState } from 'react';
 import Presentacion from './pages/inicio/Presentacion.jsx'
 import { Login } from './pages/inicio/Login.jsx';
+import { Registro } from './pages/inicio/Registro.jsx';
+import { Route, BrowserRouter as Router, Routes } from 'react-router-dom';
 const App = () => {
 
-  const [vista,setVista] = useState('Principal')
-
-  const cambiarvista=(vista)=> setVista(vista)
   return (
-    <div>
-        {vista == 'Principal' && <Presentacion cambiarvista={cambiarvista}/>}
-        {vista=='Login' && <Login cambiarvista={cambiarvista}/>}
-    </div>
+    <Router>
+      <Routes >
+        <Route path='/' element={<Presentacion />}/>
+        <Route path='/Login' element={<Login />} />
+        <Route path='/Registro' element={<Registro />}/>
+      </Routes>
+    </Router>
   );
 };
 

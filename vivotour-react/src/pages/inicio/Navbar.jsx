@@ -2,8 +2,9 @@ import React from 'react';
 import './style/Navbar.css';
 import logo from '../../assets/Logos/logo.png';
 import vivoTour from '../../assets/Logos/vivoTour.png';
+import { Link } from 'react-router-dom';
 
-const Nav = ({cambiarvista}) => {
+const Nav = () => {
   return (
     <div className="nav" id="navaccess">
       <div className="logos">
@@ -18,7 +19,7 @@ const Nav = ({cambiarvista}) => {
       </nav>
 
       <div className="acces">
-        <button className="btnav btnlog" onClick={()=>cambiarvista('Login')}>Acceder</button>
+        <Link to={"/Login"} className="btnav btnlog">Acceder</Link>
       </div>
     </div>
   );

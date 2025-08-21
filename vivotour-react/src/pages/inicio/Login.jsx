@@ -1,9 +1,10 @@
 import React, { useState } from "react";
 import "./style/Login.css";
 import Footer from "../../components/use/Footer";
+import { Link } from "react-router-dom";
 
 
-export const Login = ({ cambiarvista }) => {
+export const Login = () => {
     const [showPassword, setShowPassword] = useState(false);
     const handleSubmit = (e) => {
         e.preventDefault();
@@ -11,6 +12,7 @@ export const Login = ({ cambiarvista }) => {
     return (
         <div>
             <div className="maindiv">
+                <Link to={"/"}>
                 <svg
                     className="arrow-icon"
                     aria-hidden="true"
@@ -19,7 +21,7 @@ export const Login = ({ cambiarvista }) => {
                     height="50"
                     fill="none"
                     viewBox="0 0 24 24"
-                    onClick={() => cambiarvista("Principal")}
+                    
                 >
                     <path
                         stroke="currentColor"
@@ -29,6 +31,7 @@ export const Login = ({ cambiarvista }) => {
                         d="M5 12h14M5 12l4-4m-4 4 4 4"
                     />
                 </svg>
+                </Link>
 
                 <div className="divlogin">
                     <h1>Iniciar Sesion</h1>
@@ -106,7 +109,7 @@ export const Login = ({ cambiarvista }) => {
 
                     <div className="register">
                         <h3>No te has registrado?</h3>
-                        <h3 className="registro">Registrate</h3>
+                        <Link to={"/Registro"} className="registro" >Registrate</Link>
                     </div>
                 </div>
             </div>
