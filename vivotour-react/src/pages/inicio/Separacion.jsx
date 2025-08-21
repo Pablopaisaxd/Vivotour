@@ -13,28 +13,28 @@ const Separacion = () => {
 
             <div className="square1">
                 <div className="imgres">
-                    <img className="darkimgs" src={icons1} alt="Precios accesibles" height="30%" style={{ paddingTop: '20px' }} />
+                    <img className="darkimgs" src={icons1} alt="Precios accesibles" height="25%" style={{ paddingTop: '15px' }} />
                     <p className="ps">Precios accesibles</p>
                 </div>
             </div>
             <div className="line1"></div>
             <div className="square1">
                 <div className="imgres">
-                    <img className="darkimgs" src={icons2} alt="Servicio al cliente" height="32%" style={{ paddingTop: '12px' }} />
+                    <img className="darkimgs" src={icons2} alt="Servicio al cliente" height="26%" style={{ paddingTop: '10px' }} />
                     <p className="ps">Servicio al cliente</p>
                 </div>
             </div>
             <div className="line1"></div>
             <div className="square1">
                 <div className="imgres">
-                    <img className="darkimgs" src={icons3} alt="Paisajes" height="32%" style={{ paddingTop: '10px' }} />
+                    <img className="darkimgs" src={icons3} alt="Paisajes" height="28%" style={{ paddingTop: '10px' }} />
                     <p className="ps">Paisajes</p>
                 </div>
             </div>
             <div className="line1"></div>
             <div className="square1">
                 <div className="imgres">
-                    <img className="darkimgs" src={icons4} alt="Exploración" height="30%" style={{ paddingTop: '12px' }} />
+                    <img className="darkimgs" src={icons4} alt="Exploración" height="28%" style={{ paddingTop: '10px' }} />
                     <p className="ps">Exploración</p>
                 </div>
             </div>

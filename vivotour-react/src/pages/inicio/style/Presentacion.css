@@ -2,7 +2,7 @@
     height: 86vh;
     display: flex;
     align-items: center;
-    background: aliceblue;
+    background-color: #40CF55;
     justify-content: space-around;
     padding-top: 80px;
     transition: all 1.5s ease;
@@ -22,9 +22,10 @@
     justify-content: center;
     height: 50%;
     width: 90%;
-    background-color: #9ed78b;
+    background-color: aliceblue;
     border-radius: 20px;
     padding: 20px;
+    color:#1A181B;
 }
 
 .hsomos {
@@ -46,12 +47,13 @@
     align-items: center;
     height: 100%;
     width: 100%;
+    
 }
 
 .nuestro {
     height: 5vh;
     width: 25vh;
-    background-color: #52ab34;
+    background-color: aliceblue;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -61,13 +63,13 @@
 }
 
 .pservicios {
-    color: aliceblue;
+    color: #1B665C;
     font-size: 17px;
     cursor: pointer;
 }
 
 :root {
-    --border-color: #06141D; 
+    --border-color: aliceblue; 
 }
 
 .sservicios {
@@ -106,7 +108,7 @@
 .mas {
     height: 5vh;
     width: 15vh;
-    background-color: #52ab34;
+     background-color: #2EAB9A;
     display: flex;
     justify-content: center;
     align-items: center;

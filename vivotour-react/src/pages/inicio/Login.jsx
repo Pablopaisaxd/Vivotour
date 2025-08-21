@@ -11,7 +11,9 @@ export const Login = () => {
     };
     return (
         <div>
+            
             <div className="maindiv">
+                <div className="font-login">
                 <Link to={"/"}>
                 <svg
                     className="arrow-icon"
@@ -112,6 +114,7 @@ export const Login = () => {
                         <Link to={"/Registro"} className="registro" >Registrate</Link>
                     </div>
                 </div>
+            </div>
             </div>
             <Footer />
         </div>

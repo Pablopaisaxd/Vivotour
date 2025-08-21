@@ -4,18 +4,19 @@
     padding: 0;
 }
 
-@font-face {
-    font-family: "comic";
-    src: url("../Media/Fonts/COMIC.TTF") format("truetype");
-}
-
 body {
     font-family: comic;
 }
 
 /* estilos del Login */
+.font-login{
+    background-color: #ffffffd3;
+    height: 100%;
+
+}
+
 .maindiv {
-    background-image: url(../../../assets/Fondos/fondo666.png);
+        background-image: url(../../../assets/Fondos/fondo666.png);
     height: 100vh;
     background-position: center;
     background-size: 100vw 100vh;

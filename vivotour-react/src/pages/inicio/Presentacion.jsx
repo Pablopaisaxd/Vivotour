@@ -53,10 +53,7 @@ const Presentacion = ({cambiarvista}) => {
                     <p className="contentp">Somos La Ventana del Río Melcocho, un destino mágico ubicado en el corazón
                         de Cocorná,
                         Antioquia, donde la belleza natural y la tranquilidad se fusionan para ofrecerte
-                        una experiencia inolvidable. Somos mucho más que un lugar, somos tu conexión con la
-                        naturaleza,
-                        un refugio perfecto para quienes buscan aventura, descanso y momentos únicos
-                        en un entorno espectacular.
+                        una experiencia inolvidable.
                     </p>
                     <p className="pfinal">¡Explora con nosotros un paraíso natural!</p>
                 </div>
