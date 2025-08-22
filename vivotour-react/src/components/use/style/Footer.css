@@ -1,5 +1,5 @@
 footer {
-    background: #000000;
+    background: #1A181B;
     padding-top: 80px;
     color: white;
 }
@@ -57,7 +57,7 @@ h3 {
 }
 
 .container a:hover {
-    color: rgba(0, 128, 10, 1);
+    color: #2BA998;
 }
 
 .footerend {

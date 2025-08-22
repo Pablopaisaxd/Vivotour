@@ -17,13 +17,17 @@ body {
     background-size: 100vw 100vh;
     background-repeat: no-repeat;
 }
+.font-registro {
+    background-color: #ffffffd3;
+    height: 100%;
+}
 
 .divregistro {
     position: absolute;
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    background-color: rgba(30, 58, 35, 0.8);
+    background-color: #40CF55;
     border-radius: 15px;
     padding: 40px;
     width: 90%;
@@ -37,7 +41,7 @@ body {
     text-align: center;
     margin-bottom: 30px;
     font-size: 28px;
-    color: white;
+    color: #F1EDEE;
     font-weight: normal;
 }
 
@@ -51,7 +55,7 @@ body {
     padding: 12px;
     border-radius: 5px;
     border: 1px solid #ccc;
-    background-color: white;
+    background-color: #fff;
     font-size: 16px;
     margin-bottom: 10px;
 }
@@ -59,7 +63,7 @@ body {
     display: flex;
     align-items: start;
     justify-content: start;
-    color: #fff;
+    color: #F1EDEE;
 }
 
 
@@ -140,7 +144,7 @@ body {
 .register-btn {
     width: 100%;
     padding: 12px;
-    background-color: #0b5c10;
+    background-color:#1A181B;
     color: white;
     border: none;
     border-radius: 5px;
@@ -151,7 +155,7 @@ body {
 }
 
 .register-btn:hover {
-    background-color: #0a2a0c;
+    background-color: #2ba998;
 }
 
 
@@ -174,7 +178,7 @@ body {
   display: inline-block;
   cursor: pointer;
   text-decoration: none;
-  color: white;
+  color: #F1EDEE;
   font-size: 20px;
     font-weight: bold;
 }
@@ -186,7 +190,7 @@ body {
   left: 0;
   width: 0%;
   height: 2px;
-  background-color: rgb(255, 255, 255); /* o el color que quieras */
+  background-color: #F1EDEE; /* o el color que quieras */
   transition: width 0.3s ease;
 }
 
