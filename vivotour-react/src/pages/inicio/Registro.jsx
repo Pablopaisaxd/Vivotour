@@ -1,12 +1,13 @@
-import React, { useState } from "react";
+import React, {useState } from "react";
 import "/src/pages/inicio/style/Registro.css";
 import PhoneInput from "react-phone-number-input";
 import "react-phone-number-input/style.css";
 import { Controller, useForm } from "react-hook-form";
 import Footer from "../../components/use/Footer";
-import { Link } from "react-router-dom";
+import { Link,  useNavigate } from "react-router-dom";
 
 export const Registro = () => {
+    const navigate = useNavigate();
     const {
         register,
         handleSubmit,
@@ -15,9 +16,48 @@ export const Registro = () => {
         formState: { errors },
     } = useForm();
 
-    const Submit = (data) => {
-        console.log(data);
-    };
+    // const [value, setValue] = useState({
+    //     nombre: "",
+    //     email: "",
+    //     telefono: "",
+    //     tipo: "CC",
+    //     documento: "",
+    //     password: "",
+    //     confirmPassword: "",
+    // })
+
+    const [message, setMessage] = useState("");
+
+ const Submit = async (data) => {
+  try {
+    const res = await fetch("http://localhost:5000/registro", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(data),
+    });
+
+    console.log("Estado HTTP:", res.status);
+    
+
+    const result = await res.json(success => success);
+    console.log("Respuesta del servidor:", result);
+
+    if (result.success) {
+      localStorage.setItem("token");
+      setMessage(result.mensaje);
+      setTimeout(() => navigate("/"), 3000);
+    } else {
+      setMessage(result.mensaje);
+    }
+  } catch (error) {
+    console.error("Error en fetch:", error);
+    setMessage("Hubo un error de conexión");
+  }
+
+  console.log("Form data enviado:", data);
+};
+
+
 
     const password = watch("password");
 
@@ -28,6 +68,7 @@ export const Registro = () => {
                 <div className="font-registro">
                 <div className="divregistro">
                     <h1>Registro</h1>
+                    {message && <p className="success-message">{message}</p>}
 
                     <form
                         onSubmit={handleSubmit(Submit)}
@@ -64,7 +105,7 @@ export const Registro = () => {
                         <p className="errorp">{errors.email.message}</p>
                         </div>}
                         <Controller
-                            name="telefono"
+                            name="celular"
                             control={control}
                             rules={{
                                 required: "El teléfono es obligatorio",
@@ -90,16 +131,18 @@ export const Registro = () => {
                             )}
                         />
                         <div className="input-documento">
-                            <select name="tipo" className="tipo" required>
+                            <select name="tipo" className="tipo" {...register("tipoDocumento")}>
                                 <option value="CC">CC</option>
                                 <option value="TI">TI</option>
                                 <option value="DNI">DNI</option>
+                                <option value="CE">CE</option>
+                                <option value="NIT">NIT</option>
                             </select>
 
                             <input
                                 type="text"
                                 id="documento"
-                                {...register("documento", {
+                                {...register("numeroDocumento", {
                                     required: "El documento es obligatorio",
                                     pattern: {
                                         value: /^[0-9]+$/,
@@ -110,9 +153,9 @@ export const Registro = () => {
                             />
                         </div>
 
-                        {errors.documento && (
+                        {errors.numeroDocumento && (
                             <div className="errordiv">
-                            <p className="errorp">{errors.documento.message}</p>
+                            <p className="errorp">{errors.numeroDocumento.message}</p>
                             </div>
                         )}
 
