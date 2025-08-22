@@ -11,7 +11,6 @@ import imgG7 from '../../assets/Fondos/Cabalgata.jpg';
 import imgG8 from '../../assets/Fondos/Jacuzzi hamaca.jpg';
 
 const Galeria = () => {
-    
     return (
         <div className="galeria">
             <div className="sec sec1">
@@ -36,7 +35,7 @@ const Galeria = () => {
                 <img src={imgG7} alt="Cabalgata" />
             </div>
             <div className="sec sec8">
-                <img src={imgG8} alt="Jacuzzis" />
+                <img src={imgG8} alt="Jacuzzi" />
             </div>
         </div>
     );
