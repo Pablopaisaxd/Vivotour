@@ -14,7 +14,7 @@ export const Login = () => {
             
             <div className="maindiv">
                 <div className="font-login">
-                <Link to={"/"}>
+                {/* <Link to={"/"}>
                 <svg
                     className="arrow-icon"
                     aria-hidden="true"
@@ -33,7 +33,7 @@ export const Login = () => {
                         d="M5 12h14M5 12l4-4m-4 4 4 4"
                     />
                 </svg>
-                </Link>
+                </Link> */}
 
                 <div className="divlogin">
                     <h1>Iniciar Sesion</h1>
@@ -75,7 +75,7 @@ export const Login = () => {
                                 <input type="checkbox" id="remember" />
                                 <label>Recordar contraseña</label>
                             </div>
-                            <a className="forgot-password">Olvidé mi contraseña</a>
+                            <Link to={"/forgotpassword"} className="forgot-password">Olvidé mi contraseña</Link>
                         </div>
                         <button className="login-btn">Iniciar Sesion</button>
                     </form>

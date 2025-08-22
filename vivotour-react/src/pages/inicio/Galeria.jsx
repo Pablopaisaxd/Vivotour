@@ -11,7 +11,6 @@ import imgG7 from '../../assets/Fondos/Cabalgata.jpg';
 import imgG8 from '../../assets/Fondos/Jacuzzi hamaca.jpg';
 
 const Galeria = () => {
-    
     return (
         <div className="galeria">
             <div className="sec sec1">

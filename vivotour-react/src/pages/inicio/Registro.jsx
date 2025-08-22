@@ -25,6 +25,7 @@ export const Registro = () => {
     return (
         <div>
             <div className="maindiv">
+                <div className="font-registro">
                 <div className="divregistro">
                     <h1>Registro</h1>
 
@@ -186,6 +187,7 @@ export const Registro = () => {
                         <Link to={"/Login"} className="sesion">Inicia Sesión</Link>
                     </div>
                 </div>
+            </div>
             </div>
             <Footer />
         </div>
