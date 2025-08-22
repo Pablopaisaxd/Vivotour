@@ -8,15 +8,15 @@ const Footer = () => {
                 <div className="footer-content">
                     <h3>REDES SOCIALES</h3>
                     <ul className="list">
-                        <li><a className="footeropc" href="https://www.facebook.com">FACEBOOK</a></li>
-                        <li><a className="footeropc" href="https://www.instagram.com">INSTAGRAM</a></li>
-                        <li><a className="footeropc" href="https://www.whatsapp.com">WHATSAPP</a></li>
+                        <li><a className="footeropc" href="https://www.facebook.com/ventanadelmelcocho">FACEBOOK</a></li>
+                        <li><a className="footeropc" href="https://www.instagram.com/ventanadelmelcocho">INSTAGRAM</a></li>
+                        <li><a className="footeropc" href="https://wa.link/cklhli">WHATSAPP</a></li>
                     </ul>
                 </div>
                 <div className="footer-content">
                     <h3>CONTACTOS</h3>
+                    <p>Telefono: +57 322 2212850</p>
                     <p>Telefono: +57 322 4435315</p>
-                    <p>Telefono: +57 321 6921773</p>
                     <ul className="list">
                         <li>Email: <a className="footeropc" href="mailto:laventanadelriomelcocho@gmail.com">laventanadelriomelcocho@gmail.com</a></li>
                     </ul>
@@ -37,7 +37,7 @@ const Footer = () => {
                     <li><a className="footeropc" href="">Soporte Tecnico</a></li>
                 </ul>
                 <ul className="list">
-                    <li><a className="footeropc" href="">WRHV+69 COCORNA, ANTIOQUIA</a></li>
+                    <li><a className="footeropc" href="https://maps.app.goo.gl/RnXtyzBDdyVTeeV7A">WRHV+69 COCORNA, ANTIOQUIA</a></li>
                 </ul>
             </div>
         </footer>
