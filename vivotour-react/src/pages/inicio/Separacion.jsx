@@ -9,6 +9,7 @@ import icons4 from '../../assets/icons/round-travel-explore.png';
 const Separacion = () => {
     return (
         <div className="res">
+            <div className='mid'></div>
             <div className="line1"></div>
 
             <div className="square1">

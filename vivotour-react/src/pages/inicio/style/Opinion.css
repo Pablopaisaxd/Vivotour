@@ -40,25 +40,26 @@
 
 
 .opr {
+    height: 60%;
     display: flex;
     justify-content: center;
     align-items: center;
     margin-top: 4%;
-    padding: 10px;
+    padding: 25px;
 }
 
 .op1, .op2, .op3 {
     height: 25vh;
     width: 90%;
     position: relative;
-    right: 10%;
+    right: 17%;
     box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.548);
     border-radius: 20px;
     background-color: aliceblue;
 }
 
 .op2{
-    right: 27%;
+    right: 30%;
 }
 
 .opimg {
@@ -94,7 +95,7 @@
     grid-row: 3;
     justify-self: center;
     align-self: center;
-    background-color: #52ab34;
+    background-color: #4bac35;
     border-radius: 20px;
     border: 1px solid #428a2a;
     display: flex;
@@ -105,5 +106,5 @@
 }
 .opinas {
     position: relative;
-    left: 25%;
+    left: 24%;
 }

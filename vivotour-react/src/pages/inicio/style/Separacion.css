@@ -1,39 +1,37 @@
-.line1 {
-    border: 2px solid var(--border-color);
+.mid {
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: -1;
+    height: 10vh;
     width: 100%;
+    background-color: #5fbf3f;
 }
 
 .res {
-    height: 20vh;
     display: flex;
     align-items: center;
     justify-content: space-around;
-    background-color: aliceblue;
     transition: all 1.5s ease;
     margin-bottom: 5rem;
+    height: 20vh;
+    position: relative; 
+}
+
+.line1 {
+    border: 2px solid #1A181B;
+    width: 100%;
 }
 
 .square1 {
     height: 20vh;
     width: 80vw;
-    border: 3.5px solid var(--border-color);
+padding-top: 1%;
+    border: 3.5px solid #1A181B;
     border-radius: 15px;
-    background-color: #64cf40;
+    background-color: aliceblue;
     display: flex;
     flex-direction: column;
     overflow: hidden;
     cursor: pointer;
-}
-
-.imgres {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-}
-
-.ps {
-    text-align: center;
-    font-size: 15px;
-    width: 70px;
-    height: auto;
 }

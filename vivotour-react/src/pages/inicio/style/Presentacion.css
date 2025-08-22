@@ -2,16 +2,19 @@
     height: 86vh;
     display: flex;
     align-items: center;
-    background-color: #40CF55;
     justify-content: space-around;
     padding-top: 80px;
     transition: all 1.5s ease;
+    background: linear-gradient(to top, #5fbf3f, #4bac35);
 }
+
+
 
 .somos {
     display: flex;
     flex-direction: column;
     align-items: center;
+    margin-top: 2%;
     height: 65vh;
     width: 45vw;
 }
@@ -53,17 +56,18 @@
 .nuestro {
     height: 5vh;
     width: 25vh;
-    background-color: aliceblue;
+    background-color: var(--border-color);
     display: flex;
     justify-content: center;
     align-items: center;
     border-radius: 20px;
+    border: 3px solid #1A181B;
     position: relative;
     top: 2.5vh;
 }
 
 .pservicios {
-    color: #1B665C;
+    color: #1A181B;
     font-size: 17px;
     cursor: pointer;
 }
@@ -75,7 +79,8 @@
 .sservicios {
     height: 25vh;
     width: 40vw;
-    border: 3px solid var(--border-color);
+    background-color: aliceblue;
+    border: 3px solid #1A181B;
     border-radius: 20px;
     display: grid;
     grid-template-columns: repeat(4, 1fr);
@@ -95,7 +100,7 @@
     align-items: center;
     height: 12vh;
     width: 5.7vw;
-    border: 3px solid var(--border-color);
+    border: 3px solid #1A181B;
     border-radius: 50px;
     margin-bottom: 5px;
     cursor: pointer;
@@ -103,16 +108,18 @@
 
 .ps {
     font-size: 17px;
+    color: #1B665C;
 }
 
 .mas {
     height: 5vh;
     width: 15vh;
-     background-color: #2EAB9A;
+    background-color: var(--border-color);
     display: flex;
     justify-content: center;
     align-items: center;
     border-radius: 20px;
+    border: 3px solid #1A181B;
     position: relative;
     bottom: 2.5vh;
 }
