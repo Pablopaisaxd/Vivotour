@@ -5,11 +5,15 @@
 }
 
 .opres {
-    width: 100%;
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    grid-template-rows: repeat(3, 1fr);
-    background-color: aliceblue;
+  width: 100%;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  grid-template-rows: repeat(3, 1fr);
+  background: linear-gradient(to right,
+    #d8d8d8 0%,     /* tono más oscuro al inicio */
+    #f0f8ff 50%,    /* tono claro al centro */
+    #d8d8d8 100%    /* tono más oscuro al final */
+  );
 }
 
 .desper {

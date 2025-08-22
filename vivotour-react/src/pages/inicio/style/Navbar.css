@@ -2,7 +2,11 @@
     position: absolute;
     width: 100%;
     height: 12vh;
-    background-color: rgb(240, 248, 255);
+    background: linear-gradient(to right,
+    #d8d8d8 0%,     /* tono más oscuro al inicio */
+    #f0f8ff 50%,    /* tono claro al centro */
+    #d8d8d8 100%    /* tono más oscuro al final */
+  );
     box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.256);
     overflow: hidden;
     transition: all 1.5s ease;
