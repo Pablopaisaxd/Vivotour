@@ -1,14 +1,36 @@
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
 import "./style/Login.css";
 import Footer from "../../components/use/Footer";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { useForm } from "react-hook-form";
+import { AuthContext } from "../../AuthContext";
+import axios from "axios";
 
 
 export const Login = () => {
+
+    const { register, handleSubmit, formState: { errors } } = useForm();
+  const navigate = useNavigate();
+  const { login } = useContext(AuthContext);
+
+
+
     const [showPassword, setShowPassword] = useState(false);
-    const handleSubmit = (e) => {
-        e.preventDefault();
-    };
+   const Submit = async (data) => {
+  try {
+    const res = await axios.post("http://localhost:5000/login", data); // await aquí
+    console.log("Respuesta del server:", res.data);
+
+    if (res.data.success) {
+      login(res.data.token, { nombre: res.data.nombre || data.email });
+      navigate("/");
+    } else {
+      alert(res.data.mensaje);
+    }
+  } catch (error) {
+    console.error(error);
+  }
+};
     return (
         <div>
             
@@ -37,14 +59,17 @@ export const Login = () => {
 
                 <div className="divlogin">
                     <h1>Iniciar Sesion</h1>
-                    <form action="" id="form-login" onSubmit={handleSubmit}>
+                    <form action="" id="form-login" onSubmit={handleSubmit(Submit)}>
+                        {errors.email && <div className="errordiv"><p>{errors.email.message}</p></div>}
                         <div className="inputslogin">
-                            <input type="email" id="email" placeholder="Email" />
+                            <input type="email" id="email" placeholder="Email" {...register("email",{required:"El email es obligatorio"})} />
+                            
                         </div>
+                        
 
                         <div className="inputslogin">
                             <div className="password-div">
-                                <input type={showPassword ? "text" : "password"} id="password" placeholder="Contraseña"  />
+                                <input type={showPassword ? "text" : "password"} id="password" placeholder="Contraseña" {...register("password",{required:"La contraseña es obligatoria"})} />
                                 <span
                                     className="toggle-password"
                                     onClick={() => setShowPassword(!showPassword)}
@@ -68,6 +93,7 @@ export const Login = () => {
                                     </svg>
                                 </span>
                             </div>
+                            {errors.password && <div className="errordiv"><p>{errors.password   .message}</p></div>}
                         </div>
 
                         <div className="remember-div">

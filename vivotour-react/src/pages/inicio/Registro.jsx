@@ -5,9 +5,10 @@ import "react-phone-number-input/style.css";
 import { Controller, useForm } from "react-hook-form";
 import Footer from "../../components/use/Footer";
 import { Link,  useNavigate } from "react-router-dom";
+import axios from "axios";
 
 export const Registro = () => {
-    const navigate = useNavigate();
+    
     const {
         register,
         handleSubmit,
@@ -16,42 +17,26 @@ export const Registro = () => {
         formState: { errors },
     } = useForm();
 
-    // const [value, setValue] = useState({
-    //     nombre: "",
-    //     email: "",
-    //     telefono: "",
-    //     tipo: "CC",
-    //     documento: "",
-    //     password: "",
-    //     confirmPassword: "",
-    // })
 
+
+    
     const [message, setMessage] = useState("");
+    const navigate = useNavigate();
 
  const Submit = async (data) => {
-  try {
-    const res = await fetch("http://localhost:5000/registro", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(data),
-    });
+  try{
+    const res = await axios.post("http://localhost:5000/registro",data)
+    console.log("Respuesta server:", res.data)
 
-    console.log("Estado HTTP:", res.status);
-    
-
-    const result = await res.json(success => success);
-    console.log("Respuesta del servidor:", result);
-
-    if (result.success) {
-      localStorage.setItem("token");
-      setMessage(result.mensaje);
-      setTimeout(() => navigate("/"), 3000);
-    } else {
-      setMessage(result.mensaje);
+    if (res.data.success) {
+        localStorage.setItem("token", res.data.token)
+        setMessage(res.data.mensaje)
+        setTimeout(()=> navigate("/"),3000)
+    }else{
+        setMessage(res.data.mensaje)
     }
-  } catch (error) {
-    console.error("Error en fetch:", error);
-    setMessage("Hubo un error de conexión");
+  }catch (error){
+    console.error(error)
   }
 
   console.log("Form data enviado:", data);

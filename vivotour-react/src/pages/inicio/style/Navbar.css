@@ -19,6 +19,10 @@
     align-items: center;
 }
 
+.login-user{
+    color: #1A181B;
+}
+
 .imgven {
     height: 60px; 
 }
