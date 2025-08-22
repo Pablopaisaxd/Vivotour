@@ -8,7 +8,7 @@
     display: flex;
     align-items: center;
     justify-content: space-around;
-    background: aliceblue;
+    background-color: aliceblue;
     transition: all 1.5s ease;
     margin-bottom: 5rem;
 }
@@ -18,7 +18,7 @@
     width: 80vw;
     border: 3.5px solid var(--border-color);
     border-radius: 15px;
-    background-color: #9ed78b;
+    background-color: #64cf40;
     display: flex;
     flex-direction: column;
     overflow: hidden;
@@ -32,6 +32,8 @@
 }
 
 .ps {
-    margin-top: 10px;
     text-align: center;
+    font-size: 15px;
+    width: 70px;
+    height: auto;
 }

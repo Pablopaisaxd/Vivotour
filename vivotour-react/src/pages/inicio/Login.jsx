@@ -1,16 +1,20 @@
 import React, { useState } from "react";
 import "./style/Login.css";
 import Footer from "../../components/use/Footer";
+import { Link } from "react-router-dom";
 
 
-export const Login = ({ cambiarvista }) => {
+export const Login = () => {
     const [showPassword, setShowPassword] = useState(false);
     const handleSubmit = (e) => {
         e.preventDefault();
     };
     return (
         <div>
+            
             <div className="maindiv">
+                <div className="font-login">
+                <Link to={"/"}>
                 <svg
                     className="arrow-icon"
                     aria-hidden="true"
@@ -19,7 +23,7 @@ export const Login = ({ cambiarvista }) => {
                     height="50"
                     fill="none"
                     viewBox="0 0 24 24"
-                    onClick={() => cambiarvista("Principal")}
+                    
                 >
                     <path
                         stroke="currentColor"
@@ -29,6 +33,7 @@ export const Login = ({ cambiarvista }) => {
                         d="M5 12h14M5 12l4-4m-4 4 4 4"
                     />
                 </svg>
+                </Link>
 
                 <div className="divlogin">
                     <h1>Iniciar Sesion</h1>
@@ -84,29 +89,32 @@ export const Login = ({ cambiarvista }) => {
                     <div className="login-method">
                         <div className="method">
                             <img
-                                src="../../assets/Icons/Facebook.png"
+                                src="/src/assets/Icons/Facebook.png"
                                 alt="facebook"
                             />
                         </div>
-                        <div className="method">
+                        <div className="method google">
                             <img
-                                src="../../assets/Icons/Google.png"
+                                src="/src/assets/Icons/Google.png"
                                 alt="google"
+                                className="Google"
                             />
                         </div>
-                        <div className="method">
+                        <div className="method apple">
                             <img
-                                src="../../assets/Icons/Apple.png"
+                                src="/src/assets/Icons/Apple.png"
                                 alt="apple"
+                                className="Apple"
                             />
                         </div>
                     </div>
 
                     <div className="register">
                         <h3>No te has registrado?</h3>
-                        <h3 className="registro">Registrate</h3>
+                        <Link to={"/Registro"} className="registro" >Registrate</Link>
                     </div>
                 </div>
+            </div>
             </div>
             <Footer />
         </div>

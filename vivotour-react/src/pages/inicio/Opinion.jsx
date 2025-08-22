@@ -77,7 +77,11 @@ const Opinion = () => {
                 </div>
                 
                 <div className="masres">
-                    <h3>Reserva ahora</h3>
+                    <p>Reserva ahora</p>
+                </div>
+
+                <div className="masres opinas">
+                    <p>Qué opinas?</p>
                 </div>
             </div>
         </div>
