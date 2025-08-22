@@ -33,12 +33,12 @@ const Opinion = () => {
     const opinions = [
         {
             name: 'Roberto Jacinto Ramírez',
-            text: 'La Ventana del Río Melcocho es un paraíso escondido, con aguas cristalinas y paisajes espectaculares. La organización del tour fue impecable.',
+            text: 'La Ventana del Río Melcocho es un paraíso con aguas cristalinas y paisajes espectaculares. La organización del tour fue impecable.',
             image: imgs6
         },
         {
             name: 'Luis Giraldo Vargas',
-            text: 'Pasé un fin de semana inolvidable con Vivo Tour. Desde las fogatas bajo las estrellas hasta las cabalgatas por los senderos de Cocorná, cada momento fue especial.',
+            text: 'Pasé un fin de semana inolvidable con Vivo Tour. Desde las fogatas bajo las estrellas hasta las cabalgatas por los senderos de Cocorná.',
             image: imgs7
         },
         {
