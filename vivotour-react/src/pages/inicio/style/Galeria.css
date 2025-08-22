@@ -6,7 +6,6 @@
     box-shadow: 0px 0px 20px rgba(0, 0, 0, 0.534);
     cursor: pointer;
     overflow: hidden;
-    margin-bottom: 5rem;
 }
 
 @media (max-width: 768px) {
