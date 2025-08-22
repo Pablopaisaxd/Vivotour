@@ -3,9 +3,9 @@
     width: 100%;
     height: 12vh;
     background: linear-gradient(to right,
-    #d8d8d8 0%,     /* tono más oscuro al inicio */
-    #f0f8ff 50%,    /* tono claro al centro */
-    #d8d8d8 100%    /* tono más oscuro al final */
+    #d8d8d8 0%,
+    #f0f8ff 50%,
+    #d8d8d8 100%
   );
     box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.256);
     overflow: hidden;
@@ -60,7 +60,7 @@
 .btnlog {
     width: auto; 
     height: 2.5rem;
-    background-color: #52ab34;
+    background-color: #4bac35;
     border: none;
     border-radius: 20px;
     text-decoration: none;
@@ -71,7 +71,7 @@
 }
 
 .btnlog:hover {
-    background-color: #4cae4c;
+    background-color: rgb(72, 163, 72);
 }
 
 /* media queries */
