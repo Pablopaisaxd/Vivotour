@@ -30,8 +30,7 @@ export const Registro = () => {
 
     if (res.data.success) {
         localStorage.setItem("token", res.data.token)
-        setMessage(res.data.mensaje)
-        setTimeout(()=> navigate("/"),3000)
+        setTimeout(()=> navigate("/"),1000)
     }else{
         setMessage(res.data.mensaje)
     }
@@ -53,7 +52,6 @@ export const Registro = () => {
                 <div className="font-registro">
                 <div className="divregistro">
                     <h1>Registro</h1>
-                    {message && <p className="success-message">{message}</p>}
 
                     <form
                         onSubmit={handleSubmit(Submit)}

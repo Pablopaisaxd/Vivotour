@@ -1,7 +1,7 @@
 import React, { useContext, useState } from "react";
 import "./style/Login.css";
 import Footer from "../../components/use/Footer";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { AuthContext } from "../../AuthContext";
 import axios from "axios";
@@ -16,14 +16,15 @@ export const Login = () => {
 
 
     const [showPassword, setShowPassword] = useState(false);
-   const Submit = async (data) => {
-  try {
-    const res = await axios.post("http://localhost:5000/login", data); // await aquí
-    console.log("Respuesta del server:", res.data);
+  const location = useLocation();
+const from = location.state?.from || "/";
 
+const Submit = async (data) => {
+  try {
+    const res = await axios.post("http://localhost:5000/Login", data);
     if (res.data.success) {
-      login(res.data.token, { nombre: res.data.nombre || data.email });
-      navigate("/");
+      login(res.data.token, { nombre: data.email });
+      navigate(from, { replace: true }); // <- reemplaza el historial también
     } else {
       alert(res.data.mensaje);
     }

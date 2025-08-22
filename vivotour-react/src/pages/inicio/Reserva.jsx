@@ -1,9 +1,13 @@
 import React, { useState } from 'react';
 import './style/Reserva.css';
 import Footer from '../../components/use/Footer';
+import { useContext, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import jsPDF from "jspdf";
 
 import imgR1 from '../../assets/Fondos/Cabaña estandar.jpg';
 import imgR2 from '../../assets/Fondos/refcamping.jpg';
+import { AuthContext } from '../../AuthContext';
 
 const ACTIVITIES = [
     'Caminata a la cascada',
@@ -14,6 +18,7 @@ const ACTIVITIES = [
     'Charco',
     'Cabalgatas'
 ];
+
 
 const MEALS = ['Desayuno', 'Almuerzo', 'Cena'];
 
@@ -32,7 +37,6 @@ const Reserva = () => {
     const handleAccommodationSelect = (type) => {
         setAccommodationType(type);
     };
-
     const handleAllInclusiveChange = () => {
         if (!allInclusive) {
             setActivities([...ACTIVITIES]);
@@ -109,8 +113,41 @@ const Reserva = () => {
         setSummaryData(null);
     };
 
+const { user } = useContext(AuthContext);
+
+const handleGeneratePDF = () => {
+  if (!summaryData) return;
+
+  const doc = new jsPDF();
+
+  // Título
+  doc.setFontSize(18);
+  doc.text("Confirmación de Reserva", 20, 20);
+
+  // Datos del usuario (AuthContext)
+  doc.setFontSize(12);
+  doc.text(`Nombre: ${user?.nombre || "No disponible"}`, 20, 40);
+doc.text(`Correo: ${user?.correo || user?.email || "No disponible"}`, 20, 50);
+
+  // Datos de la reserva
+  doc.text(`Fecha inicio: ${summaryData.dateS}`, 20, 70);
+  doc.text(`Fecha de Salida: ${summaryData.dateE}`, 20, 80);
+  doc.text(
+    `Cantidad: ${summaryData.adults} adulto(s), ${summaryData.children} niño(s)`,
+    20,
+    90
+  );
+  doc.text(`Alojamiento: ${summaryData.accommodation}`, 20, 100);
+  doc.text(`Actividades: ${summaryData.activities}`, 20, 110);
+  doc.text(`Comidas: ${summaryData.meals}`, 20, 120);
+
+  // Guardar PDF
+  doc.save("reserva.pdf");
+};
+
+
     return (
-        <div className="maindiv">
+        <div className="maindivreserv">
             <div className="divreserv">
                 <div className="divcontainer">
                     <form onSubmit={handleBookNow}>
@@ -247,7 +284,9 @@ const Reserva = () => {
 
                                 <div className="modal-buttons">
                                     <button className="btn-cancel" onClick={handleCloseModal}>Cancelar</button>
-                                    <button className="btn-confirm" onClick={handleSendAndSave}>Enviar y Guardar</button>
+                                    <button className="btn-confirm" onClick={()=>{
+                                              handleSendAndSave();handleGeneratePDF();
+                                    }}>Enviar y Guardar</button>
                                 </div>
                             </div>
                         </div>

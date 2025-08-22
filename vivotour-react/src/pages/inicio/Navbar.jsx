@@ -19,14 +19,13 @@ const Nav = () => {
       <nav className="navbar" id="navbar">
         <a className="btnav" id="btnnav">Inicio</a>
         <a className="btnav btndes" id="btnnav">Descubre</a>
-        <a className="btnav" id="btnres">Reservar</a>
+        <Link to={"/Reserva"} className="btnav" id="btnres">Reservar</Link>
       </nav>
 
       <div className="acces">
         {isAuthenticated ? (
           <>
-          <span className='login-user'>hola, {user?.nombre}</span>
-          <button onClick={logout}>Cerrar sesion</button>
+          <Link to={"/Perfil"} className="btnav btnlog">Ir a tu perfil</Link>
           </>
         ):(<Link to={"/Login"} className="btnav btnlog">Acceder</Link>)}
       </div>

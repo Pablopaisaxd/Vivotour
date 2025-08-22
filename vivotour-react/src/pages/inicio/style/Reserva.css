@@ -5,17 +5,15 @@
 }
 
 body {
-    font-family: sans-serif;
+    font-family: comic;
 }
 
-.maindiv {
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
+.maindivreserv {
+    background-color: #F1EDEE;
 }
 
 .divreserv {
-    background-color: rgba(30, 58, 35, 0.8);
+    background-color: #4bac35;
     border-radius: 15px;
     padding: 40px;
     width: fit-content;
@@ -27,17 +25,16 @@ body {
 }
 
 :root {
-    --primary: #0f1a25;
-    --secondary: #f0f8f4;
-    --accent: #e76f51;
-    --dark: #264653;
-    --light: #f8f9fa;
+    --primary: #1A181B;
+    --secondary: #2BA998;
+    --dark: #2BA998;
+    --light: #2BA998;
 }
 
 .divcontainer {
     max-width: 800px;
     margin: 0 auto;
-    background: white;
+    background: #2BA998;
     padding: 30px;
     border-radius: 15px;
     box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
@@ -47,12 +44,12 @@ body {
     margin-bottom: 25px;
     padding: 20px;
     border-radius: 10px;
-    background-color: var(--light);
+    background-color: #2BA998;
 }
 
 .section-title {
     font-size: 1.2rem;
-    color: var(--primary);
+    color: #F1EDEE;
     margin-bottom: 15px;
 }
 
@@ -211,7 +208,7 @@ button:hover {
 }
 
 .modal-content {
-  background: #fff;
+  background: #2BA998;
   padding: 2rem;
   border-radius: 10px;
   width: 90%;
@@ -227,7 +224,7 @@ button:hover {
 }
 
 .btn-cancel {
-  background: #ccc;
+  background:#F1EDEE;
   border: none;
   padding: 0.7rem 1.2rem;
   border-radius: 5px;
@@ -235,8 +232,8 @@ button:hover {
 }
 
 .btn-confirm {
-  background: #4caf50;
-  color: #fff;
+  background: #1A181B;
+  color:#F1EDEE;
   border: none;
   padding: 0.7rem 1.2rem;
   border-radius: 5px;

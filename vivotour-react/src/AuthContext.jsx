@@ -24,7 +24,9 @@ export const AuthProvider = ({ children }) => {
         }
         
         setIsAuthenticated(true);
-        setUser({ nombre: decoded.nombre }); 
+        setUser({  nombre: decoded.nombre,
+                email: decoded.email, 
+            numeroDocumento: decoded.numeroDocumento, tipoDocumento: decoded.tipoDocumento }); 
       } catch (error) {
         console.error("Token inválido:", error);
         setIsAuthenticated(false);

@@ -26,7 +26,7 @@ app.post("/registro", async (req, res) => {
 
     const [resultado] = await db.query(query, [nombre, email, password, celular, numeroDocumento, tipoDocumento]);
 
-    const token = jwt.sign({ nombre }, JWT_SECRET, { expiresIn: "3h" });
+    const token = jwt.sign({ nombre, email, numeroDocumento, tipoDocumento  }, JWT_SECRET, { expiresIn: "3h" });
 
     res.json({
       success: true,
@@ -59,7 +59,7 @@ app.post("/login", async (req, res) => {
       return res.status(401).json({ success: false, mensaje: "Contraseña incorrecta" });
     }
 
-    const token = jwt.sign({ email: user.email, nombre: user.nombre }, JWT_SECRET, { expiresIn: "3h" });
+    const token = jwt.sign({ nombre: user.nombre,  email: user.email, numeroDocumento: user.numeroDocumento, tipoDocumento: user.tipoDocumento }, JWT_SECRET, { expiresIn: "3h" });
 
     res.json({ success: true, mensaje: "Login exitoso", token });
   } catch (error) {
