@@ -10,10 +10,10 @@
   grid-template-columns: repeat(3, 1fr);
   grid-template-rows: repeat(3, 1fr);
   background: linear-gradient(to right,
-    #d8d8d8 0%,     /* tono más oscuro al inicio */
-    #f0f8ff 50%,    /* tono claro al centro */
-    #d8d8d8 100%    /* tono más oscuro al final */
-  );
+  #d8d8d8 10%,
+  #f0f8ff 50%,
+  #d8d8d8 100%
+  )
 }
 
 .desper {
