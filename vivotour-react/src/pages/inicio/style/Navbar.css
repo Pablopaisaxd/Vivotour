@@ -1,139 +1,102 @@
 .nav {
-    background: var(--rich-black);
-    padding: 1rem 2rem;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    box-shadow: 0 4px 20px rgba(26, 24, 27, 0.3);
-    position: sticky;
-    top: 0;
-    z-index: 1000;
-    backdrop-filter: blur(10px);
+  background: var(--rich-black);
+  box-shadow: 0 4px 20px rgba(26, 24, 27, 0.3);
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
-.logos {
-    display: flex;
-    align-items: center;
-    gap: 1rem;
+.nav-top {
+  width: 100%;
+  display: flex;
+  justify-content: flex-start;
+  padding: 0.5rem 2rem;
+  align-items: center;
 }
 
-.imgven, .imgvivo {
-    height: 50px;
-    width: auto;
-    transition: all 0.3s ease;
-    border-radius: 8px;
-    padding: 5px;
-    background: rgba(240, 248, 255, 0.1);
+.lang-select {
+  background: transparent;
+  border: 1px solid var(--forest-green);
+  color: var(--alice-blue);
+  padding: 0.3rem 0.6rem;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
 }
 
-.imgven:hover, .imgvivo:hover {
-    transform: scale(1.1);
-    background: rgba(255, 201, 20, 0.2);
+.main-logo {
+  height: 70px;
+  width: auto;
 }
 
-.navbar {
-    display: flex;
-    align-items: center;
-    gap: 2rem;
+
+.nav-bottom {
+  display: flex;
+  gap: 2rem;
+  padding: 0.8rem 0;
 }
 
 .btnav {
-    color: var(--alice-blue);
-    text-decoration: none;
-    font-weight: 600;
-    font-size: 1rem;
-    padding: 0.8rem 1.5rem;
-    border-radius: 25px;
-    transition: all 0.3s ease;
-    position: relative;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-}
-
-.btnav::before {
-    content: '';
-    position: absolute;
-    bottom: 0;
-    left: 50%;
-    width: 0;
-    height: 2px;
-    background: linear-gradient(90deg, var(--forest-green), var(--golden-yellow));
-    transition: all 0.3s ease;
-    transform: translateX(-50%);
+  color: var(--alice-blue);
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 1rem;
+  padding: 0.6rem 1rem;
+  border-radius: 25px;
+  transition: all 0.3s ease;
+  text-transform: uppercase;
+  position: relative;
 }
 
 .btnav:hover {
-    color: var(--golden-yellow);
-    background: rgba(75, 172, 53, 0.1);
-    transform: translateY(-2px);
+  color: var(--golden-yellow);
+  background: rgba(75, 172, 53, 0.1);
+  transform: translateY(-2px);
 }
 
-.btnav:hover::before {
-    width: 80%;
-}
-
-.btndes:hover {
-    background: rgba(255, 201, 20, 0.1);
-    color: var(--forest-green);
-}
-
-.acces {
-    display: flex;
-    align-items: center;
-}
 
 .btnlog {
-    background: linear-gradient(135deg, var(--forest-green), var(--golden-yellow));
-    color: white !important;
-    font-weight: 700;
-    border: none;
-    box-shadow: 0 4px 15px rgba(75, 172, 53, 0.3);
+  background: linear-gradient(135deg, var(--forest-green), var(--golden-yellow));
+  color: white !important;
+  font-weight: 700;
+  border: none;
+  padding: 0.6rem 1.5rem;
+  border-radius: 25px;
+  text-decoration: none;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(75, 172, 53, 0.3);
 }
 
 .btnlog:hover {
-    background: linear-gradient(135deg, #3d9129, #e6b412);
-    transform: translateY(-3px);
-    box-shadow: 0 8px 25px rgba(75, 172, 53, 0.4);
-    color: white !important;
+  background: linear-gradient(135deg, #3d9129, #e6b412);
+  transform: translateY(-3px);
+  box-shadow: 0 8px 25px rgba(75, 172, 53, 0.4);
+  color: white !important;
 }
 
-.btnlog::before {
-    display: none;
-}
 
 @media (max-width: 768px) {
-    .nav {
-        flex-direction: column;
-        padding: 1rem;
-        gap: 1rem;
-    }
-    
-    .navbar {
-        gap: 1rem;
-    }
-    
-    .btnav {
-        padding: 0.6rem 1rem;
-        font-size: 0.9rem;
-    }
-    
-    .logos {
-        gap: 0.5rem;
-    }
-    
-    .imgven, .imgvivo {
-        height: 40px;
-    }
+  .nav-bottom {
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 1rem;
+  }
+
+  .main-logo {
+    height: 50px;
+  }
 }
 
 @media (max-width: 480px) {
-    .navbar {
-        flex-direction: column;
-        gap: 0.5rem;
-    }
-    
-    .btnav {
-        padding: 0.5rem 0.8rem;
-        font-size: 0.8rem;
-    }
+  .nav-top {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  .nav-bottom {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
 }

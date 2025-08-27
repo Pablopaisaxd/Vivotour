@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import './style/Opinion.css';
 
-
 import imgs1 from '../../assets/Fondos/columpio delante.jpg';
 import imgs2 from '../../assets/Fondos/turista acostado en hamaca.jpg';
 import imgs3 from '../../assets/Fondos/turistas en rio 2.jpg';
@@ -14,13 +13,7 @@ import imgs8 from '../../assets/Personas/Petro.png';
 
 const Opinion = () => {
     const [currentImageIndex, setCurrentImageIndex] = useState(0);
-    const images = [
-        imgs1,
-        imgs2,
-        imgs3,
-        imgs4,
-        imgs5
-    ];
+    const images = [imgs1, imgs2, imgs3, imgs4, imgs5];
 
     useEffect(() => {
         const interval = setInterval(() => {
@@ -49,44 +42,44 @@ const Opinion = () => {
     ];
 
     return (
-        <div className="opinion" id="Descubre">
+        <section className="opinion" id="Descubre">
             <div className="opres">
-                {opinions.map((opinion, index) => (
-                    <div className={`op${index + 1}`} key={index}>
-                        <div className="desper">
-                            <div className="imgcircle">
-                                <img src={opinion.image} alt={opinion.name} />
-                            </div>
-                            <p>{opinion.name}</p>
-                        </div>
-                        <div className="opr">
-                            <p>{opinion.text}</p>
-                        </div>
+                <div className="left-col">
+                    <div className="opimg" aria-hidden="false">
+                        {images.map((image, index) => (
+                            <img
+                                key={index}
+                                src={image}
+                                alt={`Fondo ${index + 1}`}
+                                className={currentImageIndex === index ? 'active' : 'inactive'}
+                            />
+                        ))}
                     </div>
-                ))}
 
-                <div className="opimg">
-                    {images.map((image, index) => (
-                        <img 
-                            key={index} 
-                            src={image} 
-                            alt="" 
-                            className={currentImageIndex === index ? '' : 'opimgactive'} 
-                        />
+                    <div className="buttons-container" role="group" aria-label="Acciones">
+                        <button className="btn btnreserva">Reserva ahora</button>
+                        <button className="btn btnopina">¿Qué opinas?</button>
+                    </div>
+                </div>
+
+                <div className="right-col">
+                    {opinions.map((opinion, index) => (
+                        <article className="comment" key={index}>
+                            <div className="desper">
+                                <div className="imgcircle">
+                                    <img src={opinion.image} alt={opinion.name} />
+                                </div>
+                                <p className="comment-name">{opinion.name}</p>
+                            </div>
+                            <div className="opr">
+                                <p className="comment-text">{opinion.text}</p>
+                            </div>
+                        </article>
                     ))}
                 </div>
-                
-                <div className="masres">
-                    <p>Reserva ahora</p>
-                </div>
-
-                <div className="masres opinas">
-                    <p>Qué opinas?</p>
-                </div>
             </div>
-        </div>
+        </section>
     );
-
 };
 
 export default Opinion;

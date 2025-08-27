@@ -1,36 +1,105 @@
-.mid {
-    position: absolute;
-    top: 0;
-    left: 0;
-    z-index: -1;
-    height: 10vh;
-    width: 100%;
-    background-color: #5fbf3f;
-}
-
 .res {
     display: flex;
     align-items: center;
     justify-content: space-around;
-    transition: all 1.5s ease;
     margin-bottom: 5rem;
-    height: 20vh;
-    position: relative; 
-}
-
-.line1 {
-    border: 2px solid #1A181B;
+    height: auto;
     width: 100%;
+    gap: 1rem;
 }
 
 .square1 {
-    height: 20vh;
-    width: 80vw;
+    flex: 1;
+    min-width: 180px;
+    height: 18vh;
     border: 3.5px solid #1A181B;
     border-radius: 15px;
     background-color: aliceblue;
     display: flex;
-    flex-direction: column;
-    overflow: hidden;
+    justify-content: center;
+    align-items: center;
     cursor: pointer;
+    padding: 1rem;
+    transition: transform 0.3s ease;
+}
+
+.square1:hover {
+    transform: translateY(-5px);
+}
+
+.imgres {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+/* 🔥 Aquí está el fix de las imágenes */
+.imgicon {
+    width: 60px;
+    height: 60px;
+    object-fit: contain;
+    margin-bottom: 0.5rem;
+    display: block;
+}
+
+.ps {
+    font-size: 1rem;
+    font-weight: 600;
+    color: #1A181B;
+    text-align: center;
+}
+
+/* Línea entre cajas (solo horizontal en PC) */
+.line1 {
+    height: 3px;
+    background-color: #1A181B;
+    flex: 0.2;
+}
+
+/* ----------- RESPONSIVE ----------- */
+@media (max-width: 1024px) {
+    .square1 {
+        height: 15vh;
+    }
+}
+
+@media (max-width: 768px) {
+    .res {
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .square1 {
+        width: 90%;
+        height: auto;
+        padding: 1.2rem;
+    }
+
+    .imgicon {
+        width: 50px;
+        height: 50px;
+    }
+
+    .ps {
+        font-size: 0.95rem;
+    }
+
+    /* Línea ahora vertical */
+    .line1 {
+        width: 3px;
+        height: 30px;
+    }
+}
+
+@media (max-width: 480px) {
+    .ps {
+        font-size: 0.85rem;
+    }
+
+    .imgicon {
+        width: 40px;
+        height: 40px;
+    }
 }
