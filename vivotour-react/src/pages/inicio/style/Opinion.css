@@ -4,6 +4,7 @@
     height: 100%;
     box-sizing: border-box;
     padding: 3rem 2rem;
+    margin-bottom: 4rem;
 }
 
 
@@ -16,6 +17,7 @@
     align-items: start;
     background: linear-gradient(to right, #d8d8d8 10%, #f0f8ff 50%, #d8d8d8 100%);
     border-radius: 12px;
+    padding: 2rem;
 }
 
 
@@ -106,7 +108,7 @@
     background: linear-gradient(135deg, var(--golden-yellow), rgba(255, 201, 20, 0.2));
     transform: translateY(-3px);
     box-shadow: 0 8px 25px rgba(255, 201, 20, 0.25);
-    color: var(--forest-green) !important;  
+    color: #111 !important;  
 }
 
 .right-col {
@@ -120,7 +122,7 @@
 
 .comment {
     display: flex;
-    max-width: 80%;
+    max-width: 70%; /* un poco más angosto para alternar */
     flex-direction: column;
     gap: 0.5rem;
     background: aliceblue;
@@ -136,11 +138,17 @@
     align-items: center;
     gap: 0.75rem;
 }
+.comment.left {
+    align-self: flex-start;
+}
 
+.comment.right {
+    align-self: flex-end;
+}
 
 .imgcircle {
-    width: 56px;
-    height: 56px;
+    width: 66px;   /* antes 56px */
+    height: 66px;
     border-radius: 50%;
     overflow: hidden;
     flex-shrink: 0;
@@ -212,13 +220,12 @@
 
 
     .comment {
-        padding: 0.9rem;
-        border-radius: 12px;
+        max-width: 100%;
     }
 
     .imgcircle {
-        width: 48px;
-        height: 48px;
+        width: 54px;
+        height: 54px;
     }
 
     .comment-text {
@@ -237,8 +244,8 @@
     }
 
     .imgcircle {
-        width: 44px;
-        height: 44px;
+        width: 50px;
+        height: 50px;
     }
 
     .comment-text {

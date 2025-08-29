@@ -10,16 +10,6 @@ const Nav = () => {
   return (
     <header className="nav">
 
-      <div className="nav-top">
-        <div className="nav-left">
-          <select className="lang-select">
-            <option value="es">🇪🇸 ES</option>
-            <option value="en">🇺🇸 EN</option>
-          </select>
-        </div>
-      </div>
-
-
       <div className="nav-logo">
         <img src={logo} alt="logoVentana" className="main-logo" />
       </div>
