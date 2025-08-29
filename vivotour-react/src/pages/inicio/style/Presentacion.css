@@ -27,6 +27,7 @@ body {
     display: flex;
     align-items: center;
     gap: 4rem;
+    margin-bottom: 2rem;
 }
 
 .somos {
@@ -83,7 +84,7 @@ body {
 .pfinal {
     font-size: 1.2rem;
     font-weight: 600;
-    color: var(--forest-green);
+    color: var(--rich-black);
     text-align: center;
     padding: 1rem;
     background: linear-gradient(135deg, var(--golden-yellow), rgba(255, 201, 20, 0.2));
@@ -111,10 +112,6 @@ body {
     font-size: 1.8rem;
     font-weight: 700;
     color: var(--rich-black);
-    background: linear-gradient(135deg, var(--forest-green), var(--golden-yellow));
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
 }
 
 .sservicios {
@@ -176,7 +173,6 @@ body {
 
 .mas {
     text-align: center;
-    margin-top: 2rem;
 }
 
 .mas .pservicios {
