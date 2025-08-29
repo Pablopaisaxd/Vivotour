@@ -13,7 +13,7 @@
   width: 100%;
   display: flex;
   justify-content: flex-start;
-  padding: 0.5rem 2rem;
+  padding: 1rem 1rem;
   align-items: center;
 }
 
@@ -30,6 +30,7 @@
 .main-logo {
   height: 70px;
   width: auto;
+  margin-top: 1rem;
 }
 
 
