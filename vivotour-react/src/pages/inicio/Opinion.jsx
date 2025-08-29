@@ -63,20 +63,24 @@ const Opinion = () => {
                 </div>
 
                 <div className="right-col">
-                    {opinions.map((opinion, index) => (
-                        <article className="comment" key={index}>
-                            <div className="desper">
-                                <div className="imgcircle">
-                                    <img src={opinion.image} alt={opinion.name} />
-                                </div>
-                                <p className="comment-name">{opinion.name}</p>
-                            </div>
-                            <div className="opr">
-                                <p className="comment-text">{opinion.text}</p>
-                            </div>
-                        </article>
-                    ))}
+                {opinions.map((opinion, index) => (
+                    <article
+                    className={`comment ${index % 2 === 1 ? "right" : "left"}`}
+                    key={index}
+                    >
+                    <div className="desper">
+                        <div className="imgcircle">
+                        <img src={opinion.image} alt={opinion.name} />
+                        </div>
+                        <p className="comment-name">{opinion.name}</p>
+                    </div>
+                    <div className="opr">
+                        <p className="comment-text">{opinion.text}</p>
+                    </div>
+                    </article>
+                ))}
                 </div>
+
             </div>
         </section>
     );

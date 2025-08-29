@@ -12,7 +12,7 @@
     flex: 1;
     min-width: 180px;
     height: 18vh;
-    border: 3.5px solid #1A181B;
+    border: 3.5px solid var(--rich-black);
     border-radius: 15px;
     background-color: aliceblue;
     display: flex;
@@ -34,7 +34,7 @@
     justify-content: center;
 }
 
-/* 🔥 Aquí está el fix de las imágenes */
+
 .imgicon {
     width: 60px;
     height: 60px;
@@ -46,14 +46,13 @@
 .ps {
     font-size: 1rem;
     font-weight: 600;
-    color: #1A181B;
+    color: var(--rich-black);
     text-align: center;
 }
 
-/* Línea entre cajas (solo horizontal en PC) */
 .line1 {
     height: 3px;
-    background-color: #1A181B;
+    background-color: var(--rich-black);
     flex: 0.2;
 }
 
@@ -86,7 +85,6 @@
         font-size: 0.95rem;
     }
 
-    /* Línea ahora vertical */
     .line1 {
         width: 3px;
         height: 30px;

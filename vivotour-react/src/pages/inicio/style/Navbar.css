@@ -31,6 +31,8 @@
   height: 70px;
   width: auto;
   margin-top: 1rem;
+  margin-top: 1rem;
+  filter: drop-shadow(4px 1px 8px rgba(240, 248, 255, 0.486));
 }
 
 
@@ -92,10 +94,6 @@
 }
 
 @media (max-width: 480px) {
-  .nav-top {
-    flex-direction: column;
-    gap: 0.5rem;
-  }
   .nav-bottom {
     flex-direction: column;
     gap: 0.5rem;
