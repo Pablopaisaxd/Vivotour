@@ -1,6 +1,6 @@
 import React, { useContext } from 'react';
 import './style/Navbar.css';
-import logo from '../../assets/Logos/vivoTour.png';
+import logo from '../../assets/Logos/new vivo contorno2.png';
 import { Link } from 'react-router-dom';
 import { AuthContext } from '../../AuthContext';
 
@@ -10,24 +10,16 @@ const Nav = () => {
   return (
     <header className="nav">
 
-      {/* <div className="nav-top">
-        <div className="nav-left">
-          <select className="lang-select">
-            <option value="es">🇪🇸 ES</option>
-            <option value="en">🇺🇸 EN</option>
-          </select>
-        </div>
-      </div> */}
-
-
-      <div className="nav-logo">
-        <img src={logo} alt="logoVentana" className="main-logo" />
-      </div>
 
 
       <nav className="nav-bottom">
         <a className="btnav" href="#Inicio">Inicio</a>
         <a className="btnav" href="#Descubre">Descubre</a>
+
+        <div className="nav-logo">
+          <img src={logo} alt="logoVentana" className="main-logo" />
+        </div>
+
         <Link to={"/Reserva"} className="btnav">Reservar</Link>
         {isAuthenticated ? (
           <Link to={"/Perfil"} className="btnlog">Perfil</Link>
