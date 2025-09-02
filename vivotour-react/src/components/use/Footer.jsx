@@ -1,5 +1,6 @@
 import React from 'react';
 import './style/Footer.css';
+import logoend from '../../assets/Logos/ventana.png';
 
 const Footer = () => {
     return (
@@ -13,6 +14,7 @@ const Footer = () => {
                         <li><a className="footeropc" href="https://wa.link/cklhli">WHATSAPP</a></li>
                     </ul>
                 </div>
+
                 <div className="footer-content">
                     <h3>CONTACTOS</h3>
                     <p>Telefono: +57 322 2212850</p>
@@ -21,6 +23,7 @@ const Footer = () => {
                         <li>Email: <a className="footeropc" href="mailto:laventanadelriomelcocho@gmail.com">laventanadelriomelcocho@gmail.com</a></li>
                     </ul>
                 </div>
+
                 <div className="footer-content">
                     <h3>VIVO TOUR</h3>
                     <ul className="list">
@@ -29,15 +32,20 @@ const Footer = () => {
                         <li><a className="footeropc" id="btnres" href="#Reservar">Reservar</a></li>
                     </ul>
                 </div>
+
+                <div className="footer-vivo-logo-container">
+                    <img src={logoend} alt="logoVentana" className="footer-vivo-logo" />
+                </div>
             </div>
+
             <div className="footer-content footerend">
                 <ul className="list listend">
-                    <li><a className="footeropc" href="">Terminos Y Condiciones</a></li>
+                    <li><a className="footeropc" href="">Términos y Condiciones</a></li>
                     <p>°</p>
-                    <li><a className="footeropc" href="">Soporte Tecnico</a></li>
+                    <li><a className="footeropc" href="">Soporte Técnico</a></li>
                 </ul>
                 <ul className="list">
-                    <li><a className="footeropc" href="https://maps.app.goo.gl/RnXtyzBDdyVTeeV7A">WRHV+69 COCORNA, ANTIOQUIA</a></li>
+                    <li><a className="footeropc" href="https://maps.app.goo.gl/RnXtyzBDdyVTeeV7A">WRHV+69 COCORNÁ, ANTIOQUIA</a></li>
                 </ul>
             </div>
         </footer>

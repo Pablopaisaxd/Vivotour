@@ -1,4 +1,6 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useContext } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { AuthContext } from '../../AuthContext';
 import './style/Opinion.css';
 
 import imgs1 from '../../assets/Fondos/columpio delante.jpg';
@@ -13,6 +15,9 @@ import imgs8 from '../../assets/Personas/Petro.png';
 
 const Opinion = () => {
     const [currentImageIndex, setCurrentImageIndex] = useState(0);
+    const { isAuthenticated } = useContext(AuthContext);
+    const navigate = useNavigate();
+
     const images = [imgs1, imgs2, imgs3, imgs4, imgs5];
 
     useEffect(() => {
@@ -41,6 +46,14 @@ const Opinion = () => {
         }
     ];
 
+    const handleReservaClick = () => {
+        if (isAuthenticated) {
+            navigate('/Reserva');
+        } else {
+            navigate('/Login');
+        }
+    };
+
     return (
         <section className="opinion" id="Descubre">
             <div className="opres">
@@ -57,30 +70,34 @@ const Opinion = () => {
                     </div>
 
                     <div className="buttons-container" role="group" aria-label="Acciones">
-                        <button className="btn btnreserva">Reserva ahora</button>
+                        <button 
+                            className="btn btnreserva"
+                            onClick={handleReservaClick}
+                        >
+                            Reserva ahora
+                        </button>
                         <button className="btn btnopina">¿Qué opinas?</button>
                     </div>
                 </div>
 
                 <div className="right-col">
-                {opinions.map((opinion, index) => (
-                    <article
-                    className={`comment ${index % 2 === 1 ? "right" : "left"}`}
-                    key={index}
-                    >
-                    <div className="desper">
-                        <div className="imgcircle">
-                        <img src={opinion.image} alt={opinion.name} />
-                        </div>
-                        <p className="comment-name">{opinion.name}</p>
-                    </div>
-                    <div className="opr">
-                        <p className="comment-text">{opinion.text}</p>
-                    </div>
-                    </article>
-                ))}
+                    {opinions.map((opinion, index) => (
+                        <article
+                            className={`comment ${index % 2 === 1 ? "right" : "left"}`}
+                            key={index}
+                        >
+                            <div className="desper">
+                                <div className="imgcircle">
+                                    <img src={opinion.image} alt={opinion.name} />
+                                </div>
+                                <p className="comment-name">{opinion.name}</p>
+                            </div>
+                            <div className="opr">
+                                <p className="comment-text">{opinion.text}</p>
+                            </div>
+                        </article>
+                    ))}
                 </div>
-
             </div>
         </section>
     );

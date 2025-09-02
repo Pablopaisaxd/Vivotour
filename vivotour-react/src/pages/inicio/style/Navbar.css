@@ -7,24 +7,35 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding-bottom: 1rem;
+  padding-bottom: 0.5rem;
+  width: 100%;
+  overflow-x: hidden;
 }
 
 .main-logo {
   height: 70px;
   width: auto;
-  margin: 0 1rem 0 1rem;
-  margin-top: -14px;
+  margin: 0 1rem;
   filter: drop-shadow(0px 0px 1.5px rgb(255, 255, 255));
+  transform: translateY(4px);
 }
-
 
 .nav-bottom {
   display: flex;
-  gap: 3rem;
+  align-items: center;
+  justify-content: space-between;
+  gap: 2rem;
   margin-top: 8px;
-  padding: 1rem 0;
-  max-height: 70px;
+  padding: 0.8rem 1rem;
+  max-width: 1200px;
+  width: 100%;
+  flex-wrap: wrap;
+}
+
+.nav-logo {
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 .btnav {
@@ -37,6 +48,7 @@
   transition: all 0.3s ease;
   text-transform: uppercase;
   position: relative;
+  white-space: nowrap;
 }
 
 .btnav:hover {
@@ -45,18 +57,17 @@
   transform: translateY(-2px);
 }
 
-
 .btnlog {
   background: linear-gradient(135deg, var(--forest-green), var(--golden-yellow));
   color: white !important;
   font-weight: 700;
   border: none;
-  padding: 0.4rem 1.5rem;
-  margin-left: 1rem;
+  padding: 0.4rem 1.2rem;
   border-radius: 25px;
   text-decoration: none;
   transition: all 0.3s ease;
   box-shadow: 0 4px 15px rgba(75, 172, 53, 0.3);
+  white-space: nowrap;
 }
 
 .btnlog:hover {
@@ -66,22 +77,49 @@
   color: white !important;
 }
 
-
 @media (max-width: 768px) {
   .nav-bottom {
-    flex-wrap: wrap;
     justify-content: center;
     gap: 1rem;
   }
 
   .main-logo {
-    height: 50px;
+    height: 55px;
+    margin: 0 0.5rem;
+    transform: translateY(3px); 
+  }
+
+  .btnav {
+    font-size: 0.95rem;
+    padding: 0.3rem 0.8rem;
+  }
+
+  .btnlog {
+    padding: 0.3rem 1rem;
+    font-size: 0.95rem;
   }
 }
 
 @media (max-width: 480px) {
   .nav-bottom {
     flex-direction: column;
-    gap: 0.5rem;
+    align-items: center;
+    gap: 0.6rem;
+  }
+
+  .nav-logo {
+    order: -1; 
+    margin-bottom: 0.5rem;
+  }
+
+  .main-logo {
+    height: 48px;
+    transform: translateY(2px);
+  }
+
+  .btnav, .btnlog {
+    font-size: 0.9rem;
+    width: 100%;
+    text-align: center;
   }
 }

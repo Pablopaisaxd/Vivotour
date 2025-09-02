@@ -1,0 +1,119 @@
+.menu-servicios-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(26, 24, 27, 0.85);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 2000;
+  padding: 1rem;
+}
+
+.menu-servicios-content {
+  background: white;
+  border-radius: 20px;
+  padding: 2rem;
+  width: 90%;
+  max-width: 800px;
+  max-height: 90vh;
+  overflow-y: auto;
+  position: relative;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+  animation: fadeIn 0.3s ease;
+}
+
+.menu-servicios-content .titulo {
+  text-align: center;
+  font-size: 2rem;
+  color: var(--forest-green);
+  margin-bottom: 2rem;
+}
+
+.close-btn {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  background: var(--forest-green);
+  border: none;
+  color: white;
+  font-size: 1.3rem;
+  border-radius: 50%;
+  width: 35px;
+  height: 35px;
+  cursor: pointer;
+  transition: 0.3s ease;
+}
+
+.close-btn:hover {
+  background: var(--golden-yellow);
+}
+
+.sservicios {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 2rem;
+}
+
+.s1, .s2, .s3, .s4, .s5, .s6 {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem;
+  border-radius: 15px;
+  transition: all 0.3s ease;
+  cursor: pointer;
+  text-align: center;
+}
+
+.s1:hover, .s2:hover, .s3:hover, .s4:hover, .s5:hover, .s6:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 15px 30px rgba(0, 0, 0, 0.15);
+}
+
+.circle {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--forest-green), var(--golden-yellow));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.darkimgs {
+  filter: brightness(0) invert(1);
+  max-width: 60%;
+}
+
+.ps {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--rich-black);
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: scale(0.95); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+@media (max-width: 768px) {
+  .menu-servicios-content {
+    padding: 1.5rem;
+  }
+  .menu-servicios-content .titulo {
+    font-size: 1.6rem;
+  }
+  .sservicios {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 480px) {
+  .sservicios {
+    grid-template-columns: 1fr;
+  }
+}
