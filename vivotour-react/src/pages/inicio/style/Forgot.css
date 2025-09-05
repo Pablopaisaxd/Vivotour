@@ -9,8 +9,7 @@ body {
 }
 
 /* estilos del Login */
-.maindiv {
-    background-image: url(../../../assets/Fondos/fondo666.png);
+.maindiv {    
     height: 100vh;
     background-position: center;
     background-size: 100vw 100vh;
