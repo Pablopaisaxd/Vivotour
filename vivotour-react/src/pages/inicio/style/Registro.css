@@ -1,199 +1,215 @@
-* {
-    box-sizing: border-box;
-    margin: 0;
-    padding: 0;
-}
-
-
-body {
-    font-family: comic;
-}
-
-/* estilos del Login */
+/* ==================== FONDO DEL REGISTRO ==================== */
 .maindiv {
-    background-color: #fff;
-    height: 100vh;
-    background-position: center;
-    background-size: 100vw 100vh;
-    background-repeat: no-repeat;
+    background: linear-gradient(135deg, 
+        var(--alice-blue) 0%, 
+        rgba(75, 172, 53, 0.15) 30%, 
+        rgba(255, 201, 20, 0.1) 70%, 
+        var(--alice-blue) 100%);
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
 }
+
 .font-registro {
-    background-color: #ffffffd3;
-    height: 100%;
+    position: relative;
+    width: 100%;
+    max-width: 550px;
 }
 
+/* ==================== CONTENEDOR PRINCIPAL DEL REGISTRO ==================== */
 .divregistro {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    background-color: #4bac35;
-    border-radius: 15px;
-    padding: 40px;
-    width: 90%;
-    max-width: 500px;
-    backdrop-filter: blur(5px);
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
-    border: 1px solid rgba(255, 255, 255, 0.2);
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(15px);
+    border-radius: 25px;
+    padding: 3rem 2.5rem;
+    box-shadow: 
+        0 20px 40px rgba(26, 24, 27, 0.1),
+        0 0 0 1px rgba(255, 255, 255, 0.2);
+    border: 2px solid rgba(75, 172, 53, 0.1);
+    position: relative;
+    overflow: hidden;
+    animation: slideInUp 0.6s ease-out;
 }
 
+.divregistro::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, var(--forest-green), var(--golden-yellow));
+    border-radius: 25px 25px 0 0;
+}
+
+/* ==================== TÍTULO ==================== */
 .divregistro h1 {
     text-align: center;
-    margin-bottom: 30px;
-    font-size: 28px;
-    color: #F1EDEE;
-    font-weight: normal;
+    font-size: 2.2rem;
+    font-weight: 700;
+    color: var(--rich-black);
+    margin-bottom: 2rem;
+    background: linear-gradient(135deg, var(--forest-green), var(--golden-yellow));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
 }
 
-.inputsregistro {
-    margin-bottom: 30px;
-}
-
-
-.inputsregistro input {
-    width: 100%;
-    padding: 12px;
-    border-radius: 5px;
-    border: 1px solid #ccc;
-    background-color: #fff;
-    font-size: 16px;
-    margin-bottom: 10px;
-}
-.errordiv{
+/* ==================== FORMULARIO ==================== */
+#form-registro {
     display: flex;
-    align-items: start;
-    justify-content: start;
-    color: #F1EDEE;
+    flex-direction: column;
+    gap: 1.5rem;
 }
 
-
-.PhoneInputCountry{
-    background-color: white;
-    width: 60px;
-    height: 44px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding-left: 10px;
-    border: 1px solid #ccc;
-    border-radius: 5px;
-}
-.PhoneInputCountrySelectArrow{
-    color: #000000;
-}
-.iti{
+/* ==================== INPUTS ==================== */
+.inputsregistro input,
+.inputsregistro select {
     width: 100%;
-    margin-bottom: 10px;
-
+    padding: 1.2rem 1.5rem;
+    border: 2px solid rgba(26, 24, 27, 0.1);
+    border-radius: 15px;
+    font-size: 1rem;
+    color: var(--rich-black);
+    background: rgba(240, 248, 255, 0.3);
+    transition: all 0.3s ease;
+    outline: none;
 }
-.iti__country-name{
-    color: #000000;
+
+.inputsregistro input::placeholder {
+    color: rgba(26, 24, 27, 0.5);
 }
 
+.inputsregistro input:focus,
+.inputsregistro select:focus {
+    border-color: var(--forest-green);
+    background: rgba(240, 248, 255, 0.8);
+    box-shadow: 0 0 0 4px rgba(75, 172, 53, 0.1);
+    transform: translateY(-2px);
+}
+
+/* ==================== INPUT DOCUMENTO ==================== */
 .input-documento {
     display: flex;
+    gap: 1rem;
 }
 
-.input-documento  select{
-    padding: 10px;
-    font-size: 16px;
-    height: 44px;
-    position: relative;
-    left: 2px;
-    width: 90px;
-    text-decoration: none;
-    border: none;
-    border-radius: 5px;
-}
-.input-documento input{
-    border: none;
-    height: 44px;
-    position: relative;
-    right: 2px;
-}
-
-.iti{
-    display: block !important;
-}
-
-
-.password-div .toggle-password {
-    transform: translateY(-50%);
+.input-documento .tipo {
+    max-width: 100px;
     cursor: pointer;
-    color: #333;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 24px;
-    height: 24px;
-    background: transparent;
-    border: none;
 }
 
-.toggle-password svg {
-    width: 20px;
-    height: 20px;
-    fill: none;
-    stroke: #555;
-    stroke-width: 2;
-    stroke-linecap: round;
-    stroke-linejoin: round;
+/* ==================== MENSAJES DE ERROR ==================== */
+.errordiv {
+    background: rgba(220, 53, 69, 0.1);
+    border: 1px solid rgba(220, 53, 69, 0.3);
+    border-radius: 8px;
+    padding: 0.8rem;
+    margin-top: 0.5rem;
 }
 
+.errordiv p {
+    color: #dc3545;
+    font-size: 0.85rem;
+    margin: 0;
+    font-weight: 500;
+}
 
+/* ==================== BOTÓN DE REGISTRO ==================== */
 .register-btn {
-    width: 100%;
-    padding: 12px;
-    background-color:#1A181B;
+    background: linear-gradient(135deg, var(--forest-green), var(--golden-yellow));
     color: white;
     border: none;
-    border-radius: 5px;
-    font-size: 16px;
+    padding: 1.2rem 2rem;
+    border-radius: 15px;
+    font-size: 1.1rem;
+    font-weight: 700;
     cursor: pointer;
-    transition:  0.3s;
-    margin-bottom: 20px;
+    transition: all 0.3s ease;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-top: 1rem;
+    box-shadow: 0 8px 20px rgba(75, 172, 53, 0.3);
 }
 
 .register-btn:hover {
-    background-color: #2ba998;
+    background: linear-gradient(135deg, #3d9129, #e6b412);
+    transform: translateY(-3px);
+    box-shadow: 0 12px 25px rgba(75, 172, 53, 0.4);
 }
 
-
-.register{
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 10px;
-    margin-top: 30px;
+.register-btn:active {
+    transform: translateY(-1px);
 }
 
-.register h3{
-    font-size: 20px;
-    font-weight: bold;
+/* ==================== YA TIENES CUENTA ==================== */
+.register {
+    text-align: center;
+    padding-top: 1rem;
+    border-top: 1px solid rgba(26, 24, 27, 0.1);
 }
 
-
-.sesion{
-    position: relative;
-  display: inline-block;
-  cursor: pointer;
-  text-decoration: none;
-  color: #F1EDEE;
-  font-size: 20px;
-    font-weight: bold;
+.register h3 {
+    color: var(--rich-black);
+    font-size: 1rem;
+    font-weight: 500;
+    margin-bottom: 0.5rem;
 }
 
-.sesion::after{
-      content: "";
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  width: 0%;
-  height: 2px;
-  background-color: #F1EDEE; /* o el color que quieras */
-  transition: width 0.3s ease;
+.sesion {
+    color: var(--forest-green);
+    text-decoration: none;
+    font-weight: 700;
+    font-size: 1.1rem;
+    transition: all 0.3s ease;
+    padding: 0.5rem 1rem;
+    border-radius: 8px;
+    display: inline-block;
 }
 
-.sesion:hover::after {
-  width: 100%;
+.sesion:hover {
+    color: var(--golden-yellow);
+    background: rgba(75, 172, 53, 0.1);
+    transform: translateY(-2px);
+}
+
+/* ==================== RESPONSIVE ==================== */
+@media (max-width: 768px) {
+    .maindiv {
+        padding: 1rem;
+    }
+
+    .divregistro {
+        padding: 2rem 1.5rem;
+    }
+
+    .divregistro h1 {
+        font-size: 1.8rem;
+    }
+
+    .input-documento {
+        flex-direction: column;
+    }
+}
+
+@media (max-width: 480px) {
+    .divregistro {
+        padding: 1.5rem 1rem;
+        margin: 0.5rem;
+    }
+
+    .divregistro h1 {
+        font-size: 1.6rem;
+    }
+
+    .inputsregistro input,
+    .inputsregistro select {
+        padding: 1rem 1.2rem;
+    }
+
+    .register-btn {
+        padding: 1rem 1.5rem;
+        font-size: 1rem;
+    }
 }

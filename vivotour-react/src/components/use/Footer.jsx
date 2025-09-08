@@ -38,7 +38,7 @@ const Footer = () => {
                 </div>
             </div>
 
-            <div className="footer-content footerend">
+            {/* <div className="footer-content footerend">
                 <ul className="list listend">
                     <li><a className="footeropc" href="">Términos y Condiciones</a></li>
                     <p>°</p>
@@ -47,7 +47,7 @@ const Footer = () => {
                 <ul className="list">
                     <li><a className="footeropc" href="https://maps.app.goo.gl/RnXtyzBDdyVTeeV7A">WRHV+69 COCORNÁ, ANTIOQUIA</a></li>
                 </ul>
-            </div>
+            </div> */}
         </footer>
     );
 }
