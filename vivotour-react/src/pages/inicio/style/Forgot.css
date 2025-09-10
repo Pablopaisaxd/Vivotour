@@ -1,182 +1,125 @@
-* {
-    box-sizing: border-box;
-    margin: 0;
-    padding: 0;
+:root {
+  --forest-green: #4bac35;
+  --golden-yellow: #ffc914;
+  --rich-black: #1a181b;
+  --alice-blue: #f0f8ff;
 }
 
-body {
-    color: #F1EDEE;
+.forgot-page {
+  background: linear-gradient(
+    135deg,
+    var(--alice-blue) 0%,
+    rgba(75, 172, 53, 0.15) 30%,
+    rgba(255, 201, 20, 0.1) 70%,
+    var(--alice-blue) 100%
+  );
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
 }
 
-/* estilos del Login */
-.maindiv {    
-    height: 100vh;
-    background-position: center;
-    background-size: 100vw 100vh;
-    background-repeat: no-repeat;
-}
-.font-forgot{
-    background-color: #ffffffd3;
-    height: 100%;
-}
-
-.divRecuperar {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    background-color: #4bac35;
-    border-radius: 15px;
-    padding: 40px;
-    width: 90%;
-    max-width: 500px;
-    backdrop-filter: blur(5px);
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
-    border: 1px solid rgba(255, 255, 255, 0.2);
-}
-
-.divRecuperar h1 {
-    text-align: center;
-    margin-bottom: 30px;
-    font-size: 28px;
-    color:#F1EDEE;
-    font-weight: normal;
-}
-
-.inputsRecuperar {
-    margin-bottom: 20px;
-}
-
-.inputsRecuperar label {
-    display: block;
-    margin-bottom: 5px;
-    font-weight: bold;
-}
-
-.inputsRecuperar input {
-    width: 100%;
-    padding: 12px;
-    border-radius: 5px;
-    border: 1px solid #ccc;
-    background-color: #F1EDEE;
-    font-size: 16px;
-    margin-bottom: 20px;
-}
-
-
-.Recuperar-btn {
-    width: 100%;
-    padding: 12px;
-    background-color: #1A181B;
-    color: #F1EDEE;
-    border: none;
-    border-radius: 5px;
-    font-size: 16px;
-    cursor: pointer;
-    transition:  0.3s;
-    margin-bottom: 20px;
-}
-
-.Recuperar-btn:hover {
-    background-color: #2BA998;
-}
-
-.RecuperarContraseña-btn{
-        width: 100%;
-    padding: 12px;
-    background-color: #0f1a25;
-    color: white;
-    border: none;
-    border-radius: 5px;
-    font-size: 16px;
-    cursor: pointer;
-    transition:  0.3s;
-    margin-bottom: 20px;
-}
-
-.RecuperarContraseña-btn:hover {
-    background-color: #1a2c3e;
-}
-/* Verificacion */
-.verificar-container {
-  max-width: 400px;
-  margin: 80px auto;
-  text-align: center;
-  font-family: Arial, sans-serif;
-}
-
-.codigo-inputs {
+.forgot-container {
+  flex: 1;
   display: flex;
   justify-content: center;
-  gap: 10px;
-  margin: 20px 0;
+  align-items: center;
+  padding: 2rem 1rem;
 }
 
-.input-codigo {
-  width: 40px;
-  height: 50px;
-  font-size: 24px;
+.forgot-card {
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(15px);
+  border-radius: 25px;
+  padding: 3rem 2.5rem;
+  width: 100%;
+  max-width: 460px;
+  box-shadow: 0 20px 40px rgba(26, 24, 27, 0.1),
+    0 0 0 1px rgba(75, 172, 53, 0.1);
+  border: 2px solid rgba(75, 172, 53, 0.1);
   text-align: center;
-  border: 1px solid #ccc;
-  border-radius: 8px;
-  transition: border-color 0.3s;
+  animation: slideInUp 0.6s ease-out;
 }
 
-.input-codigo:focus {
-  border-color: #4A90E2;
+.forgot-logo {
+  width: 100%;
+  height: 80px;
+  margin-bottom: 1rem;
+  background: transparent;
+}
+
+.main-logo {
+  max-height: 80px;
+  object-fit: contain;
+}
+
+.forgot-title {
+  font-size: 2rem;
+  font-weight: 700;
+  background: linear-gradient(135deg, var(--forest-green), var(--golden-yellow));
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  margin-bottom: 2rem;
+}
+
+.forgot-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.forgot-form input {
+  width: 100%;
+  padding: 1.2rem 1.5rem;
+  border: 2px solid rgba(26, 24, 27, 0.1);
+  border-radius: 15px;
+  font-size: 1rem;
+  color: var(--rich-black);
+  background: rgba(240, 248, 255, 0.3);
+  transition: all 0.3s ease;
   outline: none;
 }
 
-.btn-verificar {
-  padding: 12px 30px;
-    background-color: #0f1a25;
+.forgot-form input:focus {
+  border-color: var(--forest-green);
+  background: rgba(240, 248, 255, 0.8);
+  box-shadow: 0 0 0 4px rgba(75, 172, 53, 0.1);
+  transform: translateY(-2px);
+}
+
+.forgot-btn {
+  background: linear-gradient(135deg, var(--forest-green), var(--golden-yellow));
   color: white;
   border: none;
-  border-radius: 6px;
+  padding: 1.2rem 2rem;
+  border-radius: 15px;
+  font-size: 1.1rem;
+  font-weight: 700;
   cursor: pointer;
-  transition: 0.3s ease;
-}
-.btn-verificar:hover{
-        background-color: #0a1118;
-}
-.reenviar {
-  margin-top: 15px;
-  font-size: 14px;
+  transition: all 0.3s ease;
+  text-transform: uppercase;
+  box-shadow: 0 8px 20px rgba(75, 172, 53, 0.3);
 }
 
-/* Nueva contraseña */
-.password-div {
-    position: relative;
+.forgot-btn:hover {
+  background: linear-gradient(135deg, #3d9129, #e6b412);
+  transform: translateY(-3px);
+  box-shadow: 0 12px 25px rgba(75, 172, 53, 0.4);
 }
 
-.password-div .toggle-password {
-    position: absolute;
-    right: 10px;
-    top: 35%;
-    transform: translateY(-50%);
-    cursor: pointer;
-    color: #333;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 24px;
-    height: 24px;
-    background: transparent;
-    border: none;
+@media (max-width: 768px) {
+  .forgot-card {
+    padding: 2rem 1.5rem;
+  }
 }
 
-.toggle-password svg {
-    width: 20px;
-    height: 20px;
-    fill: none;
-    stroke: #555;
-    stroke-width: 2;
-    stroke-linecap: round;
-    stroke-linejoin: round;
-}
+@media (max-width: 480px) {
+  .forgot-card {
+    padding: 1.5rem 1rem;
+  }
 
-
-.listend {
-    display: flex;
-    position: relative;
+  .forgot-title {
+    font-size: 1.6rem;
+  }
 }
