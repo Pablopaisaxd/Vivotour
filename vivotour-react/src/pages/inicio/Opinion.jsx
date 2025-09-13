@@ -16,14 +16,18 @@ const Opinion = () => {
   const { isAuthenticated } = useContext(AuthContext);
   const navigate = useNavigate();
 
-  const [showModal, setShowModal] = useState(false);
+  const [showModal, setShowModal] = useState(false); // modal agregar opinión
+  const [showAllModal, setShowAllModal] = useState(false); // modal ver todas
   const [opinionText, setOpinionText] = useState("");
   const [nombre, setNombre] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [opinions, setOpinions] = useState([]);
+  const [allOpinions, setAllOpinions] = useState([]); // todas las opiniones
+  const [currentPage, setCurrentPage] = useState(0); // para paginación
 
   const images = [imgs1, imgs2, imgs3, imgs4, imgs5];
+  const opinionsPerPage = 5; // ✅ Ahora son 5 por página
 
   // Cambiar imagen de fondo automáticamente
   useEffect(() => {
@@ -36,14 +40,13 @@ const Opinion = () => {
     return () => clearInterval(interval);
   }, [images.length]);
 
-  // Obtener opiniones del backend al montar
+  // Obtener últimas 3 opiniones al montar
   useEffect(() => {
     const fetchOpinions = async () => {
       try {
         const res = await fetch("http://localhost:5000/opinion");
         const data = await res.json();
         if (data.success) {
-          // ✅ Solo las 3 más recientes
           setOpinions(data.opiniones.map(op => ({ ...op, image: imgs7 })));
         }
       } catch (err) {
@@ -62,6 +65,7 @@ const Opinion = () => {
     }
   };
 
+  // Modal agregar opinión
   const handleOpenModal = () => setShowModal(true);
   const handleCloseModal = () => {
     setShowModal(false);
@@ -69,6 +73,22 @@ const Opinion = () => {
     setNombre("");
     setError("");
   };
+
+  // Modal ver todas
+  const handleOpenAllModal = async () => {
+    try {
+      const res = await fetch("http://localhost:5000/opiniones");
+      const data = await res.json();
+      if (data.success) {
+        setAllOpinions(data.opiniones.map(op => ({ ...op, image: imgs7 })));
+        setCurrentPage(0); // resetear a la primera página
+        setShowAllModal(true);
+      }
+    } catch (err) {
+      console.error("Error cargando TODAS las opiniones:", err);
+    }
+  };
+  const handleCloseAllModal = () => setShowAllModal(false);
 
   const handleSubmitOpinion = async (e) => {
     e.preventDefault();
@@ -83,9 +103,7 @@ const Opinion = () => {
       const data = await res.json();
       if (!data.success) throw new Error(data.mensaje || "Error");
 
-      // ✅ Usar las últimas 3 opiniones que envía el backend
       setOpinions(data.opiniones.map(op => ({ ...op, image: imgs7 })));
-
       handleCloseModal();
     } catch (err) {
       setError(err.message);
@@ -93,6 +111,14 @@ const Opinion = () => {
       setLoading(false);
     }
   };
+
+  // Paginación de todas las opiniones
+  const startIndex = currentPage * opinionsPerPage;
+  const currentOpinions = allOpinions.slice(
+    startIndex,
+    startIndex + opinionsPerPage
+  );
+  const totalPages = Math.ceil(allOpinions.length / opinionsPerPage);
 
   return (
     <section className="opinion" id="Descubre">
@@ -124,6 +150,9 @@ const Opinion = () => {
             </button>
             <button className="btn btnopina" onClick={handleOpenModal}>
               ¿Qué opinas?
+            </button>
+            <button className="btn btnver" onClick={handleOpenAllModal}>
+              Ver todas
             </button>
           </div>
         </div>
@@ -157,6 +186,7 @@ const Opinion = () => {
         </div>
       </div>
 
+      {/* Modal agregar opinión */}
       {showModal && (
         <div className="modal-overlay">
           <div className="modal-content">
@@ -183,6 +213,53 @@ const Opinion = () => {
                 Cancelar
               </button>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* Modal ver todas */}
+      {showAllModal && (
+        <div className="modal-overlay">
+          <div className="modal-content large">
+            <h2>Todas las Opiniones</h2>
+            <div className="opinions-list">
+              {currentOpinions.map((op, idx) => (
+                <article key={idx} className="comment">
+                  <div className="desper">
+                    <div className="imgcircle">
+                      <img src={op.image || imgs7} alt={op.nombre} />
+                    </div>
+                    <p className="comment-name">{op.nombre}</p>
+                  </div>
+                  <div className="opr">
+                    <p className="comment-text">{op.opinion}</p>
+                  </div>
+                </article>
+              ))}
+            </div>
+
+            {/* Controles de paginación */}
+            <div className="pagination">
+              <button
+                disabled={currentPage === 0}
+                onClick={() => setCurrentPage((p) => p - 1)}
+              >
+                Anterior
+              </button>
+              <span>
+                Página {currentPage + 1} de {totalPages}
+              </span>
+              <button
+                disabled={currentPage === totalPages - 1}
+                onClick={() => setCurrentPage((p) => p + 1)}
+              >
+                Siguiente
+              </button>
+            </div>
+
+            <button className="btn-close" onClick={handleCloseAllModal}>
+              Cerrar
+            </button>
           </div>
         </div>
       )}

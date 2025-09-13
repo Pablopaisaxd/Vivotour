@@ -78,7 +78,7 @@ app.post("/opinion", async (req, res) => {
     // Insertar la nueva opinión
     await db.query("INSERT INTO opinion (nombre, opinion) VALUES (?, ?)", [nombre, opinion]);
 
-    // ✅ Traer solo las 3 más recientes (sin borrar las demás)
+    //Traer solo las 3 más recientes (sin borrar las demás)
     const [ultimasOpiniones] = await db.query(`
       SELECT * FROM opinion
       ORDER BY id DESC
@@ -92,7 +92,20 @@ app.post("/opinion", async (req, res) => {
   }
 });
 
+//obtener todas las opiniones
+app.get("/opiniones", async (req, res) => {
+  try {
+    const [todasOpiniones] = await db.query(`
+      SELECT * FROM opinion
+      ORDER BY id DESC
+    `);
 
+    res.json({ success: true, opiniones: todasOpiniones });
+  } catch (err) {
+    console.error("Error en DB:", err);
+    res.status(500).json({ success: false, mensaje: "Error al obtener opiniones" });
+  }
+});
 
 
 
