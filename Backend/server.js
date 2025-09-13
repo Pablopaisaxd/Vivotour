@@ -68,6 +68,32 @@ app.post("/login", async (req, res) => {
   }
 });
 
+app.post("/opinion", async (req, res) => {
+  const { nombre, opinion } = req.body;
+  if (!nombre || !opinion) {
+    return res.status(400).json({ success: false, mensaje: "Nombre y opinión requeridos" });
+  }
+
+  try {
+    // Insertar la nueva opinión
+    await db.query("INSERT INTO opinion (nombre, opinion) VALUES (?, ?)", [nombre, opinion]);
+
+    // ✅ Traer solo las 3 más recientes (sin borrar las demás)
+    const [ultimasOpiniones] = await db.query(`
+      SELECT * FROM opinion
+      ORDER BY id DESC
+      LIMIT 3
+    `);
+
+    res.json({ success: true, mensaje: "Opinión agregada correctamente", opiniones: ultimasOpiniones });
+  } catch (err) {
+    console.error("Error en DB:", err);
+    res.status(500).json({ success: false, mensaje: "Error al guardar opinión" });
+  }
+});
+
+
+
 
 
 

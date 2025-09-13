@@ -1,106 +1,193 @@
-import React, { useEffect, useState, useContext } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { AuthContext } from '../../AuthContext';
-import './style/Opinion.css';
+import React, { useEffect, useState, useContext } from "react";
+import { useNavigate } from "react-router-dom";
+import { AuthContext } from "../../AuthContext";
+import "./style/Opinion.css";
 
-import imgs1 from '../../assets/Fondos/columpio delante.jpg';
-import imgs2 from '../../assets/Fondos/turista acostado en hamaca.jpg';
-import imgs3 from '../../assets/Fondos/turistas en rio 2.jpg';
-import imgs4 from '../../assets/Fondos/columpio detras.jpg';
-import imgs5 from '../../assets/Fondos/turistas en rio.jpg';  
+import imgs1 from "../../assets/Fondos/columpio delante.jpg";
+import imgs2 from "../../assets/Fondos/turista acostado en hamaca.jpg";
+import imgs3 from "../../assets/Fondos/turistas en rio 2.jpg";
+import imgs4 from "../../assets/Fondos/columpio detras.jpg";
+import imgs5 from "../../assets/Fondos/turistas en rio.jpg";
 
-import imgs6 from '../../assets/Personas/Rubius.png';
-import imgs7 from '../../assets/Personas/Persona.png';
-import imgs8 from '../../assets/Personas/Petro.png';  
+import imgs7 from "../../assets/Personas/Persona.png";
 
 const Opinion = () => {
-    const [currentImageIndex, setCurrentImageIndex] = useState(0);
-    const { isAuthenticated } = useContext(AuthContext);
-    const navigate = useNavigate();
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const { isAuthenticated } = useContext(AuthContext);
+  const navigate = useNavigate();
 
-    const images = [imgs1, imgs2, imgs3, imgs4, imgs5];
+  const [showModal, setShowModal] = useState(false);
+  const [opinionText, setOpinionText] = useState("");
+  const [nombre, setNombre] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+  const [opinions, setOpinions] = useState([]);
 
-    useEffect(() => {
-        const interval = setInterval(() => {
-            setCurrentImageIndex((prevIndex) => (prevIndex + 1) % images.length);
-        }, 10000);
+  const images = [imgs1, imgs2, imgs3, imgs4, imgs5];
 
-        return () => clearInterval(interval);
-    }, [images.length]);
+  // Cambiar imagen de fondo automáticamente
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentImageIndex(
+        (prevIndex) => (prevIndex + 1) % images.length
+      );
+    }, 10000);
 
-    const opinions = [
-        {
-            name: 'Roberto Jacinto Ramírez',
-            text: 'La Ventana del Río Melcocho es un paraíso con aguas cristalinas y paisajes espectaculares. La organización del tour fue impecable.',
-            image: imgs6
-        },
-        {
-            name: 'Luis Giraldo Vargas',
-            text: 'Pasé un fin de semana inolvidable con Vivo Tour. Desde las fogatas bajo las estrellas hasta las cabalgatas por los senderos de Cocorná.',
-            image: imgs7
-        },
-        {
-            name: 'Gustavo Petro Urrego',
-            text: 'Si buscas desconectarte del ruido y disfrutar de la naturaleza, este es el lugar.',
-            image: imgs8
+    return () => clearInterval(interval);
+  }, [images.length]);
+
+  // Obtener opiniones del backend al montar
+  useEffect(() => {
+    const fetchOpinions = async () => {
+      try {
+        const res = await fetch("http://localhost:5000/opinion");
+        const data = await res.json();
+        if (data.success) {
+          // ✅ Solo las 3 más recientes
+          setOpinions(data.opiniones.map(op => ({ ...op, image: imgs7 })));
         }
-    ];
-
-    const handleReservaClick = () => {
-        if (isAuthenticated) {
-            navigate('/Reserva');
-        } else {
-            navigate('/Login');
-        }
+      } catch (err) {
+        console.error("Error cargando opiniones:", err);
+      }
     };
 
-    return (
-        <section className="opinion" id="Descubre">
-            <div className="opres">
-                <div className="left-col">
-                    <div className="opimg" aria-hidden="false">
-                        {images.map((image, index) => (
-                            <img
-                                key={index}
-                                src={image}
-                                alt={`Fondo ${index + 1}`}
-                                className={currentImageIndex === index ? 'active' : 'inactive'}
-                            />
-                        ))}
-                    </div>
+    fetchOpinions();
+  }, []);
 
-                    <div className="buttons-container" role="group" aria-label="Acciones">
-                        <button 
-                            className="btn btnreserva"
-                            onClick={handleReservaClick}
-                        >
-                            Reserva ahora
-                        </button>
-                        <button className="btn btnopina">¿Qué opinas?</button>
-                    </div>
-                </div>
+  const handleReservaClick = () => {
+    if (isAuthenticated) {
+      navigate("/Reserva");
+    } else {
+      navigate("/Login");
+    }
+  };
 
-                <div className="right-col">
-                    {opinions.map((opinion, index) => (
-                        <article
-                            className={`comment ${index % 2 === 1 ? "right" : "left"}`}
-                            key={index}
-                        >
-                            <div className="desper">
-                                <div className="imgcircle">
-                                    <img src={opinion.image} alt={opinion.name} />
-                                </div>
-                                <p className="comment-name">{opinion.name}</p>
-                            </div>
-                            <div className="opr">
-                                <p className="comment-text">{opinion.text}</p>
-                            </div>
-                        </article>
-                    ))}
+  const handleOpenModal = () => setShowModal(true);
+  const handleCloseModal = () => {
+    setShowModal(false);
+    setOpinionText("");
+    setNombre("");
+    setError("");
+  };
+
+  const handleSubmitOpinion = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    setError("");
+    try {
+      const res = await fetch("http://localhost:5000/opinion", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ nombre, opinion: opinionText }),
+      });
+      const data = await res.json();
+      if (!data.success) throw new Error(data.mensaje || "Error");
+
+      // ✅ Usar las últimas 3 opiniones que envía el backend
+      setOpinions(data.opiniones.map(op => ({ ...op, image: imgs7 })));
+
+      handleCloseModal();
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <section className="opinion" id="Descubre">
+      <div className="opres">
+        <div className="left-col">
+          <div className="opimg" aria-hidden="false">
+            {images.map((image, index) => (
+              <img
+                key={index}
+                src={image}
+                alt={`Fondo ${index + 1}`}
+                className={
+                  currentImageIndex === index ? "active" : "inactive"
+                }
+              />
+            ))}
+          </div>
+
+          <div
+            className="buttons-container"
+            role="group"
+            aria-label="Acciones"
+          >
+            <button
+              className="btn btnreserva"
+              onClick={handleReservaClick}
+            >
+              Reserva ahora
+            </button>
+            <button className="btn btnopina" onClick={handleOpenModal}>
+              ¿Qué opinas?
+            </button>
+          </div>
+        </div>
+
+        <div className="right-col">
+          {opinions.length === 0 ? (
+            <p>No hay opiniones aún. Sé el primero en opinar.</p>
+          ) : (
+            opinions.map((opinion, index) => (
+              <article
+                className={`comment ${
+                  index % 2 === 1 ? "right" : "left"
+                }`}
+                key={index}
+              >
+                <div className="desper">
+                  <div className="imgcircle">
+                    <img
+                      src={opinion.image || imgs7}
+                      alt={opinion.nombre}
+                    />
+                  </div>
+                  <p className="comment-name">{opinion.nombre}</p>
                 </div>
-            </div>
-        </section>
-    );
+                <div className="opr">
+                  <p className="comment-text">{opinion.opinion}</p>
+                </div>
+              </article>
+            ))
+          )}
+        </div>
+      </div>
+
+      {showModal && (
+        <div className="modal-overlay">
+          <div className="modal-content">
+            <h2>Agregar Opinión</h2>
+            <form onSubmit={handleSubmitOpinion}>
+              <input
+                type="text"
+                placeholder="Tu nombre"
+                value={nombre}
+                onChange={(e) => setNombre(e.target.value)}
+                required
+              />
+              <textarea
+                placeholder="Escribe tu opinión"
+                value={opinionText}
+                onChange={(e) => setOpinionText(e.target.value)}
+                required
+              />
+              {error && <p className="error">{error}</p>}
+              <button type="submit" disabled={loading}>
+                {loading ? "Enviando..." : "Enviar"}
+              </button>
+              <button type="button" onClick={handleCloseModal}>
+                Cancelar
+              </button>
+            </form>
+          </div>
+        </div>
+      )}
+    </section>
+  );
 };
 
 export default Opinion;
