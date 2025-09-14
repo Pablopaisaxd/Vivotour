@@ -1,22 +1,19 @@
 :root {
-  --forest-green: #4bac35;
-  --golden-yellow: #ffc914;
-  --rich-black: #1a181b;
-  --alice-blue: #f0f8ff;
+  --input-bg: rgba(240, 248, 255, 0.3);
+  --input-bg-focus: rgba(240, 248, 255, 0.8);
+  --input-border: rgba(26, 24, 27, 0.1);
+  --input-placeholder: rgba(26, 24, 27, 0.5);
+  --shadow-medium: rgba(26, 24, 27, 0.1);
+  --shadow-strong: rgba(75, 172, 53, 0.3);
+  --shadow-hover: rgba(75, 172, 53, 0.4);
+  --transition: all 0.3s ease;
 }
 
 .forgot-page {
-  background: linear-gradient(
-    135deg,
-    var(--alice-blue) 0%,
-    rgba(75, 172, 53, 0.15) 30%,
-    rgba(255, 201, 20, 0.1) 70%,
-    var(--alice-blue) 100%
-  );
+background: linear-gradient(135deg, var(--alice-blue) 0%, rgba(75, 172, 53, 0.120) 30%, rgba(255, 201, 20, 0.100) 70%, var(--alice-blue) 100%);
   min-height: 100vh;
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
 }
 
 .forgot-container {
@@ -24,7 +21,7 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  padding: 2rem 1rem;
+  padding: 2rem;
 }
 
 .forgot-card {
@@ -32,19 +29,36 @@
   backdrop-filter: blur(15px);
   border-radius: 25px;
   padding: 3rem 2.5rem;
-  width: 100%;
   max-width: 460px;
-  box-shadow: 0 20px 40px rgba(26, 24, 27, 0.1),
-    0 0 0 1px rgba(75, 172, 53, 0.1);
+  width: 100%;
+  margin-bottom: 3rem;
+  box-shadow: 0 20px 40px var(--shadow-medium), 0 0 0 1px rgba(75, 172, 53, 0.1);
   border: 2px solid rgba(75, 172, 53, 0.1);
+  position: relative;
+  overflow: hidden;
   text-align: center;
   animation: slideInUp 0.6s ease-out;
+}
+
+.forgot-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, var(--forest-green), var(--golden-yellow));
+  border-radius: 25px 25px 0 0;
+  z-index: 1;
 }
 
 .forgot-logo {
   width: 100%;
   height: 80px;
   margin-bottom: 1rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+  z-index: 2;
   background: transparent;
 }
 
@@ -61,29 +75,38 @@
   background-clip: text;
   -webkit-text-fill-color: transparent;
   margin-bottom: 2rem;
+  position: relative;
+  z-index: 2;
+  text-align: center;
 }
 
 .forgot-form {
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
+  position: relative;
+  z-index: 2;
 }
 
 .forgot-form input {
   width: 100%;
   padding: 1.2rem 1.5rem;
-  border: 2px solid rgba(26, 24, 27, 0.1);
+  border: 2px solid var(--input-border);
   border-radius: 15px;
   font-size: 1rem;
   color: var(--rich-black);
-  background: rgba(240, 248, 255, 0.3);
-  transition: all 0.3s ease;
+  background: var(--input-bg);
+  transition: var(--transition);
   outline: none;
+}
+
+.forgot-form input::placeholder {
+  color: var(--input-placeholder);
 }
 
 .forgot-form input:focus {
   border-color: var(--forest-green);
-  background: rgba(240, 248, 255, 0.8);
+  background: var(--input-bg-focus);
   box-shadow: 0 0 0 4px rgba(75, 172, 53, 0.1);
   transform: translateY(-2px);
 }
@@ -97,29 +120,56 @@
   font-size: 1.1rem;
   font-weight: 700;
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: var(--transition);
   text-transform: uppercase;
-  box-shadow: 0 8px 20px rgba(75, 172, 53, 0.3);
+  box-shadow: 0 8px 20px var(--shadow-strong);
+  position: relative;
+  overflow: hidden;
 }
 
-.forgot-btn:hover {
+.forgot-btn:hover,
+.forgot-btn:focus {
   background: linear-gradient(135deg, #3d9129, #e6b412);
   transform: translateY(-3px);
-  box-shadow: 0 12px 25px rgba(75, 172, 53, 0.4);
+  box-shadow: 0 12px 25px var(--shadow-hover);
+  outline: none;
 }
 
+.forgot-btn:active {
+  transform: translateY(-1px);
+}
+
+/* Animations */
+@keyframes slideInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Responsive */
 @media (max-width: 768px) {
   .forgot-card {
     padding: 2rem 1.5rem;
+  }
+  .forgot-title {
+    font-size: 1.8rem;
   }
 }
 
 @media (max-width: 480px) {
   .forgot-card {
     padding: 1.5rem 1rem;
+    margin: 0.5rem;
   }
-
   .forgot-title {
     font-size: 1.6rem;
+  }
+  .forgot-form input {
+    padding: 1rem 1.2rem;
   }
 }

@@ -39,16 +39,17 @@ export const Login = () => {
           </div>
 
           <h1>Iniciar Sesión</h1>
-          <form className="login-form" onSubmit={handleSubmit(Submit)}>
+          <form className="login-form" onSubmit={handleSubmit(Submit)} noValidate>
             
             <div className="login-input-group">
               <input
                 type="email"
                 placeholder="Email"
                 {...register("email", { required: "El email es obligatorio" })}
+                aria-invalid={errors.email ? "true" : "false"}
               />
               {errors.email && (
-                <div className="login-error"><p>{errors.email.message}</p></div>
+                <div className="login-error" role="alert"><p>{errors.email.message}</p></div>
               )}
             </div>
 
@@ -58,12 +59,17 @@ export const Login = () => {
                   type={showPassword ? "text" : "password"}
                   placeholder="Contraseña"
                   {...register("password", { required: "La contraseña es obligatoria" })}
+                  aria-invalid={errors.password ? "true" : "false"}
                 />
                 <span
                   className="login-toggle-password"
                   onClick={() => setShowPassword(!showPassword)}
+                  aria-label={showPassword ? "Ocultar contraseña" : "Mostrar contraseña"}
+                  role="button"
+                  tabIndex={0}
+                  onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') setShowPassword(!showPassword); }}
                 >
-                  <svg className="login-eye-icon" viewBox="0 0 24 24">
+                  <svg className="login-eye-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
                     {!showPassword ? (
                       <>
                         <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
@@ -80,19 +86,19 @@ export const Login = () => {
                 </span>
               </div>
               {errors.password && (
-                <div className="login-error"><p>{errors.password.message}</p></div>
+                <div className="login-error" role="alert"><p>{errors.password.message}</p></div>
               )}
             </div>
 
             <div className="login-remember">
               <div className="login-check">
                 <input type="checkbox" id="remember" />
-                <label className= "textcolor">Recordar contraseña</label>
+                <label htmlFor="remember" className="textcolor">Recordar contraseña</label>
               </div>
               <Link to={"/forgotpassword"} className="login-forgot">Olvidé mi contraseña</Link>
             </div>
 
-            <button className="login-btn">Iniciar Sesión</button>
+            <button className="login-btn" type="submit">Iniciar Sesión</button>
           </form>
 
           <div className="login-divider">
@@ -102,13 +108,13 @@ export const Login = () => {
           </div>
 
           <div className="login-methods">
-            <div className="login-method facebook">
+            <div className="login-method facebook" title="Iniciar sesión con Facebook">
               <img src="/src/assets/Icons/Facebook.png" alt="facebook" />
             </div>
-            <div className="login-method google">
+            <div className="login-method google" title="Iniciar sesión con Google">
               <img src="/src/assets/Icons/Google.png" alt="google" />
             </div>
-            <div className="login-method apple">
+            <div className="login-method apple" title="Iniciar sesión con Apple">
               <img src="/src/assets/Icons/Apple.png" alt="apple" />
             </div>
           </div>

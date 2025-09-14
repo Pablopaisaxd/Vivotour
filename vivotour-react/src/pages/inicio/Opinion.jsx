@@ -16,20 +16,19 @@ const Opinion = () => {
   const { isAuthenticated } = useContext(AuthContext);
   const navigate = useNavigate();
 
-  const [showModal, setShowModal] = useState(false); // modal agregar opinión
-  const [showAllModal, setShowAllModal] = useState(false); // modal ver todas
+  const [showModal, setShowModal] = useState(false);
+  const [showAllModal, setShowAllModal] = useState(false);
   const [opinionText, setOpinionText] = useState("");
   const [nombre, setNombre] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [opinions, setOpinions] = useState([]);
-  const [allOpinions, setAllOpinions] = useState([]); // todas las opiniones
-  const [currentPage, setCurrentPage] = useState(0); // para paginación
+  const [allOpinions, setAllOpinions] = useState([]); 
+  const [currentPage, setCurrentPage] = useState(0); 
 
   const images = [imgs1, imgs2, imgs3, imgs4, imgs5];
-  const opinionsPerPage = 5; // ✅ Ahora son 5 por página
+  const opinionsPerPage = 5;
 
-  // Cambiar imagen de fondo automáticamente
   useEffect(() => {
     const interval = setInterval(() => {
       setCurrentImageIndex(
@@ -40,7 +39,6 @@ const Opinion = () => {
     return () => clearInterval(interval);
   }, [images.length]);
 
-  // Obtener últimas 3 opiniones al montar
   useEffect(() => {
     const fetchOpinions = async () => {
       try {
@@ -65,7 +63,6 @@ const Opinion = () => {
     }
   };
 
-  // Modal agregar opinión
   const handleOpenModal = () => setShowModal(true);
   const handleCloseModal = () => {
     setShowModal(false);
@@ -74,14 +71,13 @@ const Opinion = () => {
     setError("");
   };
 
-  // Modal ver todas
   const handleOpenAllModal = async () => {
     try {
       const res = await fetch("http://localhost:5000/opiniones");
       const data = await res.json();
       if (data.success) {
         setAllOpinions(data.opiniones.map(op => ({ ...op, image: imgs7 })));
-        setCurrentPage(0); // resetear a la primera página
+        setCurrentPage(0); 
         setShowAllModal(true);
       }
     } catch (err) {
@@ -112,7 +108,6 @@ const Opinion = () => {
     }
   };
 
-  // Paginación de todas las opiniones
   const startIndex = currentPage * opinionsPerPage;
   const currentOpinions = allOpinions.slice(
     startIndex,
@@ -186,7 +181,6 @@ const Opinion = () => {
         </div>
       </div>
 
-      {/* Modal agregar opinión */}
       {showModal && (
         <div className="modal-overlay">
           <div className="modal-content">
@@ -217,7 +211,6 @@ const Opinion = () => {
         </div>
       )}
 
-      {/* Modal ver todas */}
       {showAllModal && (
         <div className="modal-overlay">
           <div className="modal-content large">
@@ -238,7 +231,6 @@ const Opinion = () => {
               ))}
             </div>
 
-            {/* Controles de paginación */}
             <div className="pagination">
               <button
                 disabled={currentPage === 0}

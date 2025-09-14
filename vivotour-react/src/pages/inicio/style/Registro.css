@@ -1,15 +1,23 @@
+:root {
+  --input-bg: rgba(240, 248, 255, 0.3);
+  --input-bg-focus: rgba(240, 248, 255, 0.8);
+  --input-border: rgba(26, 24, 27, 0.1);
+  --input-placeholder: rgba(26, 24, 27, 0.5);
+  --error-bg: rgba(220, 53, 69, 0.1);
+  --error-border: rgba(220, 53, 69, 0.3);
+  --error-color: #dc3545;
+  --shadow-light: rgba(26, 24, 27, 0.05);
+  --shadow-medium: rgba(26, 24, 27, 0.1);
+  --shadow-strong: rgba(75, 172, 53, 0.3);
+  --shadow-hover: rgba(75, 172, 53, 0.4);
+  --transition: all 0.3s ease;
+}
+
 .registro-page {
-  background: linear-gradient(
-    135deg,
-    var(--alice-blue) 0%,
-    rgba(75, 172, 53, 0.15) 30%,
-    rgba(255, 201, 20, 0.1) 70%,
-    var(--alice-blue) 100%
-  );
+background: linear-gradient(135deg, var(--alice-blue) 0%, rgba(75, 172, 53, 0.120) 30%, rgba(255, 201, 20, 0.100) 70%, var(--alice-blue) 100%);
   min-height: 100vh;
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
 }
 
 .registro-container {
@@ -17,7 +25,7 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  padding: 2rem 1rem;
+  padding: 2rem;
 }
 
 .registro-card {
@@ -25,20 +33,35 @@
   backdrop-filter: blur(15px);
   border-radius: 25px;
   padding: 3rem 2.5rem;
-  margin-bottom: 3rem;
-  width: 100%;
   max-width: 560px;
-  box-shadow: 0 20px 40px rgba(26, 24, 27, 0.1),
-    0 0 0 1px rgba(255, 255, 255, 0.2);
+  width: 100%;
+  margin-bottom: 3rem;
+  box-shadow: 0 20px 40px var(--shadow-medium), 0 0 0 1px rgba(255, 255, 255, 0.2);
   border: 2px solid rgba(75, 172, 53, 0.1);
-  text-align: center;
+  position: relative;
+  overflow: hidden;
   animation: slideInUp 0.6s ease-out;
+}
+
+.registro-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, var(--forest-green), var(--golden-yellow));
+  border-radius: 25px 25px 0 0;
+  z-index: 1;
 }
 
 .registro-logo {
   width: 100%;
   height: 80px;
   margin-bottom: 1rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+  z-index: 2;
   background: transparent;
 }
 
@@ -50,31 +73,41 @@
   background-clip: text;
   -webkit-text-fill-color: transparent;
   margin-bottom: 2rem;
+  text-align: center;
+  position: relative;
+  z-index: 2;
 }
 
 .registro-form {
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
+  position: relative;
+  z-index: 2;
 }
 
 .registro-form input,
 .registro-form select {
   width: 100%;
   padding: 1.2rem 1.5rem;
-  border: 2px solid rgba(26, 24, 27, 0.1);
+  border: 2px solid var(--input-border);
   border-radius: 15px;
   font-size: 1rem;
   color: var(--rich-black);
-  background: rgba(240, 248, 255, 0.3);
-  transition: all 0.3s ease;
+  background: var(--input-bg);
+  transition: var(--transition);
   outline: none;
+}
+
+.registro-form input::placeholder,
+.registro-form select::placeholder {
+  color: var(--input-placeholder);
 }
 
 .registro-form input:focus,
 .registro-form select:focus {
   border-color: var(--forest-green);
-  background: rgba(240, 248, 255, 0.8);
+  background: var(--input-bg-focus);
   box-shadow: 0 0 0 4px rgba(75, 172, 53, 0.1);
   transform: translateY(-2px);
 }
@@ -89,15 +122,15 @@
 }
 
 .registro-error {
-  background: rgba(220, 53, 69, 0.1);
-  border: 1px solid rgba(220, 53, 69, 0.3);
+  background: var(--error-bg);
+  border: 1px solid var(--error-border);
   border-radius: 8px;
-  padding: 0.8rem;
-  margin-top: 0.5rem;
+  padding: 0.6rem;
+  margin-top: 0.3rem;
 }
 
 .registro-error p {
-  color: #dc3545;
+  color: var(--error-color);
   font-size: 0.85rem;
   margin: 0;
   font-weight: 500;
@@ -105,6 +138,8 @@
 
 .registro-password {
   position: relative;
+  display: flex;
+  align-items: center;
 }
 
 .login-toggle-password {
@@ -112,6 +147,14 @@
   right: 1rem;
   cursor: pointer;
   color: rgba(26, 24, 27, 0.6);
+  transition: color 0.3s ease;
+  user-select: none;
+}
+
+.login-toggle-password:hover,
+.login-toggle-password:focus {
+  color: var(--forest-green);
+  outline: none;
 }
 
 .login-eye-icon {
@@ -131,22 +174,39 @@
   font-size: 1.1rem;
   font-weight: 700;
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: var(--transition);
   text-transform: uppercase;
   margin-top: 1rem;
-  box-shadow: 0 8px 20px rgba(75, 172, 53, 0.3);
+  box-shadow: 0 8px 20px var(--shadow-strong);
+  position: relative;
+  overflow: hidden;
 }
 
-.registro-btn:hover {
+.registro-btn:hover,
+.registro-btn:focus {
   background: linear-gradient(135deg, #3d9129, #e6b412);
   transform: translateY(-3px);
-  box-shadow: 0 12px 25px rgba(75, 172, 53, 0.4);
+  box-shadow: 0 12px 25px var(--shadow-hover);
+  outline: none;
+}
+
+.registro-btn:active {
+  transform: translateY(-1px);
 }
 
 .registro-login {
   margin-top: 1rem;
-  border-top: 1px solid rgba(26, 24, 27, 0.1);
+  border-top: 1px solid var(--input-border);
   padding-top: 1rem;
+  text-align: center;
+  position: relative;
+  z-index: 2;
+}
+.textcolor {
+  color: var(--rich-black);
+  font-size: 1rem;
+  font-weight: 500;
+  margin-bottom: 0.5rem;
 }
 
 .registro-link {
@@ -154,25 +214,54 @@
   text-decoration: none;
   font-weight: 700;
   font-size: 1.1rem;
-  transition: all 0.3s ease;
+  transition: var(--transition);
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  display: inline-block;
 }
 
-.registro-link:hover {
+.registro-link:hover,
+.registro-link:focus {
   color: var(--golden-yellow);
+  background: rgba(75, 172, 53, 0.1);
+  transform: translateY(-2px);
+  outline: none;
+}
+
+@keyframes slideInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 @media (max-width: 768px) {
   .registro-card {
     padding: 2rem 1.5rem;
   }
+  .registro-title {
+    font-size: 1.8rem;
+  }
+  .registro-documento {
+    flex-direction: column;
+    gap: 0.8rem;
+  }
 }
 
 @media (max-width: 480px) {
   .registro-card {
     padding: 1.5rem 1rem;
+    margin: 0.5rem;
   }
-
   .registro-title {
-    font-size: 1.8rem;
+    font-size: 1.6rem;
+  }
+  .registro-form input,
+  .registro-form select {
+    padding: 1rem 1.2rem;
   }
 }

@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
 import './style/Reserva.css';
+import Nav from './Navbar';
 import Footer from '../../components/use/Footer';
-import { useContext, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import jsPDF from "jspdf";
 
@@ -10,15 +10,14 @@ import imgR2 from '../../assets/Fondos/refcamping.jpg';
 import { AuthContext } from '../../AuthContext';
 
 const ACTIVITIES = [
-    'Caminata a la cascada',
-    'Caminata Puente Amarillo',
-    'Avistamiento de aves',
-    'Zona de motocross',
-    'Día de sol',
-    'Charco',
-    'Cabalgatas'
+    { name: 'Caminata a la cascada', tooltip: 'Disfruta de una hermosa caminata junto a la cascada.' },
+    { name: 'Caminata Puente Amarillo', tooltip: 'Explora el Puente Amarillo con vistas espectaculares.' },
+    { name: 'Avistamiento de aves', tooltip: 'Observa aves exóticas en su hábitat natural.' },
+    { name: 'Zona de motocross', tooltip: 'Zona para los amantes del motocross y la aventura.' },
+    { name: 'Día de sol', tooltip: 'Relájate y disfruta del sol en áreas designadas.' },
+    { name: 'Charco', tooltip: 'Zona natural para refrescarse y divertirse.' },
+    { name: 'Cabalgatas', tooltip: 'Paseos a caballo por senderos naturales.' }
 ];
-
 
 const MEALS = ['Desayuno', 'Almuerzo', 'Cena'];
 
@@ -30,7 +29,7 @@ const normalizarFecha = (fechaStr) => {
 const Reserva = () => {
     const [accommodationType, setAccommodationType] = useState('cabin');
     const [allInclusive, setAllInclusive] = useState(true);
-    const [activities, setActivities] = useState([...ACTIVITIES]);
+    const [activities, setActivities] = useState(ACTIVITIES.map(a => a.name));
     const [meals, setMeals] = useState([...MEALS]);
     const [summaryData, setSummaryData] = useState(null);
 
@@ -39,7 +38,7 @@ const Reserva = () => {
     };
     const handleAllInclusiveChange = () => {
         if (!allInclusive) {
-            setActivities([...ACTIVITIES]);
+            setActivities(ACTIVITIES.map(a => a.name));
         } else {
             setActivities([]);
         }
@@ -113,149 +112,136 @@ const Reserva = () => {
         setSummaryData(null);
     };
 
-const { user } = useContext(AuthContext);
+    const { user } = useContext(AuthContext);
 
-const handleGeneratePDF = () => {
-  if (!summaryData) return;
+    const handleGeneratePDF = () => {
+        if (!summaryData) return;
 
-  const doc = new jsPDF();
+        const doc = new jsPDF();
 
-  // Título
-  doc.setFontSize(18);
-  doc.text("Confirmación de Reserva", 20, 20);
+        doc.setFontSize(18);
+        doc.text("Confirmación de Reserva", 20, 20);
 
-  // Datos del usuario (AuthContext)
-  doc.setFontSize(12);
-  doc.text(`Nombre: ${user?.nombre || "No disponible"}`, 20, 40);
-doc.text(`Correo: ${user?.correo || user?.email || "No disponible"}`, 20, 50);
+        doc.setFontSize(12);
+        doc.text(`Nombre: ${user?.nombre || "No disponible"}`, 20, 40);
+        doc.text(`Correo: ${user?.correo || user?.email || "No disponible"}`, 20, 50);
 
-  // Datos de la reserva
-  doc.text(`Fecha inicio: ${summaryData.dateS}`, 20, 70);
-  doc.text(`Fecha de Salida: ${summaryData.dateE}`, 20, 80);
-  doc.text(
-    `Cantidad: ${summaryData.adults} adulto(s), ${summaryData.children} niño(s)`,
-    20,
-    90
-  );
-  doc.text(`Alojamiento: ${summaryData.accommodation}`, 20, 100);
-  doc.text(`Actividades: ${summaryData.activities}`, 20, 110);
-  doc.text(`Comidas: ${summaryData.meals}`, 20, 120);
+        doc.text(`Fecha inicio: ${summaryData.dateS}`, 20, 70);
+        doc.text(`Fecha de Salida: ${summaryData.dateE}`, 20, 80);
+        doc.text(`Cantidad: ${summaryData.adults} adulto(s), ${summaryData.children} niño(s)`, 20, 90);
+        doc.text(`Alojamiento: ${summaryData.accommodation}`, 20, 100);
+        doc.text(`Actividades: ${summaryData.activities}`, 20, 110);
+        doc.text(`Comidas: ${summaryData.meals}`, 20, 120);
 
-  // Guardar PDF
-  doc.save("reserva.pdf");
-};
-
+        doc.save("reserva.pdf");
+    };
 
     return (
-        <div className="maindivreserv">
-            <div className="divreserv">
-                <div className="divcontainer">
+        <div className="reserva-page">
+            <Nav />
+            <div className="reserva-wrapper">
+                <div className="reserva-container">
                     <form onSubmit={handleBookNow}>
-                        <div className="booking-section">
-                            <div className="section-title">
-                                <span>Seleccione fecha</span>
-                            </div>
-                            <div className="people-group">
-                                <div className="form-group">
-                                    <label htmlFor="reservation-date-start">Fecha de entrada</label>
-                                    <input type="date" id="reservation-date-start" name="reservation-date-start" required />
+                        <div className="reserva-top-sections">
+                            <div className="reserva-section reserva-section-half">
+                                <h3 className="reserva-title">Seleccione fecha</h3>
+                                <div className="reserva-people">
+                                    <div className="reserva-group">
+                                        <label htmlFor="reservation-date-start">Fecha de entrada</label>
+                                        <input type="date" id="reservation-date-start" name="reservation-date-start" required />
+                                    </div>
+                                    <div className="reserva-group">
+                                        <label htmlFor="reservation-date-end">Fecha de salida</label>
+                                        <input type="date" id="reservation-date-end" name="reservation-date-end" required />
+                                    </div>
                                 </div>
-                                <div className="form-group">
-                                    <label htmlFor="reservation-date-end">Fecha de salida</label>
-                                    <input type="date" id="reservation-date-end" name="reservation-date-end" required />
+                            </div>
+
+                            <div className="reserva-section reserva-section-half">
+                                <h3 className="reserva-title">Número de personas</h3>
+                                <div className="reserva-people">
+                                    <div className="reserva-group">
+                                        <label htmlFor="adults">Adultos</label>
+                                        <input type="number" id="adults" name="adults" min="1" max="4" defaultValue="1" required />
+                                    </div>
+                                    <div className="reserva-group">
+                                        <label htmlFor="children">Niños</label>
+                                        <input type="number" id="children" name="children" min="0" max="3" defaultValue="0" required />
+                                    </div>
                                 </div>
                             </div>
                         </div>
+
                         <hr />
 
-                        <div className="booking-section">
-                            <div className="section-title">
-                                <span>Número de personas</span>
-                            </div>
-                            <div className="people-group">
-                                <div className="form-group">
-                                    <label htmlFor="adults">Adultos</label>
-                                    <input type="number" id="adults" name="adults" min="1" max="4" defaultValue="1" required />
-                                </div>
-                                <div className="form-group">
-                                    <label htmlFor="children">Niños</label>
-                                    <input type="number" id="children" name="children" min="0" max="3" defaultValue="0" required />
-                                </div>
-                            </div>
-                        </div>
-                        <hr />
-
-                        <div className="booking-section">
-                            <div className="section-title">
-                                <span>Tipo de alojamiento</span>
-                            </div>
-                            <div className="option-group">
+                        <div className="reserva-section">
+                            <h3 className="reserva-title">Tipo de alojamiento</h3>
+                            <div className="reserva-options">
                                 <div
-                                    className={`option-card ${accommodationType === 'cabin' ? 'selected' : ''}`}
+                                    className={`reserva-card ${accommodationType === 'cabin' ? 'selected' : ''}`}
                                     onClick={() => handleAccommodationSelect('cabin')}
                                     role="button"
                                     tabIndex={0}
                                     onKeyPress={(e) => e.key === 'Enter' && handleAccommodationSelect('cabin')}
                                 >
                                     <img src={imgR1} alt="Cabaña estandar" />
-                                    <h2>Cabañas</h2>
+                                    <h4>Cabañas</h4>
                                     <p>Disfruta de la comodidad en medio de la naturaleza.</p>
                                 </div>
                                 <div
-                                    className={`option-card ${accommodationType === 'camping' ? 'selected' : ''}`}
+                                    className={`reserva-card ${accommodationType === 'camping' ? 'selected' : ''}`}
                                     onClick={() => handleAccommodationSelect('camping')}
                                     role="button"
                                     tabIndex={0}
                                     onKeyPress={(e) => e.key === 'Enter' && handleAccommodationSelect('camping')}
                                 >
                                     <img src={imgR2} alt="Zona de camping" />
-                                    <h2>Zona de Camping</h2>
+                                    <h4>Zona de Camping</h4>
                                     <p>Vive la aventura al aire libre.</p>
                                 </div>
                             </div>
                         </div>
+
                         <hr />
 
-                        <div className="booking-section">
-                            <div className="section-title">
-                                <span>Actividades y Servicios</span>
-                            </div>
-                            <div className="checkbox-group">
-                                <div className="checkbox-item">
+                        <div className="reserva-section">
+                            <h3 className="reserva-title">Actividades y Servicios</h3>
+                            <div className="reserva-checkbox-group">
+                                <div className="reserva-checkbox-item">
                                     <input
                                         type="checkbox"
                                         id="all-inclusive"
                                         name="all-inclusive"
                                         checked={allInclusive}
                                         onChange={handleAllInclusiveChange}
+                                        title="Selecciona todas las actividades y servicios disponibles."
                                     />
                                     <label htmlFor="all-inclusive">Todo incluido</label>
                                 </div>
-                                <div className="checkbox-subgroup">
-                                    {ACTIVITIES.map((activity) => (
-                                        <div key={activity} className="checkbox-item">
+                                <div className="reserva-checkbox-subgroup">
+                                    {ACTIVITIES.map(({ name, tooltip }) => (
+                                        <div key={name} className="reserva-checkbox-item">
                                             <input
                                                 type="checkbox"
-                                                value={activity}
-                                                checked={activities.includes(activity)}
+                                                value={name}
+                                                checked={activities.includes(name)}
                                                 onChange={handleActivityChange}
+                                                title={tooltip}
                                             />
-                                            <label>{activity}</label>
+                                            <label>{name}</label>
                                         </div>
                                     ))}
                                 </div>
                             </div>
                         </div>
 
-                        <div className="booking-section">
-                            <div className="section-title">
-                                <span>Opciones de comida</span>
-                            </div>
-                            <div className="meal-options">
+                        <div className="reserva-section">
+                            <h3 className="reserva-title">Opciones de comida</h3>
+                            <div className="reserva-meal-options">
                                 {MEALS.map((meal) => (
                                     <div
                                         key={meal}
-                                        className={`meal-option ${meals.includes(meal) ? 'selected' : ''}`}
+                                        className={`reserva-meal-option ${meals.includes(meal) ? 'selected' : ''}`}
                                         onClick={() => handleMealSelect(meal)}
                                         role="button"
                                         tabIndex={0}
@@ -267,13 +253,12 @@ doc.text(`Correo: ${user?.correo || user?.email || "No disponible"}`, 20, 50);
                             </div>
                         </div>
 
-                        <button type="submit">Reserva ahora</button>
+                        <button type="submit" className="reserva-btn">Reserva ahora</button>
                     </form>
 
-                    {/* Modal de confirmación */}
                     {summaryData && (
-                        <div className="modal-overlay">
-                            <div className="modal-content">
+                        <div className="reserva-modal-overlay">
+                            <div className="reserva-modal-content">
                                 <h2>Confirmar Reservación</h2>
                                 <p><strong>Fecha inicio:</strong> {summaryData.dateS}</p>
                                 <p><strong>Fecha final:</strong> {summaryData.dateE}</p>
@@ -282,18 +267,16 @@ doc.text(`Correo: ${user?.correo || user?.email || "No disponible"}`, 20, 50);
                                 <p><strong>Actividades y Servicios:</strong> {summaryData.activities}</p>
                                 <p><strong>Opciones de comida:</strong> {summaryData.meals}</p>
 
-                                <div className="modal-buttons">
-                                    <button className="btn-cancel" onClick={handleCloseModal}>Cancelar</button>
-                                    <button className="btn-confirm" onClick={()=>{
-                                              handleSendAndSave();handleGeneratePDF();
-                                    }}>Enviar y Guardar</button>
+                                <div className="reserva-modal-buttons">
+                                    <button className="reserva-btn-cancel" onClick={handleCloseModal}>Cancelar</button>
+                                    <button className="reserva-btn-confirm" onClick={() => { handleSendAndSave(); handleGeneratePDF(); }}>Enviar y Guardar</button>
                                 </div>
                             </div>
                         </div>
                     )}
                 </div>
             </div>
-            <Footer/>
+            <Footer />
         </div>
     );
 };
