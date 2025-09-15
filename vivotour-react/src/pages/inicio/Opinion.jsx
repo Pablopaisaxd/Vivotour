@@ -27,7 +27,7 @@ const Opinion = () => {
   const [currentPage, setCurrentPage] = useState(0); 
 
   const images = [imgs1, imgs2, imgs3, imgs4, imgs5];
-  const opinionsPerPage = 5;
+  const opinionsPerPage = 3;
 
   useEffect(() => {
     const interval = setInterval(() => {

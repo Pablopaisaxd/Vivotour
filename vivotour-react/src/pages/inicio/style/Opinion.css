@@ -62,10 +62,9 @@
     gap: 1rem;
     justify-content: center;
     align-items: center;
+    margin-right: 10px;
     padding-top: 0.5rem;
 }
-
-
 
 .btn {
     padding: 0.8rem 1.5rem;
@@ -108,6 +107,18 @@
     box-shadow: 0 8px 25px rgba(255, 201, 20, 0.25);
     color: #111 !important;  
 }
+
+.btnver{
+    background: linear-gradient(135deg, var(--forest-green), var(--golden-yellow));
+    color: #fff !important;
+    
+}
+
+.btnver:hover {
+    background: linear-gradient(135deg, #3d9129, #e6b412);
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(75, 172, 53, 0.35);
+    color: #fff !important;}
 
 .right-col {
     display: flex;
@@ -268,25 +279,29 @@
   align-items: center;
   justify-content: center;
   z-index: 1000;
+  overflow: hidden;
 }
 
 .modal-content {
-  background: white;
-  padding: 2rem;
-  border-radius: 12px;
-  max-width: 450px;
-  width: 90%;
-  max-height: 90vh;
-  overflow-y: auto;
-  animation: fadeIn 0.3s ease;
+    overflow: hidden;
+    background: white;
+    padding: 2rem;
+    border-radius: 12px;
+    max-width: 450px;
+    width: 90%;
+    max-height: 90vh;
+    overflow-y: auto;
+    animation: fadeIn 0.3s ease;
 }
 
 .modal-content.large {
-  max-width: 700px;
+    max-height: 600px;
+    max-width: 600px;
+    overflow: hidden;
 }
 
 .modal-content h2 {
-  margin-bottom: 1rem;
+    margin-bottom: 1rem;
 }
 
 /* --- Formulario agregar opinión --- */
@@ -308,13 +323,15 @@
   border: none;
   border-radius: 8px;
   cursor: pointer;
-  background: #0077cc;
-  color: white;
+  background: linear-gradient(135deg, var(--forest-green), var(--golden-yellow));
+    color: #fff !important;
   font-weight: bold;
 }
 
 .modal-content button:hover {
-  background: #005fa3;
+  background: linear-gradient(135deg, #3d9129, #e6b412);
+    transform: translateY(-3px);
+    transition: all 0.3s ease;
 }
 
 .modal-content .error {
@@ -332,8 +349,8 @@
 
 .pagination button {
   padding: 8px 14px;
-  background: #0077cc;
-  color: white;
+  background: linear-gradient(135deg, var(--forest-green), var(--golden-yellow));
+    color: #fff !important;
   border: none;
   border-radius: 8px;
   cursor: pointer;
@@ -351,8 +368,6 @@
   padding: 10px 18px;
   border: none;
   border-radius: 8px;
-  background: #dc3545;
-  color: white;
   font-weight: bold;
   cursor: pointer;
 }
