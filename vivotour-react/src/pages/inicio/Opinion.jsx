@@ -11,6 +11,8 @@ import imgs5 from "../../assets/Fondos/turistas en rio.jpg";
 
 import imgs7 from "../../assets/Personas/Persona.png";
 
+
+
 const Opinion = () => {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const { isAuthenticated } = useContext(AuthContext);
@@ -40,20 +42,20 @@ const Opinion = () => {
   }, [images.length]);
 
   useEffect(() => {
-    const fetchOpinions = async () => {
-      try {
-        const res = await fetch("http://localhost:5000/opinion");
-        const data = await res.json();
-        if (data.success) {
-          setOpinions(data.opiniones.map(op => ({ ...op, image: imgs7 })));
-        }
-      } catch (err) {
-        console.error("Error cargando opiniones:", err);
+  const fetchOpinions = async () => {
+    try {
+      const res = await fetch("http://localhost:5000/ultimas-opiniones");
+      const data = await res.json();
+      if (data.success) {
+        setOpinions(data.opiniones.map(op => ({ ...op, image: imgs7 })));
       }
-    };
+    } catch (err) {
+      console.error("Error cargando opiniones:", err);
+    }
+  };
 
-    fetchOpinions();
-  }, []);
+  fetchOpinions();
+}, []);
 
   const handleReservaClick = () => {
     if (isAuthenticated) {
@@ -70,6 +72,7 @@ const Opinion = () => {
     setNombre("");
     setError("");
   };
+
 
   const handleOpenAllModal = async () => {
     try {

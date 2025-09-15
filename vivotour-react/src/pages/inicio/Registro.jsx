@@ -142,9 +142,9 @@ export const Registro = () => {
                   required: "La contraseña es obligatoria",
                   pattern: {
                     value:
-                      /^(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?]).{16,}$/,
+                      /^(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?]).{8,}$/,
                     message:
-                      "Debe contener al menos una mayúscula, un número, un carácter especial y 16 caracteres",
+                      "Debe contener al menos una mayúscula, un número, un carácter especial y 8 caracteres",
                   },
                 })}
                 placeholder="Contraseña"

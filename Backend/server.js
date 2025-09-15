@@ -92,6 +92,21 @@ app.post("/opinion", async (req, res) => {
   }
 });
 
+app.get("/ultimas-opiniones", async (req, res) => {
+  try {
+    const [ultimasOpiniones] = await db.query(`
+      SELECT * FROM opinion
+      ORDER BY id DESC
+      LIMIT 3
+    `);
+
+    res.json({ success: true, opiniones: ultimasOpiniones });
+  } catch (err) {
+    console.error("Error en DB:", err);
+    res.status(500).json({ success: false, mensaje: "Error al obtener opiniones" });
+  }
+});
+
 //obtener todas las opiniones
 app.get("/opiniones", async (req, res) => {
   try {
