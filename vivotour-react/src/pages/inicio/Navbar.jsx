@@ -26,6 +26,8 @@ const Nav = () => {
         ) : (
           <Link to={"/Login"} className="btnlog">Acceder</Link>
         )}
+
+        <Link to={"/Admin"} className="btnav">test</Link>
       </nav>
     </header>
   );

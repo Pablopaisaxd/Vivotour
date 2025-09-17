@@ -6,6 +6,7 @@ import { Forgotpassword } from './pages/inicio/Forgotpassword.jsx';
 import Reserva from './pages/inicio/Reserva.jsx';
 import PrivateRoute from './components/use/PrivateRoute.jsx';
 import { Perfil } from './pages/inicio/Perfil.jsx';
+import Admin from './pages/Admin/App.js';
 
 const App = () => {
 
@@ -15,6 +16,8 @@ const App = () => {
         <Route path='/' element={<Presentacion />}/>
         <Route path='/Login' element={<Login />} />
         <Route path='/Registro' element={<Registro />}/>
+        <Route path='' element={<Registro />}/>
+        <Route path='/Admin' element={<Admin />}/>
         <Route path='forgotpassword' element={<Forgotpassword />}/>
         <Route element={<PrivateRoute />}>
             <Route path="/Reserva" element={<Reserva />} />
