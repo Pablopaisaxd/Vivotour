@@ -9,7 +9,6 @@ import imgG6 from '../../assets/Fondos/Puente amarillo.jpg';
 import imgG7 from '../../assets/Fondos/Cabalgata.jpg';
 import imgG8 from '../../assets/Fondos/Jacuzzi hamaca.jpg';
 
-// 🔥 Importa automáticamente todas las imágenes de fauna
 const faunaImports = import.meta.glob('../../assets/imgs/fauna/*.{jpg,jpeg,png}', { eager: true });
 const faunaImgs = Object.values(faunaImports).map((mod) => mod.default);
 

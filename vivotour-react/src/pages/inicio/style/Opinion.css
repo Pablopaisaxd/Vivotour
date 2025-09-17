@@ -5,6 +5,8 @@
     box-sizing: border-box;
     padding: 3rem 2rem;
     margin-bottom: 0.1rem;
+    background: linear-gradient(135deg, var(--alice-blue) 0%, rgba(75, 172, 53, 0.05) 100%);
+
 }
 
 

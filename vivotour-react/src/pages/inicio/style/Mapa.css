@@ -3,7 +3,9 @@
     padding-bottom: 2rem;
     display: flex;
     justify-content: center;
-    margin-bottom: 5rem;
+    padding-bottom: 5rem;
+    background: linear-gradient(135deg, var(--alice-blue) 0%, rgba(75, 172, 53, 0.05) 100%);
+
 }
 
 .mapa-container {
