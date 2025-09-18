@@ -13,7 +13,6 @@ import {
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
 
 const MyChart = ({ month, year }) => {
-  // Inicializa con datos válidos para evitar error en primer render
   const [chartData, setChartData] = useState({
     labels: [],
     datasets: [],
@@ -33,7 +32,7 @@ const MyChart = ({ month, year }) => {
         },
       ],
     });
-  }, [month, year]); // Dependencias para actualizar si cambian
+  }, [month, year]);
 
   return (
     <div
@@ -70,9 +69,10 @@ const MyChart = ({ month, year }) => {
               cornerRadius: 5,
               padding: 10,
               callbacks: {
-                title: (tooltipItems, data) => {
+                title: (tooltipItems) => {
                   const idx = tooltipItems[0].dataIndex;
-                  return `${data.labels[idx]} ${month} ${year}`;
+                  const labels = tooltipItems[0].chart.data.labels;
+                  return `${labels[idx]} ${month} ${year}`;
                 },
                 label: (tooltipItem) => {
                   let label = tooltipItem.dataset.label || "";

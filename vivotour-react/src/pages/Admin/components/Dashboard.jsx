@@ -1,25 +1,6 @@
 import React from "react";
-import CustomSelect from "./reusable/CustomSelect";
 
 function Dashboard() {
-  const data = [
-    {
-      id: "1",
-      name: "🇬🇧 ENG",
-    },
-    {
-      id: "2",
-      name: "🇺🇸   USA",
-    },
-    {
-      id: "3",
-      name: "🇮🇳   IND",
-    },
-    {
-      id: "4",
-      name: "🇨🇳   CHI",
-    },
-  ];
 
   return (
     <div className="header-second">
@@ -30,9 +11,8 @@ function Dashboard() {
           color: "#535457",
         }}
       >
-        Dashboard
+        Vista Administrador
       </h3>
-      <CustomSelect data={data} />
     </div>
   );
 }

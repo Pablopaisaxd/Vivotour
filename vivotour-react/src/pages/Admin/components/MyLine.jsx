@@ -9,6 +9,7 @@ import {
   Title,
   Tooltip,
   Legend,
+  Filler, // 👈 IMPORTANTE: importar Filler
 } from 'chart.js';
 
 ChartJS.register(
@@ -18,7 +19,8 @@ ChartJS.register(
   LineElement,
   Title,
   Tooltip,
-  Legend
+  Legend,
+  Filler // 👈 REGISTRAR Filler
 );
 
 const MyLine = ({ color, height, width }) => {
@@ -33,7 +35,7 @@ const MyLine = ({ color, height, width }) => {
       datasets: [
         {
           data: [3, 2, 3, 2, 2, 3, 1, 2, 2, 4],
-          fill: true,
+          fill: true, // 👈 ahora sí funciona con Filler registrado
           backgroundColor: color.backgroundColor,
           borderColor: color.borderColor,
           borderWidth: 2,
@@ -45,14 +47,14 @@ const MyLine = ({ color, height, width }) => {
           pointHoverBorderWidth: 7,
           pointRadius: 0,
           pointHitRadius: 30,
-          tension: 0,
+          tension: 0.4, // un poco de curvatura opcional
         },
       ],
     });
   }, [color]);
 
   return (
-    <div style={{ height: height , width: width, filter: 'drop-shadow(0 0 0.15rem #d8d8e2)' }}>
+    <div style={{ height: height, width: width, filter: 'drop-shadow(0 0 0.15rem #d8d8e2)' }}>
       <Line
         data={data}
         options={{

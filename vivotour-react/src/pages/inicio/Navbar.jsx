@@ -24,8 +24,7 @@ const Nav = () => {
           <Link to={"/Login"} className="btnlog">Acceder</Link>
         )}
 
-        {/* El Link a /Admin es correcto */}
-        <Link to={"/Admin"} className="btnav">Admin Dashboard</Link>
+        <Link to={"/Admin"} className="btnav">Admin</Link>
       </nav>
     </header>
   );
