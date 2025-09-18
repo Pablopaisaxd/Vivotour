@@ -15,6 +15,12 @@
     }
 }
 
+.sec {
+  position: relative;
+  height: 100%;
+}
+
+
 .sec:hover {
     position: relative;
     z-index: 1;
