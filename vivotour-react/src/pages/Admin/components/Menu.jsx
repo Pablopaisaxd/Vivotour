@@ -1,195 +1,257 @@
 import React from "react";
-import { makeStyles } from "@material-ui/core/styles";
-import ListSubheader from "@material-ui/core/ListSubheader";
-import List from "@material-ui/core/List";
-import ListItem from "@material-ui/core/ListItem";
-import ListItemIcon from "@material-ui/core/ListItemIcon";
-import ListItemText from "@material-ui/core/ListItemText";
-import ListItemAvatar from '@material-ui/core/ListItemAvatar';
-import Collapse from "@material-ui/core/Collapse";
-import ExpandLess from "@material-ui/icons/ExpandLess";
-import ExpandMore from "@material-ui/icons/ExpandMore";
-import DashboardOutlinedIcon from "@material-ui/icons/DashboardOutlined";
-import TodayOutlinedIcon from "@material-ui/icons/TodayOutlined";
-import MoveToInboxOutlinedIcon from "@material-ui/icons/MoveToInboxOutlined";
-import ReceiptOutlinedIcon from "@material-ui/icons/ReceiptOutlined";
-import ColorizeOutlinedIcon from "@material-ui/icons/ColorizeOutlined";
-import Divider from "@material-ui/core/Divider";
-import ListItemSecondaryAction from "@material-ui/core/ListItemSecondaryAction";
-import ArrowRightAltOutlinedIcon from "@material-ui/icons/ArrowRightAltOutlined";
-import GitHubIcon from '@material-ui/icons/GitHub';
-import Link from "@material-ui/core/Link";
-
-const useStyles = makeStyles((theme) => ({
-  root: {
-    width: "100%",
-    maxWidth: 260,
-    backgroundColor: theme.palette.background.paper,
-  },
-  nested: {
-    paddingBottom: theme.spacing(0.1),
-    paddingLeft: theme.spacing(12),
-    color: theme.palette.secondary.main,
-    fontSize: "16px",
-    "&:hover":{
-      animation: 'color 0.2s ease-in-out',
-      color: theme.palette.primary.main,
-    }
-  },
-  items: {
-    padding: "0",
-    margin: "0",
-    paddingLeft: theme.spacing(4),
-  },
-  listItemText: {
-    fontSize: "14px",
-    color: theme.palette.secondary.main,
-    "&:hover":{
-      animation: 'color 0.2s ease-in-out',
-      color: theme.palette.primary.main
-    }
-  
-  },
-  menuItemText: {
-    fontWeight: theme.typography.fontWeightBold,
-    color: theme.palette.primary.light,
-    fontSize: "16px",
-    "&:hover":{
-      animation: 'color 0.2s ease-in-out',
-      color: theme.palette.primary.main
-    }
-  },
-  menu: {
-    paddingLeft: theme.spacing(4),
-  },
-  subheader: {
-    color: theme.palette.secondary.main,
-    fontWeight: theme.typography.fontWeightBold
-  }
-}));
+import { useTheme } from '@mui/material/styles'; // Importar useTheme de MUI v5
+import ListSubheader from '@mui/material/ListSubheader';
+import List from '@mui/material/List';
+import ListItem from '@mui/material/ListItem';
+import ListItemIcon from '@mui/material/ListItemIcon';
+import ListItemText from '@mui/material/ListItemText';
+import Collapse from '@mui/material/Collapse';
+import Divider from '@mui/material/Divider';
+import ListItemSecondaryAction from '@mui/material/ListItemSecondaryAction';
+import Link from '@mui/material/Link'; // Usar Link de MUI para estilos, o Link de react-router-dom para navegación
+import ExpandLess from "@mui/icons-material/ExpandLess";
+import ExpandMore from "@mui/icons-material/ExpandMore";
+import DashboardOutlinedIcon from "@mui/icons-material/DashboardOutlined";
+import TodayOutlinedIcon from "@mui/icons-material/TodayOutlined";
+import MoveToInboxOutlinedIcon from "@mui/icons-material/MoveToInboxOutlined";
+import ReceiptOutlinedIcon from "@mui/icons-material/ReceiptOutlined";
+import ColorizeOutlinedIcon from "@mui/icons-material/ColorizeOutlined";
+import ArrowRightAltOutlinedIcon from '@mui/icons-material/ArrowRightAltOutlined';
+import GitHubIcon from '@mui/icons-material/GitHub';
+import { Link as RouterLink } from 'react-router-dom'; // Importar Link de react-router-dom
 
 export default function Menu() {
-  const classes = useStyles();
+  const theme = useTheme(); // Usar useTheme para acceder al tema
   const [open, setOpen] = React.useState(true);
-
-  const handleClick = () => {
-    setOpen(!open);
-  };
+  const handleClick = () => setOpen(!open);
 
   return (
-    <div >
+    <div>
       <List>
         <Divider />
-        <ListItem button onClick={handleClick} className={classes.menu}>
+        <ListItem
+          button
+          onClick={handleClick}
+          sx={{
+            pl: 4,
+            "&:hover": { color: theme.palette.primary.main },
+            // Estilos para ListItemText dentro de este ListItem
+            '& .MuiListItemText-primary': {
+              fontWeight: 'bold',
+              fontSize: 16,
+              color: theme.palette.primary.light,
+              "&:hover": {
+                animation: 'color 0.2s ease-in-out',
+                color: theme.palette.primary.main
+              }
+            }
+          }}
+        >
           <ListItemIcon>
-            <DashboardOutlinedIcon color="primary"/>
+            <DashboardOutlinedIcon color="primary" />
           </ListItemIcon>
-          <ListItemText
-            primary="Dashboard"
-            classes={{ primary: classes.menuItemText }}
-          />
+          <ListItemText primary="Dashboard" />
           {open ? <ExpandMore color="primary" /> : <ExpandLess color="primary" />}
         </ListItem>
+
         <Collapse in={open} timeout="auto" unmountOnExit>
           <List component="div" disablePadding>
-            <ListItem button className={classes.nested}>
+            <ListItem button
+              sx={{
+                pl: 12,
+                pb: 0.1,
+                fontSize: 16,
+                color: theme.palette.secondary.main,
+                "&:hover": { color: theme.palette.primary.main }
+              }}
+            >
               <ListItemText primary="Page Visitors" />
             </ListItem>
-            <ListItem button className={classes.nested}>
+            <ListItem button
+              sx={{
+                pl: 12,
+                pb: 0.1,
+                fontSize: 16,
+                color: theme.palette.secondary.main,
+                "&:hover": { color: theme.palette.primary.main }
+              }}
+            >
               <ListItemText primary="Post Performance" />
             </ListItem>
-            <ListItem button className={classes.nested}>
+            <ListItem button
+              sx={{
+                pl: 12,
+                pb: 0.1,
+                fontSize: 16,
+                color: theme.palette.secondary.main,
+                "&:hover": { color: theme.palette.primary.main }
+              }}
+            >
               <ListItemText primary="Team Overall" />
             </ListItem>
           </List>
         </Collapse>
+
         <Divider variant="middle" />
-        <ListItem button className={classes.menu}>
+
+        <ListItem button
+          sx={{
+            pl: 4,
+            "&:hover": { color: theme.palette.primary.main },
+            '& .MuiListItemText-primary': {
+              fontWeight: 'bold',
+              fontSize: 16,
+              color: theme.palette.primary.light,
+              "&:hover": {
+                animation: 'color 0.2s ease-in-out',
+                color: theme.palette.primary.main
+              }
+            }
+          }}
+        >
           <ListItemIcon>
             <TodayOutlinedIcon color="primary" />
           </ListItemIcon>
-          <ListItemText
-            primary="Calendar"
-            classes={{ primary: classes.menuItemText }}
-          />
+          <ListItemText primary="Calendar" />
         </ListItem>
+
         <Divider variant="middle" />
-        <ListItem button className={classes.menu}>
+
+        <ListItem button
+          sx={{
+            pl: 4,
+            "&:hover": { color: theme.palette.primary.main },
+            '& .MuiListItemText-primary': {
+              fontWeight: 'bold',
+              fontSize: 16,
+              color: theme.palette.primary.light,
+              "&:hover": {
+                animation: 'color 0.2s ease-in-out',
+                color: theme.palette.primary.main
+              }
+            }
+          }}
+        >
           <ListItemIcon>
             <MoveToInboxOutlinedIcon color="primary"/>
           </ListItemIcon>
-          <ListItemText
-            primary="Inbox"
-            classes={{ primary: classes.menuItemText }}
-          />
+          <ListItemText primary="Inbox" />
         </ListItem>
+
         <Divider variant="middle" />
-        <ListItem button className={classes.menu}>
+
+        <ListItem button
+          sx={{
+            pl: 4,
+            "&:hover": { color: theme.palette.primary.main },
+            '& .MuiListItemText-primary': {
+              fontWeight: 'bold',
+              fontSize: 16,
+              color: theme.palette.primary.light,
+              "&:hover": {
+                animation: 'color 0.2s ease-in-out',
+                color: theme.palette.primary.main
+              }
+            }
+          }}
+        >
           <ListItemIcon>
             <ReceiptOutlinedIcon color="primary"/>
           </ListItemIcon>
-          <ListItemText
-            primary="Invoicing"
-            classes={{ primary: classes.menuItemText }}
-          />
+          <ListItemText primary="Invoicing" />
         </ListItem>
+
         <Divider variant="middle" />
-        <ListItem button className={classes.menu}>
+
+        <ListItem button
+          sx={{
+            pl: 4,
+            "&:hover": { color: theme.palette.primary.main },
+            '& .MuiListItemText-primary': {
+              fontWeight: 'bold',
+              fontSize: 16,
+              color: theme.palette.primary.light,
+              "&:hover": {
+                animation: 'color 0.2s ease-in-out',
+                color: theme.palette.primary.main
+              }
+            }
+          }}
+        >
           <ListItemIcon>
             <ColorizeOutlinedIcon color="primary"/>
           </ListItemIcon>
-          <ListItemText
-            primary="Lab / Experimental"
-            classes={{ primary: classes.menuItemText }}
-          />
+          <ListItemText primary="Lab / Experimental" />
         </ListItem>
         <Divider />
       </List>
-      <div style={{ filter: 'drop-shadow(0 0 0.55rem #ddddf0)'}} >
-      <List
-        component="nav"
-        subheader={
-          <ListSubheader component="div" className={classes.subheader}>
-            RECENTLY VIEWED
-          </ListSubheader>
-        }
-        className={classes.root}
-      >
-        <ListItem button className={classes.items}>
-          <ListItemText
-            classes={{ primary: classes.listItemText }}
-            primary="Overall Performance"
-          />
-          <ListItemSecondaryAction>
-            <ArrowRightAltOutlinedIcon color="secondary"/>
-          </ListItemSecondaryAction>
-        </ListItem>
-        <ListItem button className={classes.items}>
-          <ListItemText
-            classes={{ primary: classes.listItemText }}
-            primary="Invoice #940"
-            color="secondary"
-          />
-          <ListItemSecondaryAction>
-            <ArrowRightAltOutlinedIcon color="secondary"/>
-          </ListItemSecondaryAction>
-        </ListItem>
-        <ListItem button className={classes.items}>
-          <ListItemText
-            classes={{ primary: classes.listItemText }}
-            primary="Customer: Minerva Viewer"
-          />
-          <ListItemSecondaryAction>
-            <ArrowRightAltOutlinedIcon color="secondary" />
-          </ListItemSecondaryAction>
-        </ListItem>
-      </List>
+
+      <div style={{ filter: 'drop-shadow(0 0 0.55rem #ddddf0)' }}>
+        <List
+          component="nav"
+          subheader={
+            <ListSubheader component="div" sx={{ color: theme.palette.secondary.main, fontWeight: 'bold' }}>
+              RECENTLY VIEWED
+            </ListSubheader>
+          }
+        >
+          <ListItem button
+            sx={{
+              pl: 4,
+              m: 0,
+              '& .MuiListItemText-primary': {
+                fontSize: 14,
+                color: theme.palette.secondary.main,
+                "&:hover": { color: theme.palette.primary.main }
+              }
+            }}
+          >
+            <ListItemText primary="Overall Performance" />
+            <ListItemSecondaryAction>
+              <ArrowRightAltOutlinedIcon color="secondary" />
+            </ListItemSecondaryAction>
+          </ListItem>
+          <ListItem button
+            sx={{
+              pl: 4,
+              m: 0,
+              '& .MuiListItemText-primary': {
+                fontSize: 14,
+                color: theme.palette.secondary.main,
+                "&:hover": { color: theme.palette.primary.main }
+              }
+            }}
+          >
+            <ListItemText primary="Invoice #940" />
+            <ListItemSecondaryAction>
+              <ArrowRightAltOutlinedIcon color="secondary" />
+            </ListItemSecondaryAction>
+          </ListItem>
+          <ListItem button
+            sx={{
+              pl: 4,
+              m: 0,
+              '& .MuiListItemText-primary': {
+                fontSize: 14,
+                color: theme.palette.secondary.main,
+                "&:hover": { color: theme.palette.primary.main }
+              }
+            }}
+          >
+            <ListItemText primary="Customer: Minerva Viewer" />
+            <ListItemSecondaryAction>
+              <ArrowRightAltOutlinedIcon color="secondary" />
+            </ListItemSecondaryAction>
+          </ListItem>
+        </List>
       </div>
-     <div className="github">
-      <Link href="https://github.com/malhotra-parul/dashboard" >
-        <GitHubIcon /> Github Repo
+
+      <div className="github">
+        {/* Usar RouterLink para navegación interna si es necesario, o Link de MUI para enlaces externos */}
+        <Link component={RouterLink} to="https://github.com/malhotra-parul/dashboard" sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+          <GitHubIcon /> Github Repo
         </Link>
-        </div>
+      </div>
     </div>
   );
 }

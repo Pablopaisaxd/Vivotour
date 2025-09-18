@@ -1,6 +1,6 @@
 import React from 'react';
 import MyLine from './MyLine';
-import LaunchIcon from "@material-ui/icons/Launch";
+import LaunchIcon from "@mui/icons-material/Launch"; // Importación de MUI v5
 
 function MostVisited() {
     const borderColor = "#2984c5";

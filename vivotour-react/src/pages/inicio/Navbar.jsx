@@ -9,9 +9,6 @@ const Nav = () => {
 
   return (
     <header className="nav">
-
-
-
       <nav className="nav-bottom">
         <a className="btnav" href="#Inicio">Inicio</a>
         <a className="btnav" href="#Descubre">Descubre</a>
@@ -27,7 +24,8 @@ const Nav = () => {
           <Link to={"/Login"} className="btnlog">Acceder</Link>
         )}
 
-        <Link to={"/Admin"} className="btnav">test</Link>
+        {/* El Link a /Admin es correcto */}
+        <Link to={"/Admin"} className="btnav">Admin Dashboard</Link>
       </nav>
     </header>
   );

@@ -55,9 +55,9 @@ function DailyVisitors() {
 
     return (
         <div className="daily-visitors">
-            <header style={{display: "flex", 
-            justifyContent: "space-between", 
-            alignItems: "center", 
+            <header style={{display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
             padding: "1em",
             borderBottom: "1px solid #ddddf0"}}>
                 <p style={{filter: 'drop-shadow(0 0 0.25rem #eeeae9)', fontSize: '16px',
@@ -68,10 +68,10 @@ function DailyVisitors() {
                 </div>
             </header>
 
-             
+
             <MyChart month={monthValue} year={yearValue}/>
-  
-         
+
+
         </div>
     )
 }

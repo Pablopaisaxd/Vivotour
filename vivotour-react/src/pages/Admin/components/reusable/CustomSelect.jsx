@@ -6,7 +6,7 @@ function CustomSelect( props ) {
     const { data, setMonth, setYear } = props;
     const [ inputOptions ] = useState(data);
     const [ selectedOption, setSelectedOption ] = useState("");
-   
+
 
     const changeSelected = (event) => {
         setSelectedOption(event.target.value);

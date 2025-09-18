@@ -37,8 +37,8 @@
   display: grid;
   grid-template: 330px 240px 400px / repeat(4, minmax(240px, 1fr));
   grid-gap: 1em;
-  
-  
+
+
 }
 
 .header-second{
@@ -257,8 +257,3 @@
   text-decoration: none;
   color: rgb(29, 29, 103);
 }
-
-
-
-
-

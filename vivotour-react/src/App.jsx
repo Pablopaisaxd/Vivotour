@@ -6,10 +6,9 @@ import { Forgotpassword } from './pages/inicio/Forgotpassword.jsx';
 import Reserva from './pages/inicio/Reserva.jsx';
 import PrivateRoute from './components/use/PrivateRoute.jsx';
 import { Perfil } from './pages/inicio/Perfil.jsx';
-import Admin from './pages/Admin/App.js';
+import AdminDashboard from './pages/Admin/AdminDashboard.jsx'; // Asegúrate de que esta importación sea correcta
 
 const App = () => {
-
   return (
     <Router>
       <Routes >
@@ -17,12 +16,13 @@ const App = () => {
         <Route path='/Login' element={<Login />} />
         <Route path='/Registro' element={<Registro />}/>
         <Route path='' element={<Registro />}/>
-        <Route path='/Admin' element={<Admin />}/>
         <Route path='forgotpassword' element={<Forgotpassword />}/>
         <Route element={<PrivateRoute />}>
             <Route path="/Reserva" element={<Reserva />} />
             <Route path="/Perfil" element={<Perfil />}/>
           </Route>
+          {/* La ruta para el AdminDashboard */}
+          <Route path='/Admin' element={<AdminDashboard />}/>
       </Routes>
     </Router>
   );

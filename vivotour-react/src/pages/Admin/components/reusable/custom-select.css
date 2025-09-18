@@ -2,10 +2,10 @@
     position: relative;
     min-width: 200px ;
     filter: drop-shadow(0 0 0.15rem #d8d8e2);
-   
+
     /* float: left; */
   }
-  
+
   .select-holder::after{
   content: "◀ ▶";
   font-size: 10px;
@@ -16,13 +16,13 @@
   pointer-events: none;
   color:	rgb(140, 151, 172);
   }
-  
+
   select::-ms-expand {
     display: none;
     }
-  
+
   .select-holder > select{
-  
+
     -webkit-appearance: none;
     -moz-appearance: none;
     appearance: none;
@@ -45,12 +45,12 @@
     /* -ms-word-break: normal;
     word-break: normal; */
   }
-  
-  
+
+
   .select-holder > select:focus{
     outline: none;
     }
-  
+
     .select-holder > select:hover,
     .select-holder > select:active {
       border-color: rgb(120, 106, 244);

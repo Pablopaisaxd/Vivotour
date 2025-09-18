@@ -1,6 +1,6 @@
 import React from "react";
 import MyLine from "./MyLine";
-import LaunchIcon from "@material-ui/icons/Launch";
+import LaunchIcon from "@mui/icons-material/Launch"; // Importación de MUI v5
 
 function TotalVisits() {
     const borderColor = "rgb(117, 198, 130)";
@@ -25,8 +25,7 @@ function TotalVisits() {
       >
         -11.9%{" "}
         <LaunchIcon
-          fontSize="large"
-          style={{ paddingRight: "10px", transform: "rotate(180deg)" }}
+          sx={{ paddingRight: "10px", transform: "rotate(180deg)" }} // Usar sx prop
         />
       </p>
       <MyLine color={color} height={height} width={width} />

@@ -1,6 +1,6 @@
 import React from "react";
 import MyLine from "./MyLine";
-import LaunchIcon from "@material-ui/icons/Launch";
+import LaunchIcon from "@mui/icons-material/Launch"; // Importación de MUI v5
 
 function RealtimeUsers() {
     const borderColor = "#2984c5";
@@ -22,7 +22,7 @@ function RealtimeUsers() {
           alignItems: "center",
         }}
       >
-        +9.8% <LaunchIcon fontSize="large" style={{ paddingLeft: "10px" }} />
+        +9.8% <LaunchIcon sx={{ paddingLeft: "10px" }} /> {/* Usar sx prop */}
       </p>
       <MyLine color={color} height={height} width={width}/>
     </div>
