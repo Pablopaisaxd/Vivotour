@@ -18,11 +18,13 @@ import Opinion from './Opinion';
 import Footer from '../../components/use/Footer';
 import Mapa from './Mapa';
 import Galeria from './Galeria';
-import MenuServicios from './MenuServicios';
 
 const Presentacion = ({ cambiarvista }) => {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
-  const [menuVisible, setMenuVisible] = useState(false);
+  const [selectedServicio, setSelectedServicio] = useState(null);
+
+  // índice del primer servicio visible en el carrusel
+  const [startIndex, setStartIndex] = useState(0);
 
   const images = [img1, img2, img3];
 
@@ -35,20 +37,23 @@ const Presentacion = ({ cambiarvista }) => {
   }, [images.length]);
 
   const servicios = [
-    { nombre: 'Natación', img: icon1 },
-    { nombre: 'Fogatas', img: icon2 },
-    { nombre: 'Cabalgatas', img: icon3 },
-    { nombre: 'Acampar', img: icon4 },
+    { nombre: 'Natación', img: icon1, descripcion: 'Disfruta de nuestras piscinas naturales.' },
+    { nombre: 'Fogatas', img: icon2, descripcion: 'Comparte momentos únicos alrededor del fuego.' },
+    { nombre: 'Cabalgatas', img: icon3, descripcion: 'Recorre senderos a caballo en medio de la naturaleza.' },
+    { nombre: 'Acampar', img: icon4, descripcion: 'Vive la experiencia de acampar bajo las estrellas.' },
+    { nombre: 'Pesca', img: icon5, descripcion: 'Relájate y disfruta de la pesca en el río.' },
+    { nombre: 'Senderismo', img: icon6, descripcion: 'Explora los senderos llenos de paisajes espectaculares.' },
   ];
 
-  const serviciosExtra = [
-    { nombre: 'Natación', img: icon1 },
-    { nombre: 'Fogatas', img: icon2 },
-    { nombre: 'Cabalgatas', img: icon3 },
-    { nombre: 'Acampar', img: icon4 },
-    { nombre: 'Pesca', img: icon5 },
-    { nombre: 'Senderismo', img: icon6 },
-  ];
+  const visibleServicios = servicios.slice(startIndex, startIndex + 4);
+
+  const handlePrev = () => {
+    if (startIndex > 0) setStartIndex(startIndex - 1);
+  };
+
+  const handleNext = () => {
+    if (startIndex < servicios.length - 4) setStartIndex(startIndex + 1);
+  };
 
   return (
     <>
@@ -72,8 +77,17 @@ const Presentacion = ({ cambiarvista }) => {
               <p className="pservicios">Nuestros servicios</p>
             </div>
             <div className="sservicios">
-              {servicios.map((servicio, index) => (
-                <div className={`s${index + 1}`} key={index}>
+              {/* Flecha izquierda */}
+              <button className="arrow-btn" onClick={handlePrev} disabled={startIndex === 0}>
+                ◀
+              </button>
+
+              {visibleServicios.map((servicio, index) => (
+                <div
+                  className={`s${index + 1}`}
+                  key={index}
+                  onClick={() => setSelectedServicio(servicio)}
+                >
                   <div className="circle">
                     <img
                       className="darkimgs"
@@ -85,9 +99,15 @@ const Presentacion = ({ cambiarvista }) => {
                   <p className="ps">{servicio.nombre}</p>
                 </div>
               ))}
-            </div>
-            <div className="mas" onClick={() => setMenuVisible(true)}>
-              <p className="pservicios">Ver más</p>
+
+              {/* Flecha derecha */}
+              <button
+                className="arrow-btn"
+                onClick={handleNext}
+                disabled={startIndex >= servicios.length - 4}
+              >
+                ▶
+              </button>
             </div>
           </div>
         </div>
@@ -99,9 +119,7 @@ const Presentacion = ({ cambiarvista }) => {
                 key={index}
                 src={image}
                 alt=""
-                className={
-                  currentImageIndex === index ? '' : 'imgprinactive'
-                }
+                className={currentImageIndex === index ? '' : 'imgprinactive'}
                 height="100%"
               />
             ))}
@@ -115,11 +133,20 @@ const Presentacion = ({ cambiarvista }) => {
       <Mapa />
       <Footer />
 
-      <MenuServicios
-        visible={menuVisible}
-        onClose={() => setMenuVisible(false)}
-        serviciosExtra={serviciosExtra}
-      />
+      {/* MODAL PERSONALIZADO */}
+      {selectedServicio && (
+        <div className="modal-overlay" onClick={() => setSelectedServicio(null)}>
+          <div
+            className="modal-content"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <button className="close-btn" onClick={() => setSelectedServicio(null)}>✕</button>
+            <h2>{selectedServicio.nombre}</h2>
+            <img src={selectedServicio.img} alt={selectedServicio.nombre} width="100" />
+            <p>{selectedServicio.descripcion}</p>
+          </div>
+        </div>
+      )}
     </>
   );
 };
