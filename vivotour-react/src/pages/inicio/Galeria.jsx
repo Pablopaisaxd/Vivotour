@@ -65,11 +65,26 @@ const Modal = ({ imagenes, onClose }) => {
       <div className="modal-content" onClick={(e) => e.stopPropagation()}>
         <button className="close-btn" onClick={onClose}>X</button>
 
-        <div className="modal-images">
+        <div className="modal-images-container">
+  <div
+    className="modal-images-track"
+    style={{ transform: `translateX(-${page * 100}%)` }}
+  >
+    {Array.from({ length: totalPages }).map((_, pageIndex) => {
+      const start = pageIndex * pageSize;
+      const end = start + pageSize;
+      const imagenesPagina = imagenes.slice(start, end);
+
+      return (
+        <div className="modal-images" key={pageIndex}>
           {imagenesPagina.map((img, idx) => (
             <img key={idx} src={img} alt={`modal-${idx}`} />
           ))}
         </div>
+      );
+    })}
+  </div>
+</div>
 
         {imagenes.length > pageSize && (
           <div className="modal-pagination">
