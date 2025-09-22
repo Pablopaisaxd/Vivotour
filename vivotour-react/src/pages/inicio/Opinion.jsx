@@ -111,6 +111,8 @@ const Opinion = () => {
     }
   };
 
+
+
   const startIndex = currentPage * opinionsPerPage;
   const currentOpinions = allOpinions.slice(
     startIndex,

@@ -3,38 +3,42 @@ import { jwtDecode } from "jwt-decode"; // Correct import for newer versions
 
 export const AuthContext = createContext();
 
+
 export const AuthProvider = ({ children }) => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
 
-  // Al montar la app, revisa si hay token en localStorage
   useEffect(() => {
     const token = localStorage.getItem("token");
     if (token) {
       try {
-        const decoded = jwtDecode(token); // Direct use of jwtDecode
+        const decoded = jwtDecode(token);
         console.log("Datos decodificados del token:", decoded);
-        
-        // Check if token is expired
+
         const currentTime = Date.now() / 1000;
         if (decoded.exp && decoded.exp < currentTime) {
           console.log("Token expired");
           logout();
+          setLoading(false);
           return;
         }
-        
+
         setIsAuthenticated(true);
-        setUser({  nombre: decoded.nombre,
-                email: decoded.email, 
-            numeroDocumento: decoded.numeroDocumento, tipoDocumento: decoded.tipoDocumento }); 
+        setUser({
+          nombre: decoded.nombre,
+          email: decoded.email,
+          numeroDocumento: decoded.numeroDocumento,
+          tipoDocumento: decoded.tipoDocumento
+        });
       } catch (error) {
         console.error("Token inválido:", error);
         setIsAuthenticated(false);
         setUser(null);
-        // Remove invalid token
         localStorage.removeItem("token");
       }
     }
+    setLoading(false);
   }, []);
 
   const login = (token, userData) => {
@@ -50,7 +54,7 @@ export const AuthProvider = ({ children }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ isAuthenticated, user, login, logout }}>
+    <AuthContext.Provider value={{ isAuthenticated, user, login, logout, loading }}>
       {children}
     </AuthContext.Provider>
   );

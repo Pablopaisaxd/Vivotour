@@ -1,7 +1,7 @@
 import React, { useContext } from 'react';
 import './style/Footer.css';
 import logoend from '../../assets/Logos/ventana.png';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { AuthContext } from '../../AuthContext';
 
 const Footer = () => {
@@ -54,7 +54,7 @@ const Footer = () => {
                 <div className="footer-content">
                     <h3>VIVO TOUR</h3>
                     <ul className="list">
-                        <li><a className="footeropc" href="#Inicio" onClick={(e) => { e.preventDefault(); scrollToSection("Inicio"); }}>Inicio</a></li>
+                        <li><Link to={'/'} className="footeropc" href="#Inicio" onClick={(e) => { e.preventDefault(); scrollToSection("Inicio"); }}>Inicio</Link></li>
                         <li><a className="footeropc" href="#Descubre" onClick={(e) => { e.preventDefault(); scrollToSection("Descubre"); }}>Descubre</a></li>
                         <li><a className="footeropc" href="#Reservar" onClick={handleReservaClick}>Reservar</a></li>
                     </ul>

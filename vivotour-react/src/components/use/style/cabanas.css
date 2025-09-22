@@ -1,0 +1,152 @@
+
+.cabanas-list {
+	display: flex;
+	gap: 1.5rem;
+	flex-wrap: wrap;
+	margin-top: 1rem;
+	justify-content: center;
+	width: 100%;
+}
+
+.cabana-card {
+	border: 2px solid #4bac35;
+	border-radius: 12px;
+	background: #fff;
+	box-shadow: 0 2px 8px rgba(75,172,53,0.1);
+	width: 260px;
+	padding: 1rem;
+	text-align: center;
+	position: relative;
+	transition: transform 0.3s ease;
+}
+
+.cabana-card:hover {
+	transform: translateY(-5px);
+}
+
+.cabana-img {
+	width: 100%;
+	height: 140px;
+	object-fit: cover;
+	border-radius: 8px;
+	margin-bottom: 10px;
+}
+
+.cabana-title {
+	color: #4bac35;
+	margin-bottom: 8px;
+	font-size: 1.2rem;
+}
+
+.cabana-precio {
+	font-weight: bold;
+	color: #222;
+	margin-bottom: 8px;
+	font-size: 1.1rem;
+}
+
+.cabana-btn {
+	background: #4bac35;
+	color: #fff;
+	border: none;
+	border-radius: 8px;
+	padding: 8px 16px;
+	cursor: pointer;
+	font-weight: 600;
+	margin-bottom: 8px;
+	transition: all 0.3s ease;
+}
+
+.cabana-btn:hover {
+	background: #3d9129;
+	transform: scale(1.05);
+}
+
+.modal-overlay {
+	position: fixed;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	background: rgba(0, 0, 0, 0.5);
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	z-index: 9999;
+}
+
+/* Evitar scroll del body al abrir modal */
+body.no-scroll {
+	overflow: hidden;
+}
+
+/* Evitar hover en tarjetas cuando hay un modal */
+body.no-scroll .cabana-card:hover {
+	transform: none;
+}
+
+.cabana-modal {
+	position: relative;
+	width: 90%;
+	max-width: 500px;
+	background: #fff;
+	border-radius: 12px;
+	box-shadow: 0 4px 20px rgba(75,172,53,0.2);
+	padding: 1.5rem;
+	animation: modalIn 0.3s ease-out;
+}
+
+@keyframes modalIn {
+	from {
+		opacity: 0;
+		transform: translateY(-20px);
+	}
+	to {
+		opacity: 1;
+		transform: translateY(0);
+	}
+}
+
+.cabana-img-modal {
+	width: 100%;
+	height: 200px;
+	object-fit: cover;
+	border-radius: 8px;
+	margin-bottom: 15px;
+}
+
+.cabana-desc {
+	color: #333;
+	margin-bottom: 20px;
+	line-height: 1.5;
+	text-align: center;
+}
+
+.cabana-btn-modal {
+	background: #e6b412;
+	color: #222;
+	border: none;
+	border-radius: 8px;
+	padding: 8px 20px;
+	cursor: pointer;
+	font-weight: 600;
+	transition: all 0.3s ease;
+}
+
+.cabana-btn-modal:hover {
+	background: #d4a511;
+	transform: scale(1.05);
+}
+
+@media (max-width: 768px) {
+	.cabana-card {
+		width: 100%;
+		max-width: 320px;
+	}
+	
+	.cabana-modal {
+		width: 95%;
+		margin: 10px;
+		padding: 1rem;
+	}
+}
