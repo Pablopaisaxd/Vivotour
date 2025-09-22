@@ -1,53 +1,86 @@
-import { createTheme } from '@mui/material/styles'; // Importa createTheme de MUI v5
+import { createTheme } from '@mui/material/styles';
 
 export const Theme = createTheme({
   palette: {
     primary: {
-      // Los valores de color se mantienen, pero la estructura es la de MUI v5
-      main: '#1f6ed7', // Color principal
-      light: '#535457', // Color claro
-      dark: '#1a5199', // Puedes añadir un color oscuro si lo necesitas
-      contrastText: '#ffffff', // Texto que contrasta con el color principal
+      main: '#4BAC35',
+      light: '#FFC914',
+      dark: '#3d9129',
+      contrastText: '#F0F8FF',
     },
     secondary: {
-      main: '#5f5b66', // Color secundario
-      contrastText: '#ffffff',
+      main: '#1A181B',
+      light: 'rgba(26, 24, 27, 0.7)',
+      contrastText: '#F0F8FF',
     },
     text: {
-      primary: 'rgba(0, 0, 0, 1)',
-      secondary: 'rgba(0, 0, 0, 0.6)', // Usar secondary para medium emphasis
+      primary: '#1A181B',
+      secondary: 'rgba(26, 24, 27, 0.6)',
     },
-    // Puedes definir más colores si es necesario
+    background: {
+      default: '#F0F8FF',
+      paper: 'rgba(255, 255, 255, 0.9)',
+    },
     success: {
-      main: '#4BAC35', // Para el verde de éxito
+      main: '#4BAC35',
     },
     error: {
-      main: '#dc3545', // Para el rojo de error
+      main: '#dc3545',
     },
     warning: {
-      main: '#FFC914', // Para el amarillo/dorado
+      main: '#FFC914',
     },
     info: {
-      main: '#F0F8FF', // Para el azul claro
+      main: '#F0F8FF',
     },
   },
   typography: {
+    fontFamily: '"comic", sans-serif',
+    h3: {
+      color: '#1A181B',
+    },
+    h4: {
+      color: '#1A181B',
+    },
+    body1: {
+      color: '#1A181B',
+    },
+    body2: {
+      color: 'rgba(26, 24, 27, 0.7)',
+    },
     subtitle1: { fontWeight: 500 },
-    // Puedes definir más estilos de tipografía aquí
   },
   components: {
-    // Aquí puedes personalizar componentes de MUI globalmente si es necesario
     MuiButton: {
       styleOverrides: {
         root: {
-          textTransform: 'none', // Ejemplo: botones sin mayúsculas por defecto
+          textTransform: 'none',
         },
       },
     },
     MuiListItemIcon: {
       styleOverrides: {
         root: {
-          minWidth: 40, // Ajusta el espacio de los iconos en las listas
+          minWidth: 40,
+          color: '#4BAC35',
+        },
+      },
+    },
+    MuiListItemText: {
+      styleOverrides: {
+        primary: {
+          color: '#1A181B',
+        },
+        secondary: {
+          color: 'rgba(26, 24, 27, 0.7)',
+        },
+      },
+    },
+    MuiListSubheader: {
+      styleOverrides: {
+        root: {
+          color: '#1A181B',
+          fontWeight: 'bold',
         },
       },
     },

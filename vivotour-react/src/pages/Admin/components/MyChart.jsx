@@ -23,10 +23,10 @@ const MyChart = ({ month, year }) => {
       labels: Array.from({ length: 31 }, (_, i) => (i + 1).toString()),
       datasets: [
         {
-          label: "Visitors",
+          label: "Visitantes",
           data: [3,1,4,2,1,2,1,3,1,4,2,3,4,1,2,4,2,1,2,3,2,1,4,3,1,3,2,1,4,1,2],
-          backgroundColor: "rgb(31, 110, 215)",
-          hoverBackgroundColor: "#1a5199",
+          backgroundColor: "#4BAC35",
+          hoverBackgroundColor: "#3d9129",
           barThickness: 9,
           minBarLength: 1,
         },
@@ -34,16 +34,16 @@ const MyChart = ({ month, year }) => {
     });
   }, [month, year]);
 
+  const chartContainerStyle = {
+    position: "relative",
+    height: "250px",
+    width: "90%",
+    margin: "0 auto",
+    filter: "drop-shadow(0 0 0.15rem rgba(0,0,0,0.05))",
+  };
+
   return (
-    <div
-      style={{
-        position: "relative",
-        height: "250px",
-        width: "90%",
-        margin: "0 auto",
-        filter: "drop-shadow(0 0 0.15rem #ddddf0)",
-      }}
-    >
+    <div style={chartContainerStyle}>
       <Bar
         data={chartData}
         options={{
@@ -53,17 +53,20 @@ const MyChart = ({ month, year }) => {
             title: {
               display: true,
               text: `${month} ${year}`,
-              font: { size: 16 },
+              font: { size: 16, color: 'var(--rich-black)' },
             },
             legend: {
               display: true,
               position: "top",
+              labels: {
+                color: 'var(--rich-black)',
+              }
             },
             tooltip: {
-              backgroundColor: "rgb(255, 255, 255)",
-              borderColor: "rgb(156, 174, 211)",
+              backgroundColor: "rgba(255, 255, 255, 0.9)",
+              borderColor: "rgba(75, 172, 53, 0.5)",
               borderWidth: 1,
-              titleColor: "#5f5b66",
+              titleColor: "var(--rich-black)",
               titleAlign: "center",
               caretPadding: 15,
               cornerRadius: 5,
@@ -80,12 +83,18 @@ const MyChart = ({ month, year }) => {
                   label += Math.round(tooltipItem.raw * 100) / 100;
                   return label;
                 },
+                labelTextColor: function(tooltipItem, chart) {
+                    return 'var(--rich-black)';
+                }
               },
             },
           },
           scales: {
             x: {
               grid: { display: false },
+              ticks: {
+                color: 'var(--rich-black)',
+              }
             },
             y: {
               beginAtZero: true,

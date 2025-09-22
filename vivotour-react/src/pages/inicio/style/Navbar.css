@@ -49,6 +49,7 @@
   text-transform: uppercase;
   position: relative;
   white-space: nowrap;
+  cursor: pointer;
 }
 
 .btnav:hover {
@@ -68,6 +69,7 @@
   transition: all 0.3s ease;
   box-shadow: 0 4px 15px rgba(75, 172, 53, 0.3);
   white-space: nowrap;
+  cursor: pointer;
 }
 
 .btnlog:hover {

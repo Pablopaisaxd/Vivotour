@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useContext } from "react";
 import { useTheme } from '@mui/material/styles';
 import List from '@mui/material/List';
 import ListItemIcon from '@mui/material/ListItemIcon';
@@ -12,26 +12,35 @@ import TodayOutlinedIcon from "@mui/icons-material/TodayOutlined";
 import MoveToInboxOutlinedIcon from "@mui/icons-material/MoveToInboxOutlined";
 import ReceiptOutlinedIcon from "@mui/icons-material/ReceiptOutlined";
 import ColorizeOutlinedIcon from "@mui/icons-material/ColorizeOutlined";
+import SettingsIcon from '@mui/icons-material/Settings';
+import CommentIcon from '@mui/icons-material/Comment';
+import PhotoLibraryIcon from '@mui/icons-material/PhotoLibrary';
+import EventAvailableIcon from '@mui/icons-material/EventAvailable';
+import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
+import PeopleIcon from '@mui/icons-material/People';
 import { ListItemButton } from "@mui/material";
+import { AdminContext } from '../AdminContext';
 
 export default function Menu() {
   const theme = useTheme();
-  const [open, setOpen] = React.useState(true);
-  const handleClick = () => setOpen(!open);
+  const [openDashboard, setOpenDashboard] = React.useState(true);
+  const { setActiveComponent } = useContext(AdminContext);
+
+  const handleDashboardClick = () => setOpenDashboard(!openDashboard);
 
   return (
     <div>
       <List>
         <Divider />
         <ListItemButton
-          onClick={handleClick}
+          onClick={() => setActiveComponent('dashboard')}
           sx={{
             pl: 4,
             "&:hover": { color: theme.palette.primary.main },
             "& .MuiListItemText-primary": {
               fontWeight: "bold",
               fontSize: 16,
-              color: theme.palette.primary.light,
+              color: theme.palette.secondary.main,
               "&:hover": {
                 animation: "color 0.2s ease-in-out",
                 color: theme.palette.primary.main,
@@ -43,57 +52,19 @@ export default function Menu() {
             <DashboardOutlinedIcon color="primary" />
           </ListItemIcon>
           <ListItemText primary="Dashboard" />
-          {open ? <ExpandMore color="primary" /> : <ExpandLess color="primary" />}
         </ListItemButton>
-
-        <Collapse in={open} timeout="auto" unmountOnExit>
-          <List component="div" disablePadding>
-            <ListItemButton
-              sx={{
-                pl: 12,
-                pb: 0.1,
-                fontSize: 16,
-                color: theme.palette.secondary.main,
-                "&:hover": { color: theme.palette.primary.main },
-              }}
-            >
-              <ListItemText primary="Page Visitors" />
-            </ListItemButton>
-            <ListItemButton
-              sx={{
-                pl: 12,
-                pb: 0.1,
-                fontSize: 16,
-                color: theme.palette.secondary.main,
-                "&:hover": { color: theme.palette.primary.main },
-              }}
-            >
-              <ListItemText primary="Post Performance" />
-            </ListItemButton>
-            <ListItemButton
-              sx={{
-                pl: 12,
-                pb: 0.1,
-                fontSize: 16,
-                color: theme.palette.secondary.main,
-                "&:hover": { color: theme.palette.primary.main },
-              }}
-            >
-              <ListItemText primary="Team Overall" />
-            </ListItemButton>
-          </List>
-        </Collapse>
 
         <Divider variant="middle" />
 
         <ListItemButton
+          onClick={() => setActiveComponent('homePageSettings')}
           sx={{
             pl: 4,
             "&:hover": { color: theme.palette.primary.main },
             "& .MuiListItemText-primary": {
               fontWeight: "bold",
               fontSize: 16,
-              color: theme.palette.primary.light,
+              color: theme.palette.secondary.main,
               "&:hover": {
                 animation: "color 0.2s ease-in-out",
                 color: theme.palette.primary.main,
@@ -102,21 +73,22 @@ export default function Menu() {
           }}
         >
           <ListItemIcon>
-            <TodayOutlinedIcon color="primary" />
+            <SettingsIcon color="primary" />
           </ListItemIcon>
-          <ListItemText primary="Calendar" />
+          <ListItemText primary="Opciones Página Inicio" />
         </ListItemButton>
 
         <Divider variant="middle" />
 
         <ListItemButton
+          onClick={() => setActiveComponent('commentsManagement')}
           sx={{
             pl: 4,
             "&:hover": { color: theme.palette.primary.main },
             "& .MuiListItemText-primary": {
               fontWeight: "bold",
               fontSize: 16,
-              color: theme.palette.primary.light,
+              color: theme.palette.secondary.main,
               "&:hover": {
                 animation: "color 0.2s ease-in-out",
                 color: theme.palette.primary.main,
@@ -125,21 +97,22 @@ export default function Menu() {
           }}
         >
           <ListItemIcon>
-            <MoveToInboxOutlinedIcon color="primary" />
+            <CommentIcon color="primary" />
           </ListItemIcon>
-          <ListItemText primary="Inbox" />
+          <ListItemText primary="Gestión de Comentarios" />
         </ListItemButton>
 
         <Divider variant="middle" />
 
         <ListItemButton
+          onClick={() => setActiveComponent('galleryManagement')}
           sx={{
             pl: 4,
             "&:hover": { color: theme.palette.primary.main },
             "& .MuiListItemText-primary": {
               fontWeight: "bold",
               fontSize: 16,
-              color: theme.palette.primary.light,
+              color: theme.palette.secondary.main,
               "&:hover": {
                 animation: "color 0.2s ease-in-out",
                 color: theme.palette.primary.main,
@@ -148,21 +121,22 @@ export default function Menu() {
           }}
         >
           <ListItemIcon>
-            <ReceiptOutlinedIcon color="primary" />
+            <PhotoLibraryIcon color="primary" />
           </ListItemIcon>
-          <ListItemText primary="Invoicing" />
+          <ListItemText primary="Gestión de Galería" />
         </ListItemButton>
 
         <Divider variant="middle" />
 
         <ListItemButton
+          onClick={() => setActiveComponent('reservationManagement')}
           sx={{
             pl: 4,
             "&:hover": { color: theme.palette.primary.main },
             "& .MuiListItemText-primary": {
               fontWeight: "bold",
               fontSize: 16,
-              color: theme.palette.primary.light,
+              color: theme.palette.secondary.main,
               "&:hover": {
                 animation: "color 0.2s ease-in-out",
                 color: theme.palette.primary.main,
@@ -171,10 +145,59 @@ export default function Menu() {
           }}
         >
           <ListItemIcon>
-            <ColorizeOutlinedIcon color="primary" />
+            <EventAvailableIcon color="primary" />
           </ListItemIcon>
-          <ListItemText primary="Lab / Experimental" />
+          <ListItemText primary="Gestión de Reservas" />
         </ListItemButton>
+
+        <Divider variant="middle" />
+
+        <ListItemButton
+          onClick={() => setActiveComponent('availabilityManagement')}
+          sx={{
+            pl: 4,
+            "&:hover": { color: theme.palette.primary.main },
+            "& .MuiListItemText-primary": {
+              fontWeight: "bold",
+              fontSize: 16,
+              color: theme.palette.secondary.main,
+              "&:hover": {
+                animation: "color 0.2s ease-in-out",
+                color: theme.palette.primary.main,
+              },
+            },
+          }}
+        >
+          <ListItemIcon>
+            <CalendarTodayIcon color="primary" />
+          </ListItemIcon>
+          <ListItemText primary="Modificar Disponibilidad" />
+        </ListItemButton>
+
+        <Divider variant="middle" />
+
+        <ListItemButton
+          onClick={() => setActiveComponent('userManagement')}
+          sx={{
+            pl: 4,
+            "&:hover": { color: theme.palette.primary.main },
+            "& .MuiListItemText-primary": {
+              fontWeight: "bold",
+              fontSize: 16,
+              color: theme.palette.secondary.main,
+              "&:hover": {
+                animation: "color 0.2s ease-in-out",
+                color: theme.palette.primary.main,
+              },
+            },
+          }}
+        >
+          <ListItemIcon>
+            <PeopleIcon color="primary" />
+          </ListItemIcon>
+          <ListItemText primary="Gestión de Usuarios" />
+        </ListItemButton>
+
         <Divider />
       </List>
     </div>

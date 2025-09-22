@@ -1,22 +1,44 @@
 import React from "react";
 import MyLine from "./MyLine";
-import LaunchIcon from "@mui/icons-material/Launch"; // Importación de MUI v5
+import LaunchIcon from "@mui/icons-material/Launch";
 
 function BounceRate() {
-    const borderColor = "rgb(120, 106, 244)";
-    const backgroundColor = "rgb(239, 239, 254)";
+    const borderColor = "#4BAC35";
+    const backgroundColor = "rgba(75, 172, 53, 0.2)";
     const color = { borderColor, backgroundColor };
     const height = "100px";
     const width = "220px";
 
+    const styles = {
+        title: {
+            fontSize: "12px",
+            color: "var(--rich-black)",
+            fontWeight: "600",
+        },
+        value: {
+            fontSize: "28px",
+            color: "var(--rich-black)",
+        },
+        percentage: {
+            color: "var(--forest-green)",
+            fontWeight: "700",
+            display: "flex",
+            alignItems: "center",
+        },
+        launchIcon: {
+            paddingLeft: "10px",
+            color: "var(--forest-green)",
+        }
+    };
+
   return (
     <div className="bounce-rate">
-      <p style={{ fontSize: "12px", color: "#5f5b66", fontWeight: "600" }}>
-        BOUNCE RATE
+      <p style={styles.title}>
+        TASA DE REBOTE
       </p>
-      <p style={{ fontSize: "28px", color: "#535457" }}>73.67%</p>
-      <p style={{ color: "green", fontWeight: "700", display: "flex", alignItems: "center" }}>
-        +12.2% <LaunchIcon sx={{ paddingLeft: "10px" }} /> {/* Usar sx prop */}
+      <p style={styles.value}>73.67%</p>
+      <p style={styles.percentage}>
+        +12.2% <LaunchIcon sx={styles.launchIcon} />
       </p>
       <MyLine color={color} height={height} width={width} />
     </div>

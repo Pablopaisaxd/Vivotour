@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { useLocation } from "react-router-dom"; // 👈 IMPORTANTE
 import './style/Presentacion.css';
 import img1 from '../../assets/Fondos/Río.jpg';
 import img2 from '../../assets/Fondos/Fondo5.jpg';
@@ -22,19 +23,31 @@ import Galeria from './Galeria';
 const Presentacion = ({ cambiarvista }) => {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [selectedServicio, setSelectedServicio] = useState(null);
-
-  // índice del primer servicio visible en el carrusel
-  const [startIndex, setStartIndex] = useState(0);
+  const [startIndex, setStartIndex] = useState(0); // índice del primer servicio visible
+  const location = useLocation(); // 👈 Para detectar el hash en la URL
 
   const images = [img1, img2, img3];
 
+  // Carrusel automático
   useEffect(() => {
     const interval = setInterval(() => {
       setCurrentImageIndex((prevIndex) => (prevIndex + 1) % images.length);
     }, 10000);
-
     return () => clearInterval(interval);
   }, [images.length]);
+
+  // 👇 Scroll automático cuando hay hash (#Inicio, #Descubre)
+  useEffect(() => {
+    if (location.hash) {
+      const id = location.hash.replace("#", "");
+      const section = document.getElementById(id);
+      if (section) {
+        setTimeout(() => {
+          section.scrollIntoView({ behavior: "smooth" });
+        }, 200); // pequeño delay para asegurar que ya esté en el DOM
+      }
+    }
+  }, [location]);
 
   const servicios = [
     { nombre: 'Natación', img: icon1, descripcion: 'Disfruta de nuestras piscinas naturales.' },
@@ -59,6 +72,8 @@ const Presentacion = ({ cambiarvista }) => {
     <>
       <Texto />
       <Nav cambiarvista={cambiarvista} />
+      
+      {/* Sección Inicio */}
       <section className="presentacion" id="Inicio">
         <div className="somos">
           <div className="quesomos">
@@ -130,6 +145,10 @@ const Presentacion = ({ cambiarvista }) => {
       <Separacion />
       <Opinion />
       <Galeria />
+
+      {/* Sección Descubre */}
+      <section id="Descubre"></section>
+      
       <Mapa />
       <Footer />
 

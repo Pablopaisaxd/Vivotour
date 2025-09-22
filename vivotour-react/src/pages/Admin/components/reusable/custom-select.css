@@ -1,9 +1,7 @@
 .select-holder{
     position: relative;
     min-width: 200px ;
-    filter: drop-shadow(0 0 0.15rem #d8d8e2);
-
-    /* float: left; */
+    filter: drop-shadow(0 0 0.15rem rgba(0,0,0,0.05)); /* Sombra más suave */
   }
 
   .select-holder::after{
@@ -14,7 +12,7 @@
   left: 145px;
   transform: rotate(90deg);
   pointer-events: none;
-  color:	rgb(140, 151, 172);
+  color:	var(--rich-black); /* Color del icono */
   }
 
   select::-ms-expand {
@@ -26,33 +24,29 @@
     -webkit-appearance: none;
     -moz-appearance: none;
     appearance: none;
-    /* display: block; */
     width: 100%;
     max-width: 140px;
     height: 40px;
-    /* float: right; */
-    /* margin: 5px 0px; */
     padding: 5px 30px;
     font-size: 14px;
     line-height: 2.05;
-    color: #333;
-    background-color: #ffffff;
+    color: var(--rich-black); /* Color de texto */
+    background-color: var(--alice-blue); /* Fondo del select */
     background-image: none;
-    border: 1px solid;
-    border-color: rgb(181, 188, 215);
+    border: 1px solid var(--border-color-light); /* Borde más suave */
     border-radius: 5px;
     word-spacing: 10px;
-    /* -ms-word-break: normal;
-    word-break: normal; */
   }
 
 
   .select-holder > select:focus{
     outline: none;
+    border-color: var(--forest-green); /* Borde al enfocar */
+    box-shadow: 0 0 0 2px rgba(75, 172, 53, 0.2); /* Sombra al enfocar */
     }
 
     .select-holder > select:hover,
     .select-holder > select:active {
-      border-color: rgb(120, 106, 244);
-  animation: border-color 0.5s ease-in-out;
+      border-color: var(--forest-green); /* Borde al pasar el ratón */
+      animation: border-color 0.5s ease-in-out;
     }

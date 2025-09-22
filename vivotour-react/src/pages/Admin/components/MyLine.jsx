@@ -9,7 +9,7 @@ import {
   Title,
   Tooltip,
   Legend,
-  Filler, // 👈 IMPORTANTE: importar Filler
+  Filler,
 } from 'chart.js';
 
 ChartJS.register(
@@ -20,7 +20,7 @@ ChartJS.register(
   Title,
   Tooltip,
   Legend,
-  Filler // 👈 REGISTRAR Filler
+  Filler
 );
 
 const MyLine = ({ color, height, width }) => {
@@ -35,26 +35,32 @@ const MyLine = ({ color, height, width }) => {
       datasets: [
         {
           data: [3, 2, 3, 2, 2, 3, 1, 2, 2, 4],
-          fill: true, // 👈 ahora sí funciona con Filler registrado
+          fill: true,
           backgroundColor: color.backgroundColor,
           borderColor: color.borderColor,
           borderWidth: 2,
-          pointBorderColor: "#2984c5",
+          pointBorderColor: "#4BAC35",
           pointBackgroundColor: "#fff",
           pointHoverRadius: 5,
-          pointHoverBackgroundColor: "#2984c5",
-          pointHoverBorderColor: "rgba(41, 132, 197, 0.5)",
+          pointHoverBackgroundColor: "#4BAC35",
+          pointHoverBorderColor: "rgba(75, 172, 53, 0.5)",
           pointHoverBorderWidth: 7,
           pointRadius: 0,
           pointHitRadius: 30,
-          tension: 0.4, // un poco de curvatura opcional
+          tension: 0.4,
         },
       ],
     });
   }, [color]);
 
+  const chartContainerStyle = {
+    height: height,
+    width: width,
+    filter: 'drop-shadow(0 0 0.15rem rgba(0,0,0,0.05))',
+  };
+
   return (
-    <div style={{ height: height, width: width, filter: 'drop-shadow(0 0 0.15rem #d8d8e2)' }}>
+    <div style={chartContainerStyle}>
       <Line
         data={data}
         options={{
@@ -68,7 +74,14 @@ const MyLine = ({ color, height, width }) => {
               padding: 10,
               position: "nearest",
               bodyAlign: "center",
-              bodyFont: { weight: 'bold' },
+              bodyFont: { weight: 'bold', color: 'var(--rich-black)' },
+              backgroundColor: "rgba(255, 255, 255, 0.9)",
+              borderColor: "rgba(75, 172, 53, 0.5)",
+              borderWidth: 1,
+              titleColor: "var(--rich-black)",
+              labelTextColor: function(tooltipItem, chart) {
+                  return 'var(--rich-black)';
+              }
             },
             legend: {
               display: false,

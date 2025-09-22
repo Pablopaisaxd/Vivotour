@@ -1,8 +1,35 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import './style/Footer.css';
 import logoend from '../../assets/Logos/ventana.png';
+import { useNavigate } from 'react-router-dom';
+import { AuthContext } from '../../AuthContext';
 
 const Footer = () => {
+    const { isAuthenticated } = useContext(AuthContext);
+    const navigate = useNavigate();
+
+    const scrollToSection = (id) => {
+        if (location.pathname === "/") {
+        // Si ya estamos en la página de inicio, scrollear
+        const section = document.getElementById(id);
+        if (section) {
+            section.scrollIntoView({ behavior: "smooth" });
+        }
+        } else {
+        // Si no estamos en inicio, redirigir con hash (#)
+        navigate("/#" + id);
+        }
+    };
+
+    const handleReservaClick = (e) => {
+        e.preventDefault();
+        if (isAuthenticated) {
+            navigate("/Reserva");
+        } else {
+            navigate("/Login");
+        }
+    };
+
     return (
         <footer>
             <div className="container">
@@ -27,9 +54,9 @@ const Footer = () => {
                 <div className="footer-content">
                     <h3>VIVO TOUR</h3>
                     <ul className="list">
-                        <li><a className="footeropc" href="#Inicio">Inicio</a></li>
-                        <li><a className="footeropc" href="#Descubre">Descubre</a></li>
-                        <li><a className="footeropc" id="btnres" href="#Reservar">Reservar</a></li>
+                        <li><a className="footeropc" href="#Inicio" onClick={(e) => { e.preventDefault(); scrollToSection("Inicio"); }}>Inicio</a></li>
+                        <li><a className="footeropc" href="#Descubre" onClick={(e) => { e.preventDefault(); scrollToSection("Descubre"); }}>Descubre</a></li>
+                        <li><a className="footeropc" href="#Reservar" onClick={handleReservaClick}>Reservar</a></li>
                     </ul>
                 </div>
 
@@ -37,17 +64,6 @@ const Footer = () => {
                     <img src={logoend} alt="logoVentana" className="footer-vivo-logo" />
                 </div>
             </div>
-
-            {/* <div className="footer-content footerend">
-                <ul className="list listend">
-                    <li><a className="footeropc" href="">Términos y Condiciones</a></li>
-                    <p>°</p>
-                    <li><a className="footeropc" href="">Soporte Técnico</a></li>
-                </ul>
-                <ul className="list">
-                    <li><a className="footeropc" href="https://maps.app.goo.gl/RnXtyzBDdyVTeeV7A">WRHV+69 COCORNÁ, ANTIOQUIA</a></li>
-                </ul>
-            </div> */}
         </footer>
     );
 }

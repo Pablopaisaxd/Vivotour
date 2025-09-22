@@ -1,52 +1,72 @@
 import React from 'react';
 import MyLine from './MyLine';
-import LaunchIcon from "@mui/icons-material/Launch"; // Importación de MUI v5
+import LaunchIcon from "@mui/icons-material/Launch";
 
 function MostVisited() {
-    const borderColor = "#2984c5";
-    const backgroundColor = "rgba(151,187,205,0.2)";
+    const borderColor = "#4BAC35";
+    const backgroundColor = "rgba(75, 172, 53, 0.2)";
     const color = { borderColor, backgroundColor };
     const height = "50px";
     const width = "100px";
 
-    const style = { fontWeight: "700", color: "#5f5b66", fontSize: "14px", display: "flex", justifyContent: "space-between", alignContent: "center" };
-    const colorStyle = { color: "#5f5b66", fontWeight: "600", fontSize: "13px", padding: "16px 0" };
-    const tableData = { fontWeight: "600", color: "#5f5b66" };
+    const styles = {
+        headerSpan: {
+            filter: 'drop-shadow(0 0 0.25rem rgba(0,0,0,0.05))',
+            color: "var(--rich-black)",
+        },
+        tableRowText: {
+            fontWeight: "700",
+            color: "var(--rich-black)",
+            fontSize: "14px",
+            display: "flex",
+            justifyContent: "space-between",
+            alignContent: "center",
+        },
+        tableHeader: {
+            color: "var(--rich-black)",
+            fontWeight: "600",
+            fontSize: "13px",
+            padding: "15px 15px",
+        },
+        launchIcon: {
+            color: "var(--forest-green)",
+        }
+    };
 
     return (
         <div className="most-visited">
             <header className="most-visited-header">
-                <span style={{filter: 'drop-shadow(0 0 0.25rem #eeeae9)', color: "#535457"}}>Most Visited Pages</span>
+                <span style={styles.headerSpan}>Opciones de Reserva Preferidas</span>
             </header>
             <div className="most-visited-table">
-                <span style={colorStyle}><strong>PAGE NAME</strong></span>
-                <span style={colorStyle}><strong>VISITORS</strong></span>
-                <span style={colorStyle}><strong>UNIQUE PAGE VISITS</strong></span>
-                <span style={colorStyle}><strong>BOUNCE RATE</strong></span>
+                <span style={styles.tableHeader}><strong>OPCIÓN</strong></span>
+                <span style={styles.tableHeader}><strong>PREFERENCIA</strong></span>
+                <span style={styles.tableHeader}><strong>PORCENTAJE</strong></span>
+                <span style={styles.tableHeader}><strong>TENDENCIA</strong></span>
                 <span></span>
-                <span style={style}>/store <LaunchIcon fontSize="medium"/></span>
-                <span style={style}>4,890</span>
-                <span style={style}>3,985</span>
-                <span style={style}>81.56%</span>
+                <span style={styles.tableRowText}>Cabañas <LaunchIcon fontSize="small" sx={styles.launchIcon}/></span>
+                <span style={styles.tableRowText}>4,890</span>
+                <span style={styles.tableRowText}>81.56%</span>
+                <span style={styles.tableRowText}>+5%</span>
                 <span><MyLine color={color} height={height} width={width} /></span>
-                <span style={style}>/store/symbols-styleguides <LaunchIcon fontSize="medium"/></span>
-                <span style={style}>3,785</span>
-                <span style={style}>3,182</span>
-                <span style={style}>62.56%</span>
+                <span style={styles.tableRowText}>Zona de Camping <LaunchIcon fontSize="small" sx={styles.launchIcon}/></span>
+                <span style={styles.tableRowText}>3,785</span>
+                <span style={styles.tableRowText}>62.56%</span>
+                <span style={styles.tableRowText}>+2%</span>
                 <span><MyLine color={color} height={height} width={width} /></span>
-                <span style={style}>/store/dashboard-ui-kit <LaunchIcon fontSize="medium"/></span>
-                <span style={style}>2,985</span>
-                <span style={style}>2,115</span>
-                <span style={style}>58.76%</span>
+                <span style={styles.tableRowText}>Cabalgatas <LaunchIcon fontSize="small" sx={styles.launchIcon}/></span>
+                <span style={styles.tableRowText}>2,985</span>
+                <span style={styles.tableRowText}>58.76%</span>
+                <span style={styles.tableRowText}>+3%</span>
                 <span><MyLine color={color} height={height} width={width} /></span>
-                <span style={style}>/store/webflow-cards.html <LaunchIcon fontSize="medium"/></span>
-                <span style={style}>2,440</span>
-                <span style={style}>1,789</span>
-                <span style={style}>39.59%</span>
+                <span style={styles.tableRowText}>Caminata a la cascada <LaunchIcon fontSize="small" sx={styles.launchIcon}/></span>
+                <span style={styles.tableRowText}>2,440</span>
+                <span style={styles.tableRowText}>39.59%</span>
+                <span style={styles.tableRowText}>+1%</span>
                 <span><MyLine color={color} height={height} width={width} /></span>
             </div>
         </div>
     )
 }
 
-export default MostVisited
+export default MostVisited;

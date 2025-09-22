@@ -31,4 +31,4 @@ function CustomSelect( props ) {
     )
 }
 
-export default CustomSelect
+export default CustomSelect;

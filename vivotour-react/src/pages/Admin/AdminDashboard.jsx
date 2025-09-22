@@ -1,20 +1,23 @@
 import React from 'react';
-import './Admin.css'; // Importa el CSS específico del dashboard
+import './Admin.css';
 import Header from './components/Header';
 import Sidebar from "./components/Sidebar";
 import Content from "./components/Content";
-import { Theme } from "./Theme"; // Importa el tema actualizado
-import { ThemeProvider } from '@mui/material/styles'; // Importa ThemeProvider de MUI v5
+import { Theme } from "./Theme";
+import { ThemeProvider } from '@mui/material/styles';
+import { AdminProvider } from './AdminContext';
 
 function AdminDashboard() {
   return (
-    <ThemeProvider theme={Theme}> {/* Usa ThemeProvider de MUI v5 */}
-      <div className="App"> {/* La clase "App" se refiere al contenedor principal del dashboard */}
-        <Header />
-        <Sidebar />
-        <Content />
-      </div>
-    </ThemeProvider>
+    <AdminProvider>
+      <ThemeProvider theme={Theme}>
+        <div className="App">
+          <Header />
+          <Sidebar />
+          <Content />
+        </div>
+      </ThemeProvider>
+    </AdminProvider>
   );
 }
 
