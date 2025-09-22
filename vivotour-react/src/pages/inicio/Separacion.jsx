@@ -37,7 +37,7 @@ const Separacion = () => {
 
     return (
       <div className="benefits-section">
-          <h1 className="benefits-title">Beneficios</h1>
+          <h1 className="benefits-title">Ventajas de estar con nosotros</h1>
           <div className="res">
               {items.map((item, i) => (
                   <React.Fragment key={i}>

@@ -9,8 +9,15 @@ import icon1 from '../../assets/icons/swimming.png';
 import icon2 from '../../assets/icons/campfire.png';
 import icon3 from '../../assets/icons/horse-head.png';
 import icon4 from '../../assets/icons/camping-tent.png';
-import icon5 from '../../assets/icons/swimming.png';  
-import icon6 from '../../assets/icons/horse-head.png';   
+import icon5 from '../../assets/icons/fishing-hook-svgrepo-com.svg';  
+import icon6 from '../../assets/icons/walk-to-left-walk-move-stroll-svgrepo-com.svg';   
+
+import card1 from '../../assets/imgs/rio/476022210_635393129001775_3760402276992579991_n.jpg';
+import card2 from '../../assets/imgs/experiencias/472915340_618551387352616_3310294784352409225_n.jpg';
+import card3 from '../../assets/imgs/cabalgatas/478083588_643635631510858_4332432915899354854_n.jpg';
+import card4 from '../../assets/imgs/experiencias/464307822_17998791962651046_1107245631182794721_n.jpg';
+import card5 from '../../assets/imgs/experiencias/476379184_641234188417669_2194839864525418984_n.jpg';
+import card6 from '../../assets/imgs/experiencias/472789283_618975403976881_5986626510168628097_n-fotor-2025092023730.jpg';
 
 import Nav from './Navbar';
 import Texto from './Texto';
@@ -19,6 +26,15 @@ import Opinion from './Opinion';
 import Footer from '../../components/use/Footer';
 import Mapa from './Mapa';
 import Galeria from './Galeria';
+
+const cards = [
+  { img: card1, title: 'Natación' },
+  { img: card2, title: 'Fogatas' },
+  { img: card3, title: 'Cabalgatas' },
+  { img: card4, title: 'Acampar' },
+  { img: card5, title: 'Pesca' },
+  { img: card6, title: 'Senderismo' },
+];
 
 const Presentacion = ({ cambiarvista }) => {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
@@ -58,8 +74,6 @@ const Presentacion = ({ cambiarvista }) => {
     { nombre: 'Senderismo', img: icon6, descripcion: 'Explora los senderos llenos de paisajes espectaculares.' },
   ];
 
-  const visibleServicios = servicios.slice(startIndex, startIndex + 4);
-
   const handlePrev = () => {
     if (startIndex > 0) setStartIndex(startIndex - 1);
   };
@@ -88,43 +102,55 @@ const Presentacion = ({ cambiarvista }) => {
           </div>
 
           <div className="servicios">
-            <div className="nuestro">
-              <p className="pservicios">Nuestros servicios</p>
-            </div>
-            <div className="sservicios">
-              {/* Flecha izquierda */}
-              <button className="arrow-btn" onClick={handlePrev} disabled={startIndex === 0}>
-                ◀
-              </button>
+  <div className="nuestro">
+    <p className="pservicios">Nuestros servicios</p>
+  </div>
+  <div className="sservicios">
+    {/* Flecha izquierda */}
+    <button className="arrow-btn" onClick={handlePrev} disabled={startIndex === 0}>
+      ◀
+    </button>
 
-              {visibleServicios.map((servicio, index) => (
-                <div
-                  className={`s${index + 1}`}
-                  key={index}
-                  onClick={() => setSelectedServicio(servicio)}
-                >
-                  <div className="circle">
-                    <img
-                      className="darkimgs"
-                      src={servicio.img}
-                      alt={servicio.nombre}
-                      height="70%"
-                    />
-                  </div>
-                  <p className="ps">{servicio.nombre}</p>
-                </div>
-              ))}
-
-              {/* Flecha derecha */}
-              <button
-                className="arrow-btn"
-                onClick={handleNext}
-                disabled={startIndex >= servicios.length - 4}
-              >
-                ▶
-              </button>
+    {/* Contenedor con overflow hidden */}
+    <div className="servicios-viewport">
+      <div 
+        className="servicios-track"
+        style={{ transform: `translateX(-${startIndex * 150}px)` }}
+      >
+        {servicios.map((servicio, index) => (
+          <div
+            className="servicio-card"
+            key={index}
+            onClick={() => {
+              const cardMatch = cards.find(card => card.title === servicio.nombre);
+              setSelectedServicio({ ...servicio, img: cardMatch?.img });
+            }}
+          >
+            <div className="circle">
+              <img
+                className="darkimgs"
+                src={servicio.img}
+                alt={servicio.nombre}
+                height="70%"
+              />
             </div>
+            <p className="ps">{servicio.nombre}</p>
           </div>
+        ))}
+      </div>
+    </div>
+
+    {/* Flecha derecha */}
+    <button
+      className="arrow-btn"
+      onClick={handleNext}
+      disabled={startIndex >= servicios.length - 4}
+    >
+      ▶
+    </button>
+  </div>
+</div>
+
         </div>
 
         <div className="imgsomos">
@@ -160,9 +186,13 @@ const Presentacion = ({ cambiarvista }) => {
             onClick={(e) => e.stopPropagation()}
           >
             <button className="close-btn" onClick={() => setSelectedServicio(null)}>✕</button>
-            <h2>{selectedServicio.nombre}</h2>
-            <img src={selectedServicio.img} alt={selectedServicio.nombre} width="100" />
-            <p>{selectedServicio.descripcion}</p>
+            <div className="postal">
+              <img src={selectedServicio.img} alt={selectedServicio.nombre} />
+              <div className="postal-text">
+                <h2>{selectedServicio.nombre}</h2>
+                <p>{selectedServicio.descripcion}</p>
+              </div>
+            </div>
           </div>
         </div>
       )}

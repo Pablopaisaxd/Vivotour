@@ -220,13 +220,14 @@
 
 .modal-content {
   background: white;
-  padding: 20px;
-  border-radius: 12px;
+  padding: 40px;             /* más espacio interno */
+  border-radius: 16px;       /* bordes un poco más redondeados */
   max-width: 90%;
-  max-height: 90%;
+  max-height: 90%;           /* le das más margen con respecto a la pantalla */
   overflow-y: auto;
   position: relative;
   animation: fadeIn 0.3s ease-in-out;
+  box-sizing: border-box;    /* asegura que padding cuente en el tamaño total */
 }
 
 .close-btn {
@@ -241,12 +242,34 @@
   border-radius: 50%;
 }
 
+.modal-images img {
+  max-width: 200px;
+  max-height: 200px;
+  margin: 10px; /* separa cada imagen del borde y de las otras */
+  margin-top: 20px;
+  margin-bottom: 20px;
+  border-radius: 10px;
+  object-fit: cover;
+}
+
+.modal-images-container {
+  width: 100%;
+  overflow: hidden; /* oculta lo que se sale del contenedor */
+}
+
+.modal-images-track {
+  display: flex;
+  transition: transform 0.6s ease-in-out; /* suaviza el movimiento */
+}
+
 .modal-images {
+  min-width: 100%; /* cada página ocupa todo el ancho */
   display: flex;
   flex-wrap: wrap;
   gap: 10px;
   justify-content: center;
 }
+
 
 .modal-images img {
   max-width: 225px;   /* límite de ancho */
@@ -260,7 +283,9 @@
 
 
 .modal-pagination{
-  margin-top: 10px;
+  margin-bottom: 20px;
+  margin-left: 30px;
+  margin-right: 30px;
   display: flex;
   justify-content: center;
   align-items: center;
