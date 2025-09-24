@@ -140,24 +140,9 @@ body {
   cursor: pointer;
   padding: 0.5rem;
   box-sizing: border-box;
+  gap: 10px;;
 }
 
-.arrow-btn {
-  background: linear-gradient(135deg, var(--forest-green), var(--golden-yellow));
-  border: none;
-  color: white;
-  font-size: 1.8rem;
-  font-weight: bold;
-  width: 45px;
-  height: 45px;
-  border-radius: 50%;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  box-shadow: 0 5px 15px rgba(0,0,0,0.2);
-}
 .arrow-btn:hover:not(:disabled) {
   transform: scale(1.15);
   box-shadow: 0 8px 20px rgba(75, 172, 53, 0.3);
@@ -278,7 +263,6 @@ body {
   padding: 20px;
   background: rgba(0, 0, 0, 0.55);
   z-index: 9999;
-  /* Sin animación - aparece inmediatamente */
 }
 
 .servicios-modal-content {
@@ -493,7 +477,8 @@ body {
 }
 
 /* --- Arrow Buttons (servicios) --- */
-.servicios-arrow-btn {
+
+.servicios-arrow-btnder {
   background: linear-gradient(135deg, var(--forest-green), var(--golden-yellow));
   border: none;
   color: white;
@@ -503,6 +488,27 @@ body {
   height: 45px;
   border-radius: 50%;
   cursor: pointer;
+  padding-left: 5px;
+  margin-bottom: 20px;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+}
+
+.servicios-arrow-btniz {
+  background: linear-gradient(135deg, var(--forest-green), var(--golden-yellow));
+  border: none;
+  color: white;
+  font-size: 1.8rem;
+  font-weight: bold;
+  width: 45px;
+  height: 45px;
+  border-radius: 50%;
+  cursor: pointer;
+  padding-right: 5px;
+  margin-bottom: 20px;
   transition: all 0.3s ease;
   display: flex;
   align-items: center;

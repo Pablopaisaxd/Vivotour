@@ -138,7 +138,7 @@ const Presentacion = ({ cambiarvista }) => {
             </div>
             <div className="sservicios">
               {/* Flecha izquierda */}
-              <button className="servicios-arrow-btnis servicios-arrow-btn" onClick={handlePrev} disabled={startIndex === 0}>
+              <button className="servicios-arrow-btniz servicios-arrow-btn" onClick={handlePrev} disabled={startIndex === 0}>
                 ◀
               </button>
 
