@@ -22,3 +22,6 @@ npm install jspdf-autotable --save
 
 Descargas Node:
 npm install express cors mysql2 dotenv jsonwebtoken
+npm install express cors dotenv jsonwebtoken mysql2 googleapis bcrypt
+npm install node-fetch@2
+npm install nodemailer

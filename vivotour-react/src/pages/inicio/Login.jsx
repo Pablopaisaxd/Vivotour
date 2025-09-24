@@ -1,4 +1,4 @@
-import React, { useContext, useState } from "react";
+import React, { useContext, useState, useEffect } from "react";
 import "./style/Login.css";
 import logo from '../../assets/Logos/new vivo contorno2.png';
 import Footer from "../../components/use/Footer";
@@ -28,6 +28,31 @@ export const Login = () => {
     } catch (error) {
       console.error(error);
     }
+  };
+
+  // Procesar token recibido vía redirect OAuth (query param)
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const token = params.get('token');
+    const error = params.get('error');
+    if (token) {
+      // Guardar y limpiar query
+      login(token, { nombre: 'Google User' });
+      // Remover los query params para limpiar la URL
+      navigate(from, { replace: true });
+    } else if (error) {
+      console.error('Google OAuth error:', error);
+      // Podrías mostrar un mensaje más amigable
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [location.search]);
+
+  const handleGoogleLogin = () => {
+    window.location.href = 'http://localhost:5000/auth/google';
+  };
+
+  const handleFacebookLogin = () => {
+    window.location.href = 'http://localhost:5000/auth/facebook';
   };
 
   return (
@@ -108,14 +133,11 @@ export const Login = () => {
           </div>
 
           <div className="login-methods">
-            <div className="login-method facebook" title="Iniciar sesión con Facebook">
+            <div className="login-method facebook" title="Iniciar sesión con Facebook" onClick={handleFacebookLogin} role="button" tabIndex={0} onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') handleFacebookLogin(); }}>
               <img src="/src/assets/Icons/Facebook.png" alt="facebook" />
             </div>
-            <div className="login-method google" title="Iniciar sesión con Google">
+            <div className="login-method google" title="Iniciar sesión con Google" onClick={handleGoogleLogin} role="button" tabIndex={0} onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') handleGoogleLogin(); }}>
               <img src="/src/assets/Icons/Google.png" alt="google" />
-            </div>
-            <div className="login-method apple" title="Iniciar sesión con Apple">
-              <img src="/src/assets/Icons/Apple.png" alt="apple" />
             </div>
           </div>
 
