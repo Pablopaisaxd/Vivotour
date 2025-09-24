@@ -122,8 +122,18 @@ app.get("/opiniones", async (req, res) => {
   }
 });
 
+//borrar una opinión por id
+app.delete("/opiniones/:id", async (req, res) => {
+  const { id } = req.params;
 
-
+  try {
+    await db.query("DELETE FROM opinion WHERE id = ?", [id]);
+    res.json({ success: true, mensaje: "Opinión eliminada correctamente" });
+  } catch (err) {
+    console.error("Error en DB:", err);
+    res.status(500).json({ success: false, mensaje: "Error al eliminar opinión" });
+  }
+});
 
 app.listen(5000, () => {
   console.log(" Servidor corriendo en http://localhost:5000");

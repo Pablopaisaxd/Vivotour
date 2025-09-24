@@ -2,9 +2,15 @@ import { useContext } from "react";
 import { Navigate, Outlet, useLocation } from "react-router-dom";
 import { AuthContext } from "../../AuthContext";
 
+
 const PrivateRoute = () => {
-  const { isAuthenticated } = useContext(AuthContext);
+  const { isAuthenticated, loading } = useContext(AuthContext);
   const location = useLocation();
+
+  if (loading) {
+    // Puedes mostrar un loader o simplemente null
+    return null;
+  }
 
   if (!isAuthenticated) {
     // si no está autenticado → redirige a login

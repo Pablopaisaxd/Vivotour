@@ -18,6 +18,7 @@ npm install jwt-decode
 npm install react-phone-number-input react-hook-form
 npm install react-router-dom
 npm install @mui/material @mui/icons-material @emotion/react @emotion/styled react-chartjs-2 chart.js
+npm install jspdf-autotable --save
 
 Descargas Node:
 npm install express cors mysql2 dotenv jsonwebtoken

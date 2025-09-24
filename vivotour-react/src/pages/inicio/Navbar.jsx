@@ -1,7 +1,7 @@
 import React, { useContext } from 'react';
 import './style/Navbar.css';
 import logo from '../../assets/Logos/new vivo contorno2.png';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { AuthContext } from '../../AuthContext';
 
 const Nav = () => {
@@ -28,7 +28,7 @@ const Nav = () => {
     <header className="nav">
       <nav className="nav-bottom">
         <li>
-          <a className="btnav" href="#Inicio" onClick={(e) => { e.preventDefault(); scrollToSection("Inicio"); }}>Inicio</a>
+          <Link to={'/'} className="btnav" href="#Inicio" >Inicio</Link>
         </li>
         <li>
           <a className="btnav" href="#Descubre" onClick={(e) => { e.preventDefault(); scrollToSection("Descubre"); }}>Descubre</a>
