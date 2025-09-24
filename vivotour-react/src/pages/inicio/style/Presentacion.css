@@ -61,6 +61,7 @@ body {
   position: relative;
 }
 .hsomos::after {
+  content: '';
   position: absolute;
   bottom: -8px;
   left: 0;
@@ -124,7 +125,7 @@ body {
 /* El track se desplaza dentro del viewport */
 .servicios-track {
   display: flex;
-  transition: transform 0.5s ease; /* animación suave */
+  transition: transform 0.2s ease; /* animación suave */
 }
 
 /* Cada tarjeta con ancho fijo */
@@ -165,7 +166,6 @@ body {
   opacity: 0.4;
   cursor: not-allowed;
 }
-
 
 .s1, .s2, .s3, .s4, .s5, .s6 {
   flex: 1 1 120px;
@@ -268,24 +268,25 @@ body {
   transform: scale(1.1) !important;
 }
 
-/* --- MODAL --- */
-.modal-overlay {
+/* --- MODAL CON ANIMACIONES --- */
+.servicios-modal-overlay {
   position: fixed;
-  inset: 0;                
+  inset: 0;
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 20px;                
+  padding: 20px;
   background: rgba(0, 0, 0, 0.55);
   z-index: 9999;
+  /* Sin animación - aparece inmediatamente */
 }
 
-.modal-content {
-  display: inline-block;       
-  width: auto !important;
+.servicios-modal-content {
+  display: inline-block;
+  width: auto;
   max-width: fit-content;
   background: none;
-  padding: 0 !important;
+  padding: 0;
   margin: 0;
   border: none;
   box-shadow: none;
@@ -293,76 +294,252 @@ body {
   vertical-align: middle;
 }
 
-.close-btn {
+/* Animaciones del modal */
+.slide-in-center {
+  animation: slideInCenter 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.slide-out-left {
+  animation: slideOutLeft 0.35s ease forwards;
+}
+
+.slide-out-right {
+  animation: slideOutRight 0.35s ease forwards;
+}
+
+/* Animación solo para el contenido al abrir el modal */
+@keyframes slideInCenter {
+  from { 
+    opacity: 0;
+    transform: translateY(30px) scale(0.95);
+  }
+  to { 
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* Animación solo para el contenido al abrir el modal */
+@keyframes slideInCenter {
+  from { 
+    opacity: 0;
+    transform: translateY(20px) scale(0.95);
+  }
+  to { 
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes slideOutLeft {
+  from {
+    opacity: 1;
+    transform: translateX(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateX(-30px);
+  }
+}
+
+@keyframes slideOutRight {
+  from {
+    opacity: 1;
+    transform: translateX(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateX(30px);
+  }
+}
+
+.servicios-close-btn {
   position: absolute;
   top: 8px;
   right: 8px;
   font-size: 18px;
-  background: #fff;
+  background: linear-gradient(135deg, var(--forest-green), var(--golden-yellow));
+  color: #fff;
   border: none;
-  border-radius: 50%;
-  width: 30px;
-  height: 30px;
+  border-radius: 20%;
+  width: 32px;
+  height: 32px;
   cursor: pointer;
   box-shadow: 0 2px 6px rgba(0,0,0,0.25);
   z-index: 20;
-  transition: transform .15s ease;
+  transition: transform 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
-.close-btn:hover { transform: scale(1.08); }
+.servicios-close-btn:hover { 
+  transform: scale(1.1);
+}
 
-.postal {
+.servicios-postal-img-container {
+  width: 100%;
+  max-width: 380px;
+  height: 420px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  border-radius: 8px;
+  background: #eee;
+  margin-bottom: 8px;
+}
+
+.servicios-postal-img-container img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.servicios-postal {
   display: flex;
   flex-direction: column;
   align-items: center;
   background: #fff;
-  padding: 12px 12px 22px;
-  border-radius: 8px;
+  padding: 15px 15px 25px;
+  border-radius: 12px;
   border: 1px solid #e6e6e6;
-  box-shadow: 0 8px 20px rgba(0,0,0,0.30);
-  max-width: min(420px, 92vw); 
+  box-shadow: 0 12px 40px rgba(0,0,0,0.35);
+  max-width: min(420px, 92vw);
   width: 100%;
   box-sizing: border-box;
   overflow: hidden;
 }
 
-.postal img {
-  width: 100%;
-  height: 480px;   /* fuerza alto estándar */
-  object-fit: cover;
-  border-radius: 4px;
-  margin-bottom: 5px;
-  display: block;
-}
-
-.postal-img {
-  width: 100%;
-  height: 480px;      /* aquí defines el tamaño estándar */
-  border-radius: 4px;
-  overflow: hidden;
-  margin-bottom: 5px;
-}
-
-.postal-img img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;   /* recorta proporcionalmente */
-  display: block;
-}
-
-
-.postal-text {
-  padding: 6px 8px 0;
+.servicios-postal-text {
+  padding: 10px 10px 0;
   text-align: center;
 }
-.postal-text h2 { margin: 0; font-size: 1.2rem; }
-.postal-text p { margin-top: 6px; font-size: .98rem; color: #444; }
+.servicios-postal-text h2 { 
+  margin: 0 0 12px 0; 
+  font-size: 1.5rem;
+  color: var(--rich-black);
+  font-weight: 700;
+}
+.servicios-postal-text p { 
+  margin: 0; 
+  font-size: 1.05rem; 
+  color: #555;
+  line-height: 1.6;
+}
 
+/* Indicadores de página del modal */
+.modal-page-indicators {
+  display: flex;
+  justify-content: center;
+  gap: 6px;
+  margin-top: 20px;
+}
+
+.page-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #ddd;
+  transition: all 0.3s ease;
+}
+
+.page-dot.active {
+  background: var(--forest-green);
+  transform: scale(1.2);
+}
+
+/* --- Botones de navegación del modal --- */
+.servicios-modal-nav-btn {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  background: linear-gradient(135deg, var(--forest-green), var(--golden-yellow));
+  color: #fff;
+  border: none;
+  border-radius: 50%;
+  width: 50px;
+  height: 50px;
+  font-size: 1.8rem;
+  cursor: pointer;
+  z-index: 10001;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.servicios-modal-nav-prev {
+  left: -80px;
+  padding-right: 5px;
+  padding-bottom: 3px;
+}
+.servicios-modal-nav-next {
+  right: -80px;
+  padding-left: 5px;
+  padding-bottom: 3px;
+}
+
+.servicios-modal-nav-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+.servicios-modal-nav-btn:hover:not(:disabled) {
+  transform: translateY(-50%) scale(1.1);
+  box-shadow: 0 6px 16px rgba(75, 172, 53, 0.4);
+}
+
+/* --- Arrow Buttons (servicios) --- */
+.servicios-arrow-btn {
+  background: linear-gradient(135deg, var(--forest-green), var(--golden-yellow));
+  border: none;
+  color: white;
+  font-size: 1.8rem;
+  font-weight: bold;
+  width: 45px;
+  height: 45px;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+}
+
+.servicios-arrow-btn:hover:not(:disabled) {
+  transform: scale(1.15);
+  box-shadow: 0 8px 20px rgba(75, 172, 53, 0.3);
+}
+.servicios-arrow-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
 
 /* --- Responsivo --- */
+
+@media (max-width: 600px) {
+  .servicios-modal-nav-prev { left: calc(50% - 180px); }
+  .servicios-modal-nav-next { right: calc(50% - 180px); }
+  .servicios-modal-nav-btn {
+    width: 40px;
+    height: 40px;
+    font-size: 1.5rem;
+  }
+}
+
+@media (max-width: 400px) {
+  .servicios-modal-nav-prev { left: 20px; }
+  .servicios-modal-nav-next { right: 20px; }
+}
+
 @media (max-width: 420px) {
-  .modal-overlay { padding: 12px; }
-  .postal { padding: 10px 10px 18px; }
-  .postal img { max-height: 50vh; }
+  .servicios-modal-overlay { padding: 12px; }
+  .servicios-postal { padding: 10px 10px 18px; }
+  .servicios-postal-img-container { height: 280px; }
 }
 
 @media (max-width: 1024px) {
@@ -377,24 +554,27 @@ body {
   }
   .hsomos { font-size: 1.8rem; }
   .pservicios { font-size: 1.5rem; }
+  .servicios-viewport { width: 450px; }
 }
 
 @media (max-width: 768px) {
   .presentacion { padding: 1rem; }
   .quesomos, .servicios { padding: 1.5rem; }
-  .sservicios { grid-template-columns: repeat(2, 1fr); gap: 1rem; }
   .circle { width: 60px; height: 60px; }
   .hsomos { font-size: 1.6rem; }
   .contentp { font-size: 1rem; }
   .pfinal { font-size: 1.1rem; }
   .imgprin { height: 300px; max-width: 100%; }
+  .servicios-viewport { width: 300px; }
+  .servicio-card { width: 120px; }
 }
 
 @media (max-width: 480px) {
-  .sservicios { grid-template-columns: 1fr; }
   .imgprin { display: none; }
   .quesomos, .servicios { padding: 1rem; }
   .hsomos { font-size: 1.4rem; }
   .pservicios { font-size: 1.2rem; }
   .ps { font-size: 0.9rem; }
+  .servicios-viewport { width: 240px; }
+  .servicio-card { width: 100px; }
 }

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useLocation } from "react-router-dom"; // 👈 IMPORTANTE
+import { useLocation } from "react-router-dom";
 import './style/Presentacion.css';
 import img1 from '../../assets/Fondos/Río.jpg';
 import img2 from '../../assets/Fondos/Fondo5.jpg';
@@ -9,8 +9,8 @@ import icon1 from '../../assets/icons/swimming.png';
 import icon2 from '../../assets/icons/campfire.png';
 import icon3 from '../../assets/icons/horse-head.png';
 import icon4 from '../../assets/icons/camping-tent.png';
-import icon5 from '../../assets/icons/fishing-hook-svgrepo-com.svg';  
-import icon6 from '../../assets/icons/walk-to-left-walk-move-stroll-svgrepo-com.svg';   
+import icon5 from '../../assets/icons/fishing-hook-svgrepo-com.svg';
+import icon6 from '../../assets/icons/walk-to-left-walk-move-stroll-svgrepo-com.svg';
 
 import card1 from '../../assets/imgs/rio/476022210_635393129001775_3760402276992579991_n.jpg';
 import card2 from '../../assets/imgs/experiencias/472915340_618551387352616_3310294784352409225_n.jpg';
@@ -39,8 +39,11 @@ const cards = [
 const Presentacion = ({ cambiarvista }) => {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [selectedServicio, setSelectedServicio] = useState(null);
-  const [startIndex, setStartIndex] = useState(0); // índice del primer servicio visible
-  const location = useLocation(); // 👈 Para detectar el hash en la URL
+  const [startIndex, setStartIndex] = useState(0);
+  const [modalDirection, setModalDirection] = useState('');
+  const [isModalTransitioning, setIsModalTransitioning] = useState(false);
+  const [isFirstOpen, setIsFirstOpen] = useState(true);
+  const location = useLocation();
 
   const images = [img1, img2, img3];
 
@@ -52,7 +55,7 @@ const Presentacion = ({ cambiarvista }) => {
     return () => clearInterval(interval);
   }, [images.length]);
 
-  // 👇 Scroll automático cuando hay hash (#Inicio, #Descubre)
+  // Scroll automático cuando hay hash
   useEffect(() => {
     if (location.hash) {
       const id = location.hash.replace("#", "");
@@ -60,7 +63,7 @@ const Presentacion = ({ cambiarvista }) => {
       if (section) {
         setTimeout(() => {
           section.scrollIntoView({ behavior: "smooth" });
-        }, 200); // pequeño delay para asegurar que ya esté en el DOM
+        }, 200);
       }
     }
   }, [location]);
@@ -82,11 +85,39 @@ const Presentacion = ({ cambiarvista }) => {
     if (startIndex < servicios.length - 4) setStartIndex(startIndex + 1);
   };
 
+  const navigateModal = (direction) => {
+    const currentIndex = servicios.findIndex(s => s.nombre === selectedServicio.nombre);
+    let newIndex;
+    
+    if (direction === 'prev' && currentIndex > 0) {
+      newIndex = currentIndex - 1;
+      setModalDirection('prev');
+    } else if (direction === 'next' && currentIndex < servicios.length - 1) {
+      newIndex = currentIndex + 1;
+      setModalDirection('next');
+    } else {
+      return;
+    }
+    
+    // Iniciar transición
+    setIsModalTransitioning(true);
+    
+    // Cambiar contenido después de un pequeño delay
+    setTimeout(() => {
+      const newServicio = servicios[newIndex];
+      const cardMatch = cards.find(card => card.title === newServicio.nombre);
+      setSelectedServicio({ ...newServicio, img: cardMatch?.img });
+      setIsModalTransitioning(false);
+      setModalDirection('');
+      setIsFirstOpen(false); // Ya no es primera apertura
+    }, 350);
+  };
+
   return (
     <>
       <Texto />
       <Nav cambiarvista={cambiarvista} />
-      
+
       {/* Sección Inicio */}
       <section className="presentacion" id="Inicio">
         <div className="somos">
@@ -102,54 +133,55 @@ const Presentacion = ({ cambiarvista }) => {
           </div>
 
           <div className="servicios">
-  <div className="nuestro">
-    <p className="pservicios">Nuestros servicios</p>
-  </div>
-  <div className="sservicios">
-    {/* Flecha izquierda */}
-    <button className="arrow-btn" onClick={handlePrev} disabled={startIndex === 0}>
-      ◀
-    </button>
-
-    {/* Contenedor con overflow hidden */}
-    <div className="servicios-viewport">
-      <div 
-        className="servicios-track"
-        style={{ transform: `translateX(-${startIndex * 150}px)` }}
-      >
-        {servicios.map((servicio, index) => (
-          <div
-            className="servicio-card"
-            key={index}
-            onClick={() => {
-              const cardMatch = cards.find(card => card.title === servicio.nombre);
-              setSelectedServicio({ ...servicio, img: cardMatch?.img });
-            }}
-          >
-            <div className="circle">
-              <img
-                className="darkimgs"
-                src={servicio.img}
-                alt={servicio.nombre}
-                height="70%"
-              />
+            <div className="nuestro">
+              <p className="pservicios">Nuestros servicios</p>
             </div>
-            <p className="ps">{servicio.nombre}</p>
-          </div>
-        ))}
-      </div>
-    </div>
+            <div className="sservicios">
+              {/* Flecha izquierda */}
+              <button className="servicios-arrow-btnis servicios-arrow-btn" onClick={handlePrev} disabled={startIndex === 0}>
+                ◀
+              </button>
 
-    {/* Flecha derecha */}
-    <button
-      className="arrow-btn"
-      onClick={handleNext}
-      disabled={startIndex >= servicios.length - 4}
-    >
-      ▶
-    </button>
-  </div>
-</div>
+              {/* Contenedor con overflow hidden */}
+              <div className="servicios-viewport">
+                <div
+                  className="servicios-track"
+                  style={{ transform: `translateX(-${startIndex * 150}px)` }}
+                >
+                  {servicios.map((servicio, index) => (
+                    <div
+                      className="servicio-card"
+                      key={index}
+                      onClick={() => {
+                        const cardMatch = cards.find(card => card.title === servicio.nombre);
+                        setSelectedServicio({ ...servicio, img: cardMatch?.img });
+                        setIsFirstOpen(true); // Marcar como primera apertura
+                      }}
+                    >
+                      <div className="circle">
+                        <img
+                          className="darkimgs"
+                          src={servicio.img}
+                          alt={servicio.nombre}
+                          height="70%"
+                        />
+                      </div>
+                      <p className="ps">{servicio.nombre}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Flecha derecha */}
+              <button
+                className="servicios-arrow-btnder servicios-arrow-btn"
+                onClick={handleNext}
+                disabled={startIndex >= servicios.length - 4}
+              >
+                ▶
+              </button>
+            </div>
+          </div>
 
         </div>
 
@@ -174,23 +206,65 @@ const Presentacion = ({ cambiarvista }) => {
 
       {/* Sección Descubre */}
       <section id="Descubre"></section>
-      
+
       <Mapa />
       <Footer />
 
-      {/* MODAL PERSONALIZADO */}
+      {/* MODAL CON ANIMACIONES LATERALES */}
       {selectedServicio && (
-        <div className="modal-overlay" onClick={() => setSelectedServicio(null)}>
+        <div className="servicios-modal-overlay" onClick={() => setSelectedServicio(null)}>
           <div
-            className="modal-content"
+            className={`servicios-modal-content ${
+              isModalTransitioning 
+                ? modalDirection === 'next' 
+                  ? 'slide-out-left' 
+                  : 'slide-out-right'
+                : isFirstOpen ? 'slide-in-center' : ''
+            }`}
             onClick={(e) => e.stopPropagation()}
           >
-            <button className="close-btn" onClick={() => setSelectedServicio(null)}>✕</button>
-            <div className="postal">
-              <img src={selectedServicio.img} alt={selectedServicio.nombre} />
-              <div className="postal-text">
+            {/* Botón anterior */}
+            <button
+              className="servicios-modal-nav-btn servicios-modal-nav-prev"
+              onClick={() => navigateModal('prev')}
+              disabled={servicios.findIndex(s => s.nombre === selectedServicio.nombre) === 0 || isModalTransitioning}
+            >
+              ◀
+            </button>
+
+            {/* Botón cerrar */}
+            <button className="servicios-close-btn" onClick={() => setSelectedServicio(null)}>✕</button>
+
+            {/* Botón siguiente */}
+            <button
+              className="servicios-modal-nav-btn servicios-modal-nav-next"
+              onClick={() => navigateModal('next')}
+              disabled={servicios.findIndex(s => s.nombre === selectedServicio.nombre) === servicios.length - 1 || isModalTransitioning}
+            >
+              ▶
+            </button>
+
+            <div className="servicios-postal">
+              <div className="servicios-postal-img-container">
+                <img src={selectedServicio.img} alt={selectedServicio.nombre} />
+              </div>
+              <div className="servicios-postal-text">
                 <h2>{selectedServicio.nombre}</h2>
                 <p>{selectedServicio.descripcion}</p>
+              </div>
+
+              {/* Indicador de página actual */}
+              <div className="modal-page-indicators">
+                {servicios.map((_, index) => (
+                  <div
+                    key={index}
+                    className={`page-dot ${
+                      index === servicios.findIndex(s => s.nombre === selectedServicio.nombre) 
+                        ? 'active' 
+                        : ''
+                    }`}
+                  />
+                ))}
               </div>
             </div>
           </div>

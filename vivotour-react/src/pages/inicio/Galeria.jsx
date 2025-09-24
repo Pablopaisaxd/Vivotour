@@ -40,7 +40,7 @@ const imagenesPorSeccion = {
   sec7: experienciasImgs,
 };
 
-// 📌 Modal con paginación si hay más de 10 imágenes
+// Modal con paginación si hay más de 10 imágenes
 const Modal = ({ imagenes, onClose }) => {
   const [page, setPage] = useState(0);
   const pageSize = 10;
@@ -48,9 +48,6 @@ const Modal = ({ imagenes, onClose }) => {
   if (!imagenes) return null;
 
   const totalPages = Math.ceil(imagenes.length / pageSize);
-  const start = page * pageSize;
-  const end = start + pageSize;
-  const imagenesPagina = imagenes.slice(start, end);
 
   const siguiente = () => {
     if (page < totalPages - 1) setPage(page + 1);
@@ -61,40 +58,38 @@ const Modal = ({ imagenes, onClose }) => {
   };
 
   return (
-    <div className="modal-overlay" onClick={onClose}>
-      <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-        <button className="close-btn" onClick={onClose}>X</button>
+    <div className="galeria-modal-overlay" onClick={onClose}>
+      <div className="galeria-modal-content" onClick={(e) => e.stopPropagation()}>
+        <button className="galeria-close-btn" onClick={onClose}>X</button>
+        <div className="galeria-modal-images-container">
+          <div
+            className="galeria-modal-images-track"
+            style={{ transform: `translateX(-${page * 100}%)` }}
+          >
+            {Array.from({ length: totalPages }).map((_, pageIndex) => {
+              const start = pageIndex * pageSize;
+              const end = start + pageSize;
+              const imagenesPagina = imagenes.slice(start, end);
 
-        <div className="modal-images-container">
-  <div
-    className="modal-images-track"
-    style={{ transform: `translateX(-${page * 100}%)` }}
-  >
-    {Array.from({ length: totalPages }).map((_, pageIndex) => {
-      const start = pageIndex * pageSize;
-      const end = start + pageSize;
-      const imagenesPagina = imagenes.slice(start, end);
-
-      return (
-        <div className="modal-images" key={pageIndex}>
-          {imagenesPagina.map((img, idx) => (
-            <img key={idx} src={img} alt={`modal-${idx}`} />
-          ))}
+              return (
+                <div className="galeria-modal-images" key={pageIndex}>
+                  {imagenesPagina.map((img, idx) => (
+                    <img key={idx} src={img} alt={`modal-${idx}`} />
+                  ))}
+                </div>
+              );
+            })}
+          </div>
         </div>
-      );
-    })}
-  </div>
-</div>
-
         {imagenes.length > pageSize && (
-          <div className="modal-pagination">
-            <button onClick={anterior} disabled={page === 0}>
+          <div className="galeria-modal-pagination">
+            <button className="galeria-arrows" onClick={anterior} disabled={page === 0}>
               Anterior
             </button>
             <span>
               Página {page + 1} de {totalPages}
             </span>
-            <button onClick={siguiente} disabled={page === totalPages - 1}>
+            <button className="galeria-arrows" onClick={siguiente} disabled={page === totalPages - 1}>
               Siguiente
             </button>
           </div>
