@@ -60,16 +60,6 @@ body {
   font-weight: 700;
   position: relative;
 }
-.hsomos::after {
-  content: '';
-  position: absolute;
-  bottom: -8px;
-  left: 0;
-  width: 60px;
-  height: 3px;
-  background: linear-gradient(90deg, var(--golden-yellow), var(--forest-green));
-  border-radius: 2px;
-}
 
 .contentp {
   font-size: 1.1rem;
@@ -527,6 +517,8 @@ body {
 
 /* --- Responsivo --- */
 
+
+
 @media (max-width: 600px) {
   .servicios-modal-nav-prev { left: calc(50% - 180px); }
   .servicios-modal-nav-next { right: calc(50% - 180px); }
@@ -576,11 +568,43 @@ body {
 }
 
 @media (max-width: 480px) {
+  .presentacion {
+    min-height: auto;
+    height: auto;
+    padding: 1rem;
+    margin: 0;
+  }
+
+  .nuestro{
+    gap: 0;
+  }
+
   .imgprin { display: none; }
-  .quesomos, .servicios { padding: 1rem; }
-  .hsomos { font-size: 1.4rem; }
-  .pservicios { font-size: 1.2rem; }
+  .quesomos, .servicios { padding: 0.1rem; }
+  .contentp{
+    margin: 0rem 0.5rem;
+  }
+  .pfinal{
+    margin: 0.5rem;
+    padding: 0.5rem;
+  }
+  .hsomos { font-size: 1.4rem;
+  margin-bottom: 0;
+  }
+  .pservicios { font-size: 1.2rem;
+  margin-top: 15px;
+  }
+
+
+  .sservicios{
+    margin-top: 0rem;
+    margin-bottom: 1rem;
+  }
+
   .ps { font-size: 0.9rem; }
   .servicios-viewport { width: 240px; }
   .servicio-card { width: 100px; }
+  .somos{
+    gap: 2rem;
+  }
 }

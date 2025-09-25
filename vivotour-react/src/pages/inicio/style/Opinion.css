@@ -250,10 +250,11 @@
 @media (max-width: 480px) {
     .opinion {
         padding: 2rem 1rem;
+        padding-bottom: 0;
     }
 
     .opimg {
-        aspect-ratio: 4 / 3;
+        aspect-ratio: 16/9;
         border-radius: 12px;
     }
 
@@ -270,6 +271,11 @@
         padding: 0.7rem 1rem;
         font-size: 0.95rem;
     }
+
+    .right-col{
+        padding-top: 50px;
+    }
+
 }
 
 /* --- Modal General --- */
