@@ -31,7 +31,6 @@ const Separacion = () => {
             alt: "Movilidad", 
             title: "Movilidad",
             text: "te movilizamos a tus lugares favoritos a tu propio ritmo y en tu medio favorito." ,
-            style: { width: "70px", height: "70px", margin: "-0.3rem"} 
         }
     ];
 

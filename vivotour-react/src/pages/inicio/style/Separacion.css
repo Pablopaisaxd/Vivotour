@@ -133,12 +133,31 @@ padding-bottom: 30px;
 }
 
 @media (max-width: 480px) {
+    .benefits-section {
+        padding: 0 1rem; /* Añadir padding al contenedor principal */
+    }
+
+    .benefits-title{
+        padding: 0;
+    }
+
     .res {
-        gap: 0; /* Sin separación */
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        grid-template-rows: 1fr 1fr;
+        gap: 0.8rem;
+        max-width: 380px; 
+        margin: 0 auto; 
     }
 
     .square1 {
-        padding: 1.2rem 0.8rem;
+        padding: 0.5rem 0.3rem;
+        width: 100%; 
+        max-width: 200px;
+    }
+
+    .line1 {
+        display: none;
     }
 
     .ps {
