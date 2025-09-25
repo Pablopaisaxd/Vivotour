@@ -44,7 +44,18 @@ export const AuthProvider = ({ children }) => {
   const login = (token, userData) => {
     localStorage.setItem("token", token);
     setIsAuthenticated(true);
-    setUser(userData);
+    try {
+      const decoded = jwtDecode(token);
+      setUser({
+        nombre: userData?.nombre ?? decoded?.nombre,
+        email: userData?.email ?? decoded?.email,
+        celular: userData?.celular ?? decoded?.celular,
+        numeroDocumento: userData?.numeroDocumento ?? decoded?.numeroDocumento,
+        tipoDocumento: userData?.tipoDocumento ?? decoded?.tipoDocumento,
+      });
+    } catch (e) {
+      setUser(userData || null);
+    }
   };
 
   const logout = () => {

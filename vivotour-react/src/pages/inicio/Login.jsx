@@ -6,6 +6,7 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { AuthContext } from "../../AuthContext";
 import axios from "axios";
+import { jwtDecode } from "jwt-decode";
 
 export const Login = () => {
   const { register, handleSubmit, formState: { errors } } = useForm();
@@ -36,10 +37,26 @@ export const Login = () => {
     const token = params.get('token');
     const error = params.get('error');
     if (token) {
-      // Guardar y limpiar query
-      login(token, { nombre: 'Google User' });
-      // Remover los query params para limpiar la URL
-      navigate(from, { replace: true });
+      // Guardar token y decidir si falta completar perfil
+      try {
+        const decoded = jwtDecode(token);
+        login(token, {
+          nombre: decoded?.nombre || 'Usuario',
+          email: decoded?.email,
+          celular: decoded?.celular,
+          numeroDocumento: decoded?.numeroDocumento,
+          tipoDocumento: decoded?.tipoDocumento,
+        });
+        const needsProfile = !decoded?.celular || !decoded?.numeroDocumento || !decoded?.tipoDocumento;
+        if (needsProfile) {
+          navigate('/completar-perfil', { replace: true, state: { from } });
+        } else {
+          navigate(from, { replace: true });
+        }
+      } catch (e) {
+        console.error('Token inválido tras OAuth:', e);
+        navigate('/Login', { replace: true });
+      }
     } else if (error) {
       console.error('Google OAuth error:', error);
       // Podrías mostrar un mensaje más amigable

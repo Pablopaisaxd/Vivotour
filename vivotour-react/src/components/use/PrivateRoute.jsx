@@ -15,7 +15,7 @@ const PrivateRoute = () => {
   if (!isAuthenticated) {
     // si no está autenticado → redirige a login
     // usamos replace:true para no dejar la ruta protegida en el historial
-    return <Navigate to="/login" state={{ from: location.pathname }} replace />;
+  return <Navigate to="/Login" state={{ from: location.pathname }} replace />;
   }
 
   // si está autenticado → renderiza la ruta protegida

@@ -18,6 +18,22 @@ app.use(express.json());
 
 const JWT_SECRET = process.env.JWT_SECRET || "clave_super_secreta"; 
 
+// Middleware simple para verificar JWT en endpoints protegidos
+function requireAuth(req, res, next) {
+  try {
+    const auth = req.headers.authorization || "";
+    if (!auth.startsWith("Bearer ")) {
+      return res.status(401).json({ success: false, mensaje: "No autorizado" });
+    }
+    const token = auth.slice("Bearer ".length);
+    const payload = jwt.verify(token, JWT_SECRET);
+    req.user = payload; // { nombre, email, numeroDocumento, tipoDocumento, ... }
+    next();
+  } catch (e) {
+    return res.status(401).json({ success: false, mensaje: "Token inválido" });
+  }
+}
+
 // ---------- GOOGLE OAUTH CONFIG ----------
 const oauth2Client = new google.auth.OAuth2(
   process.env.GOOGLE_CLIENT_ID,
@@ -80,11 +96,12 @@ app.get("/auth/google/callback", async (req, res) => {
       return res.redirect(`${allowedOrigin}/Login?error=no_email`);
     }
 
-    // Verificar / crear usuario
+    // Verificar / crear usuario y obtener datos
+    let celular = ""; let numeroDocumento = ""; let tipoDocumento = "";
     try {
       const [rows] = await db.query("SELECT * FROM registros WHERE email = ?", [email]);
       if (rows.length === 0) {
-        // Intentar insertar usuario mínimo
+        // Insertar usuario mínimo
         try {
           await db.query(
             "INSERT INTO registros (nombre, email, password, celular, numeroDocumento, tipoDocumento) VALUES (?, ?, ?, ?, ?, ?)",
@@ -93,13 +110,18 @@ app.get("/auth/google/callback", async (req, res) => {
         } catch (insertErr) {
           console.error("Error insertando usuario Google (posibles restricciones de la tabla):", insertErr);
         }
+      } else {
+        const u = rows[0];
+        celular = u.celular || "";
+        numeroDocumento = u.numeroDocumento || "";
+        tipoDocumento = u.tipoDocumento || "";
       }
     } catch (dbErr) {
       console.error("Error consultando usuario Google:", dbErr);
     }
 
     const token = jwt.sign(
-      { nombre, email, numeroDocumento: "", tipoDocumento: "" },
+      { nombre, email, celular, numeroDocumento, tipoDocumento },
       JWT_SECRET,
       { expiresIn: "3h" }
     );
@@ -174,7 +196,8 @@ app.get("/auth/facebook/callback", async (req, res) => {
     const email = profile.email || `${profile.id}@facebook.local`;
     const nombre = profile.name || email;
 
-    // Verificar / crear usuario en DB
+    // Verificar / crear usuario en DB y obtener datos
+    let celular = ""; let numeroDocumento = ""; let tipoDocumento = "";
     try {
       const [rows] = await db.query("SELECT * FROM registros WHERE email = ?", [email]);
       if (rows.length === 0) {
@@ -186,13 +209,18 @@ app.get("/auth/facebook/callback", async (req, res) => {
         } catch (insertErr) {
           console.error("Error insertando usuario Facebook:", insertErr);
         }
+      } else {
+        const u = rows[0];
+        celular = u.celular || "";
+        numeroDocumento = u.numeroDocumento || "";
+        tipoDocumento = u.tipoDocumento || "";
       }
     } catch (dbErr) {
       console.error("Error consultando usuario Facebook:", dbErr);
     }
 
     const token = jwt.sign(
-      { nombre, email, numeroDocumento: "", tipoDocumento: "" },
+      { nombre, email, celular, numeroDocumento, tipoDocumento },
       JWT_SECRET,
       { expiresIn: "3h" }
     );
@@ -245,20 +273,53 @@ app.get('/auth/google/config-check', (req, res) => {
   }
 })();
 
-function createMailer() {
-  if (!process.env.SMTP_HOST || !process.env.SMTP_USER || !process.env.SMTP_PASS) {
-    console.warn("SMTP no configurado completamente. Define SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_PASS en .env");
+async function sendResetMail(toEmail, resetLink) {
+  const from = process.env.EMAIL_FROM || process.env.SMTP_USER || 'no-reply@localhost';
+  const mailOptions = {
+    from,
+    to: toEmail,
+    subject: 'Recuperación de contraseña - VivoTour',
+    html: `
+      <p>Hola,</p>
+      <p>Recibimos una solicitud para restablecer tu contraseña. Haz clic en el siguiente enlace para continuar:</p>
+      <p><a href="${resetLink}">${resetLink}</a></p>
+      <p>Este enlace expirará en 1 hora. Si no solicitaste este cambio, ignora este correo.</p>
+    `,
+  };
+
+  // Intento 1: usar SMTP real si está configurado
+  if (process.env.SMTP_HOST && process.env.SMTP_USER && process.env.SMTP_PASS) {
+    try {
+      const transporter = nodemailer.createTransport({
+        host: process.env.SMTP_HOST,
+        port: Number(process.env.SMTP_PORT || 587),
+        secure: !!process.env.SMTP_SECURE && process.env.SMTP_SECURE !== "false", // true para 465
+        auth: { user: process.env.SMTP_USER, pass: process.env.SMTP_PASS },
+      });
+      const info = await transporter.sendMail(mailOptions);
+      return info;
+    } catch (e) {
+      const msg = String(e && e.message ? e.message : e);
+      const isAuthError = e && (e.code === 'EAUTH' || /Invalid login|Username and Password not accepted/i.test(msg));
+      if (!isAuthError) throw e; // si es otro error, no hacemos fallback
+      console.warn('Fallo SMTP real (auth). Usando Ethereal para pruebas...');
+    }
+  } else {
+    console.warn('SMTP no configurado completamente. Usando Ethereal para pruebas.');
   }
-  const transporter = nodemailer.createTransport({
-    host: process.env.SMTP_HOST,
-    port: Number(process.env.SMTP_PORT || 587),
-    secure: !!process.env.SMTP_SECURE && process.env.SMTP_SECURE !== "false", // true para 465
-    auth: {
-      user: process.env.SMTP_USER,
-      pass: process.env.SMTP_PASS,
-    },
+
+  // Intento 2 (fallback): Ethereal (solo pruebas)
+  const testAccount = await nodemailer.createTestAccount();
+  const testTransporter = nodemailer.createTransport({
+    host: testAccount.smtp.host,
+    port: testAccount.smtp.port,
+    secure: testAccount.smtp.secure,
+    auth: { user: testAccount.user, pass: testAccount.pass },
   });
-  return transporter;
+  const info = await testTransporter.sendMail(mailOptions);
+  const preview = nodemailer.getTestMessageUrl(info);
+  if (preview) console.log('Vista previa del correo (Ethereal):', preview);
+  return info;
 }
 
 // Solicitar reset de contraseña
@@ -287,23 +348,10 @@ app.post('/forgot-password', async (req, res) => {
       }
 
       // Enviar email con enlace
-      const transporter = createMailer();
-      const from = process.env.EMAIL_FROM || process.env.SMTP_USER || 'no-reply@localhost';
       const resetBase = process.env.RESET_URL || `${allowedOrigin}/reset`;
       const resetLink = `${resetBase}?token=${encodeURIComponent(token)}`;
-      const mailOptions = {
-        from,
-        to: email,
-        subject: 'Recuperación de contraseña - VivoTour',
-        html: `
-          <p>Hola,</p>
-          <p>Recibimos una solicitud para restablecer tu contraseña. Haz clic en el siguiente enlace para continuar:</p>
-          <p><a href="${resetLink}">${resetLink}</a></p>
-          <p>Este enlace expirará en 1 hora. Si no solicitaste este cambio, ignora este correo.</p>
-        `,
-      };
       try {
-        await transporter.sendMail(mailOptions);
+        await sendResetMail(email, resetLink);
       } catch (e) {
         console.error('Error enviando correo de reset:', e);
         // Continuamos retornando éxito para no filtrar info
@@ -355,7 +403,7 @@ app.post("/registro", async (req, res) => {
 
     const [resultado] = await db.query(query, [nombre, email, password, celular, numeroDocumento, tipoDocumento]);
 
-    const token = jwt.sign({ nombre, email, numeroDocumento, tipoDocumento  }, JWT_SECRET, { expiresIn: "3h" });
+  const token = jwt.sign({ nombre, email, celular, numeroDocumento, tipoDocumento  }, JWT_SECRET, { expiresIn: "3h" });
 
     res.json({
       success: true,
@@ -388,7 +436,7 @@ app.post("/login", async (req, res) => {
       return res.status(401).json({ success: false, mensaje: "Contraseña incorrecta" });
     }
 
-    const token = jwt.sign({ nombre: user.nombre,  email: user.email, numeroDocumento: user.numeroDocumento, tipoDocumento: user.tipoDocumento }, JWT_SECRET, { expiresIn: "3h" });
+  const token = jwt.sign({ nombre: user.nombre,  email: user.email, celular: user.celular, numeroDocumento: user.numeroDocumento, tipoDocumento: user.tipoDocumento }, JWT_SECRET, { expiresIn: "3h" });
 
     res.json({ success: true, mensaje: "Login exitoso", token });
   } catch (error) {
@@ -402,6 +450,40 @@ app.post("/Login", (req, res) => {
   // Reutiliza la lógica existente llamando internamente a /login
   req.url = "/login"; // redirigir internamente
   app._router.handle(req, res, () => {});
+});
+
+// Completar perfil tras OAuth (o cuando falten datos)
+// Requiere JWT en Authorization: Bearer <token>
+app.post("/auth/complete-profile", requireAuth, async (req, res) => {
+  try {
+    const { celular, numeroDocumento, tipoDocumento } = req.body;
+    if (!celular || !numeroDocumento || !tipoDocumento) {
+      return res.status(400).json({ success: false, mensaje: "Todos los campos son obligatorios" });
+    }
+
+    const email = req.user.email;
+    if (!email) return res.status(400).json({ success: false, mensaje: "Usuario inválido" });
+
+    // Actualizar registros
+    const [result] = await db.query(
+      "UPDATE registros SET celular = ?, numeroDocumento = ?, tipoDocumento = ? WHERE email = ?",
+      [celular, numeroDocumento, tipoDocumento, email]
+    );
+
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ success: false, mensaje: "Usuario no encontrado" });
+    }
+
+    // Obtener datos actualizados para token nuevo
+    const [rows] = await db.query("SELECT nombre, email, celular, numeroDocumento, tipoDocumento FROM registros WHERE email = ?", [email]);
+    const u = rows[0];
+    const newToken = jwt.sign({ nombre: u.nombre, email: u.email, celular: u.celular, numeroDocumento: u.numeroDocumento, tipoDocumento: u.tipoDocumento }, JWT_SECRET, { expiresIn: "3h" });
+
+    return res.json({ success: true, mensaje: "Perfil actualizado", token: newToken });
+  } catch (err) {
+    console.error("Error en /auth/complete-profile:", err);
+    return res.status(500).json({ success: false, mensaje: "Error del servidor" });
+  }
 });
 
 app.post("/opinion", async (req, res) => {
