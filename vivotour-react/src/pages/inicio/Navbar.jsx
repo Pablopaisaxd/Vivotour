@@ -28,14 +28,14 @@ const Nav = () => {
     <header className="nav">
       <nav className="nav-bottom">
         <li>
-          <Link to={'/'} className="btnav" href="#Inicio" >Inicio</Link>
+          <a onClick={()=>navigate("/")} className="btnav" >Inicio</a>
         </li>
         <li>
           <a className="btnav" href="#Descubre" onClick={(e) => { e.preventDefault(); scrollToSection("Descubre"); }}>Descubre</a>
         </li>
 
         <div className="nav-logo">
-          <img src={logo} alt="logoVentana" className="main-logo" />
+          <img src={logo} alt="logoVentana" className="main-logo" onClick={()=> navigate("/")}/>
         </div>
 
         <li>

@@ -41,7 +41,7 @@ export const Registro = () => {
       <div className="registro-container">
         <div className="registro-card">
           <div className="registro-logo">
-            <img src={logo} alt="logoVentana" className="main-logo" />
+            <img src={logo} alt="logoVentana" className="main-logo" onClick={()=> navigate("/")} />
           </div>
           <h1 className="registro-title">Registro</h1>
 

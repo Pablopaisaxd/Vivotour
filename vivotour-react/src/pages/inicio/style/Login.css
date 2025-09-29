@@ -68,6 +68,7 @@
 .main-logo {
   max-height: 80px;
   object-fit: contain;
+  cursor: pointer;
 }
 
 .login-box h1 {

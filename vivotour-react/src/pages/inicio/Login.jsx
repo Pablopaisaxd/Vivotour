@@ -77,7 +77,7 @@ export const Login = () => {
       <div className="login-container">
         <div className="login-box">
           <div className="login-logo-space">
-            <img src={logo} alt="logoVentana" className="main-logo" />
+            <img src={logo} alt="logoVentana" className="main-logo" onClick={()=>navigate("/")}/>
           </div>
 
           <h1>Iniciar Sesión</h1>
