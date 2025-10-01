@@ -271,6 +271,32 @@ app.get('/auth/google/config-check', (req, res) => {
   } catch (e) {
     console.error("Error creando tabla password_resets:", e);
   }
+  // Crear tabla reservas si no existe (almacena reservas por usuario)
+  try {
+    await db.query(`
+      CREATE TABLE IF NOT EXISTS reservas (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        email VARCHAR(255) NOT NULL,
+        estado ENUM('pendiente','confirmado') DEFAULT 'pendiente',
+        detalles JSON NULL,
+        createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        INDEX (email)
+      ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+    `);
+    console.log("Tabla reservas lista");
+  } catch (e) {
+    console.error("Error creando tabla reservas:", e);
+  }
+  // Asegurar columna email en opinion para asociar al usuario
+  try {
+    const [cols] = await db.query("SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME='opinion' AND COLUMN_NAME='email'");
+    if (!cols || cols.length === 0) {
+      await db.query("ALTER TABLE opinion ADD COLUMN email VARCHAR(255) NULL AFTER nombre");
+      console.log("Columna email agregada a opinion");
+    }
+  } catch (e) {
+    console.warn("No se pudo asegurar columna email en opinion (puede existir ya):", e.code || e.message);
+  }
 })();
 
 async function sendResetMail(toEmail, resetLink) {
@@ -493,8 +519,18 @@ app.post("/opinion", async (req, res) => {
   }
 
   try {
+    // Capturar email del usuario si viene autenticado
+    let email = null;
+    try {
+      const auth = req.headers.authorization || "";
+      if (auth.startsWith("Bearer ")) {
+        const token = auth.slice("Bearer ".length);
+        const payload = jwt.verify(token, JWT_SECRET);
+        email = payload.email || null;
+      }
+    } catch {}
     // Insertar la nueva opinión
-    await db.query("INSERT INTO opinion (nombre, opinion) VALUES (?, ?)", [nombre, opinion]);
+    await db.query("INSERT INTO opinion (nombre, email, opinion) VALUES (?, ?, ?)", [nombre, email, opinion]);
 
     //Traer solo las 3 más recientes (sin borrar las demás)
     const [ultimasOpiniones] = await db.query(`
@@ -550,6 +586,66 @@ app.delete("/opiniones/:id", async (req, res) => {
   } catch (err) {
     console.error("Error en DB:", err);
     res.status(500).json({ success: false, mensaje: "Error al eliminar opinión" });
+  }
+});
+
+// ----- Opiniones del usuario autenticado -----
+app.get('/mis-opiniones', requireAuth, async (req, res) => {
+  try {
+    const email = req.user.email;
+    const [rows] = await db.query("SELECT id, nombre, opinion, createdAt FROM opinion WHERE email = ? ORDER BY id DESC", [email]);
+    res.json({ success: true, opiniones: rows });
+  } catch (e) {
+    console.error('Error obteniendo mis opiniones:', e);
+    res.status(500).json({ success: false, mensaje: 'Error del servidor' });
+  }
+});
+
+app.delete('/mis-opiniones/:id', requireAuth, async (req, res) => {
+  try {
+    const email = req.user.email;
+    const { id } = req.params;
+    const [result] = await db.query("DELETE FROM opinion WHERE id = ? AND email = ?", [id, email]);
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ success: false, mensaje: 'Opinión no encontrada o no pertenece al usuario' });
+    }
+    res.json({ success: true, mensaje: 'Opinión eliminada' });
+  } catch (e) {
+    console.error('Error eliminando mi opinión:', e);
+    res.status(500).json({ success: false, mensaje: 'Error del servidor' });
+  }
+});
+
+// ----- Reservas del usuario autenticado -----
+app.get('/mis-reservas', requireAuth, async (req, res) => {
+  try {
+    const email = req.user.email;
+    const [rows] = await db.query("SELECT id, estado, detalles, createdAt FROM reservas WHERE email = ? ORDER BY id DESC", [email]);
+    const reservas = rows.map(r => ({
+      id: r.id,
+      estado: r.estado,
+      detalles: typeof r.detalles === 'string' ? JSON.parse(r.detalles || '{}') : r.detalles,
+      createdAt: r.createdAt
+    }));
+    res.json({ success: true, reservas });
+  } catch (e) {
+    console.error('Error obteniendo mis reservas:', e);
+    res.status(500).json({ success: false, mensaje: 'Error del servidor' });
+  }
+});
+
+app.delete('/reservas/:id', requireAuth, async (req, res) => {
+  try {
+    const email = req.user.email;
+    const { id } = req.params;
+    const [result] = await db.query("DELETE FROM reservas WHERE id = ? AND email = ?", [id, email]);
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ success: false, mensaje: 'Reserva no encontrada o no pertenece al usuario' });
+    }
+    res.json({ success: true, mensaje: 'Reserva eliminada' });
+  } catch (e) {
+    console.error('Error eliminando reserva:', e);
+    res.status(500).json({ success: false, mensaje: 'Error del servidor' });
   }
 });
 

@@ -18,7 +18,7 @@ const floraImgs = Object.values(floraImports).map((mod) => mod.default);
 const rioImports = import.meta.glob('../../assets/imgs/rio/*.{jpg,jpeg,png}', { eager: true });
 const rioImgs = Object.values(rioImports).map((mod) => mod.default);
 
-const cabañasImports = import.meta.glob('../../assets/imgs/cabañas/*.{jpg,jpeg,png}', { eager: true });
+const cabañasImports = import.meta.glob('../../assets/imgs/cabañas/**/*.{jpg,jpeg,png,JPG,JPEG,PNG}', { eager: true });
 const cabañasImgs = Object.values(cabañasImports).map((mod) => mod.default);
 
 const puentesImports = import.meta.glob('../../assets/imgs/puentes/*.{jpg,jpeg,png}', { eager: true });
@@ -40,7 +40,6 @@ const imagenesPorSeccion = {
   sec7: experienciasImgs,
 };
 
-// Modal con paginación si hay más de 10 imágenes
 const Modal = ({ imagenes, onClose }) => {
   const [page, setPage] = useState(0);
   const pageSize = 10;
