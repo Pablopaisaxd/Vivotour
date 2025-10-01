@@ -119,6 +119,13 @@
   justify-content: center;
 }
 
+/* Grid para planes */
+.plans-grid {
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  display: grid;
+  gap: 18px;
+}
+
 .reserva-alojamiento-detalles {
   margin-top: 2rem;
   padding: 1rem;
@@ -167,10 +174,41 @@
 
 .reserva-card img {
   width: 100%;
-  height: 140px;
+  height: 160px;
   object-fit: cover;
   border-radius: 8px;
   margin-bottom: 10px;
+}
+
+.plan-actions {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  margin-top: 10px;
+}
+.btn-primary, .btn-secondary {
+  padding: 10px 14px;
+  border-radius: 10px;
+  font-weight: 700;
+  cursor: pointer;
+  border: none;
+  transition: var(--transition);
+}
+.btn-primary {
+  background: var(--forest-green);
+  color: #fff;
+  box-shadow: 0 0 10px rgba(0,0,0,0.08);
+}
+.btn-primary:hover, .btn-primary:focus {
+  background: #3d9129;
+}
+.btn-secondary {
+  background: #fff;
+  color: var(--rich-black);
+  border: 1px solid var(--shadow-medium);
+}
+.btn-secondary:hover, .btn-secondary:focus {
+  background: #f3f4f6;
 }
 
 .reserva-checkbox-group {
@@ -292,6 +330,76 @@ hr {
   text-align: center;
   box-shadow: 0 8px 30px var(--shadow-medium);
 }
+
+.reserva-modal-content.plan-modal {
+  max-width: 900px;
+  text-align: left;
+  position: relative;
+}
+.modal-close {
+  position: absolute;
+  top: 12px;
+  right: 16px;
+  background: transparent;
+  border: none;
+  font-size: 28px;
+  line-height: 1;
+  cursor: pointer;
+  color: var(--rich-black);
+}
+
+.carousel { margin-top: 10px; }
+.carousel-viewport {
+  position: relative;
+  width: 100%;
+  height: 420px;
+  border-radius: 12px;
+  overflow: hidden;
+  background: #000;
+}
+.carousel-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+.carousel-nav {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  background: rgba(0,0,0,0.45);
+  color: #fff;
+  border: none;
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  cursor: pointer;
+  font-size: 22px;
+}
+.carousel-nav.left { left: 10px; }
+.carousel-nav.right { right: 10px; }
+.carousel-thumbs {
+  display: flex;
+  gap: 8px;
+  margin-top: 10px;
+  overflow-x: auto;
+}
+.carousel-thumbs img {
+  height: 64px;
+  width: 96px;
+  object-fit: cover;
+  border-radius: 8px;
+  cursor: pointer;
+  opacity: 0.7;
+  border: 2px solid transparent;
+}
+.carousel-thumbs img.active {
+  opacity: 1;
+  border-color: var(--forest-green);
+}
+
+.plan-description { margin-top: 12px; color: var(--rich-black); }
+.plan-meta { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px; }
 
 .reserva-modal-content h2 {
   margin-bottom: 1rem;

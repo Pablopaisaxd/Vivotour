@@ -553,6 +553,56 @@ app.delete("/opiniones/:id", async (req, res) => {
   }
 });
 
+/*
+// Guardar una reserva (plan-based)
+app.post("/reservas", async (req, res) => {
+  try {
+    const {
+      userEmail,
+      userNombre,
+      planId,
+      planTitulo,
+      fechaInicio,
+      fechaFin,
+      adultos,
+      ninos,
+      noches,
+      addons = [],
+      totals = {},
+    } = req.body;
+
+    const query = `
+      INSERT INTO reservas (userEmail, userNombre, planId, planTitulo, fechaInicio, fechaFin, adultos, ninos, noches, addons, subtotal, seguro, total)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    `;
+
+    const addonsStr = Array.isArray(addons) ? JSON.stringify(addons) : String(addons || '');
+
+    const params = [
+      userEmail || null,
+      userNombre || null,
+      planId,
+      planTitulo,
+      fechaInicio,
+      fechaFin,
+      adultos,
+      ninos,
+      noches,
+      addonsStr,
+      totals.subtotal || 0,
+      totals.insurance || 0,
+      totals.total || 0,
+    ];
+
+    const [resultado] = await db.query(query, params);
+    res.json({ success: true, id: resultado.insertId });
+  } catch (err) {
+    console.error("Error al guardar reserva:", err);
+    res.status(500).json({ success: false, mensaje: "Error al guardar la reserva" });
+  }
+});
+*/
+
 app.listen(5000, () => {
   console.log(" Servidor corriendo en http://localhost:5000");
 });
