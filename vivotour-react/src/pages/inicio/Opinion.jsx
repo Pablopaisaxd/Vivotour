@@ -15,13 +15,13 @@ import imgs7 from "../../assets/Personas/Persona.png";
 
 const Opinion = () => {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
-  const { isAuthenticated } = useContext(AuthContext);
+  const { isAuthenticated, user } = useContext(AuthContext);
   const navigate = useNavigate();
 
   const [showModal, setShowModal] = useState(false);
   const [showAllModal, setShowAllModal] = useState(false);
   const [opinionText, setOpinionText] = useState("");
-  const [nombre, setNombre] = useState("");
+  // El nombre se obtiene del perfil (AuthContext)
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [opinions, setOpinions] = useState([]);
@@ -65,11 +65,16 @@ const Opinion = () => {
     }
   };
 
-  const handleOpenModal = () => setShowModal(true);
+  const handleOpenModal = () => {
+    if (!isAuthenticated) {
+      navigate("/Login");
+      return;
+    }
+    setShowModal(true);
+  };
   const handleCloseModal = () => {
     setShowModal(false);
     setOpinionText("");
-    setNombre("");
     setError("");
   };
 
@@ -94,10 +99,14 @@ const Opinion = () => {
     setLoading(true);
     setError("");
     try {
+      const token = localStorage.getItem('token');
       const res = await fetch("http://localhost:5000/opinion", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ nombre, opinion: opinionText }),
+        headers: {
+          "Content-Type": "application/json",
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
+        body: JSON.stringify({ nombre: user?.nombre || "Usuario", opinion: opinionText }),
       });
       const data = await res.json();
       if (!data.success) throw new Error(data.mensaje || "Error");
@@ -191,13 +200,8 @@ const Opinion = () => {
           <div className="modal-content">
             <h2>Agregar Opinión</h2>
             <form onSubmit={handleSubmitOpinion}>
-              <input
-                type="text"
-                placeholder="Tu nombre"
-                value={nombre}
-                onChange={(e) => setNombre(e.target.value)}
-                required
-              />
+              <div style={{ fontWeight: 700, marginBottom: '0.25rem' }}>Publicando como</div>
+              <div style={{ marginBottom: '0.75rem' }}>{user?.nombre || 'Usuario'}</div>
               <textarea
                 placeholder="Escribe tu opinión"
                 value={opinionText}

@@ -651,32 +651,57 @@ app.delete('/reservas/:id', requireAuth, async (req, res) => {
 
 /*
 // Guardar una reserva (plan-based)
-app.post("/reservas", async (req, res) => {
+app.post("/opinion", async (req, res) => {
+  const { nombre: nombreBody, opinion } = req.body;
   try {
-    const {
-      userEmail,
-      userNombre,
-      planId,
-      planTitulo,
-      fechaInicio,
-      fechaFin,
-      adultos,
-      ninos,
-      noches,
-      addons = [],
-      totals = {},
-    } = req.body;
+    if (!opinion || String(opinion).trim().length === 0) {
+      return res.status(400).json({ success: false, mensaje: "La opinión es requerida" });
+    }
 
-    const query = `
-      INSERT INTO reservas (userEmail, userNombre, planId, planTitulo, fechaInicio, fechaFin, adultos, ninos, noches, addons, subtotal, seguro, total)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-    `;
+    // Capturar email del usuario si viene autenticado
+    let email = null;
+    try {
+      const auth = req.headers.authorization || "";
+      if (auth.startsWith("Bearer ")) {
+        const token = auth.slice("Bearer ".length);
+        const payload = jwt.verify(token, JWT_SECRET);
+        email = payload.email || null;
+      }
+    } catch {}
 
-    const addonsStr = Array.isArray(addons) ? JSON.stringify(addons) : String(addons || '');
+    // Determinar el nombre a guardar
+    let nombreFinal = nombreBody;
+    if (email) {
+      try {
+        const [uRows] = await db.query("SELECT nombre FROM registros WHERE email = ? LIMIT 1", [email]);
+        if (uRows && uRows.length > 0) {
+          nombreFinal = uRows[0].nombre;
+        }
+      } catch (e) {
+        console.warn('No se pudo obtener nombre desde registros:', e.message || e);
+      }
+    }
 
-    const params = [
-      userEmail || null,
-      userNombre || null,
+    if (!nombreFinal || String(nombreFinal).trim().length === 0) {
+      return res.status(400).json({ success: false, mensaje: "El nombre es requerido" });
+    }
+
+    // Insertar la nueva opinión
+    await db.query("INSERT INTO opinion (nombre, email, opinion) VALUES (?, ?, ?)", [nombreFinal, email, opinion]);
+
+    //Traer solo las 3 más recientes (sin borrar las demás)
+    const [ultimasOpiniones] = await db.query(`
+      SELECT * FROM opinion
+      ORDER BY id DESC
+      LIMIT 3
+    `);
+
+    res.json({ success: true, mensaje: "Opinión agregada correctamente", opiniones: ultimasOpiniones });
+  } catch (err) {
+    console.error("Error en DB:", err);
+    res.status(500).json({ success: false, mensaje: "Error al guardar opinión" });
+  }
+});
       planId,
       planTitulo,
       fechaInicio,
