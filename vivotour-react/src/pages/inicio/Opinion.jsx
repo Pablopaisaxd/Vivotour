@@ -196,8 +196,8 @@ const Opinion = () => {
       </div>
 
       {showModal && (
-        <div className="modal-overlay">
-          <div className="modal-content">
+        <div className="opinion-modal-overlay">
+          <div className="opinion-modal-content">
             <h2>Agregar Opinión</h2>
             <form onSubmit={handleSubmitOpinion}>
               <div style={{ fontWeight: 700, marginBottom: '0.25rem' }}>Publicando como</div>

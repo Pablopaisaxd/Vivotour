@@ -1,12 +1,14 @@
 import React, { useContext } from 'react';
 import './style/Navbar.css';
 import logo from '../../assets/Logos/new vivo contorno2.png';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { AuthContext } from '../../AuthContext';
 
 const Nav = () => {
-  const { isAuthenticated } = useContext(AuthContext);
+  const { isAuthenticated, logout } = useContext(AuthContext);
   const navigate = useNavigate();
+  const location = useLocation();
+  const onPerfil = location.pathname.toLowerCase() === '/perfil';
 
   const scrollToSection = (id) => {
     const section = document.getElementById(id);
@@ -44,7 +46,11 @@ const Nav = () => {
 
         {isAuthenticated ? (
           <>
-            <li><a className="btnlog" onClick={() => navigate("/Perfil")}>Perfil</a></li>
+            {onPerfil ? (
+              <li><a className="btnlog" onClick={() => { logout(); navigate('/'); }}>Cerrar sesión</a></li>
+            ) : (
+              <li><a className="btnlog" onClick={() => navigate("/Perfil")}>Perfil</a></li>
+            )}
             <li><a className="btnav" onClick={() => navigate("/Admin")}>Admin</a></li>
           </>
         ) : (

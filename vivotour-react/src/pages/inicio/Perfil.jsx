@@ -186,62 +186,62 @@ export const Perfil = () => {
               </div>
             </div>
           </div>
-
-          <button className="perfil-btn" onClick={handleLogout}>
-            Cerrar sesión
-          </button>
         </div>
-        <div className="perfil-reserva">
-          <h2>Mis reservas</h2>
-          {loadingData ? (
-            <p>Cargando...</p>
-          ) : (
-            <>
-              {reservas.length === 0 ? (
-                <p>No tienes reservas aún.</p>
-              ) : (
-                <ul className="lista-reservas">
-                  {reservas.slice(0, 5).map((r) => (
-                    <li key={r.id} className={`reserva-item estado-${r.estado}`}>
-                      <div className="reserva-header">
-                        <span className="reserva-estado">Estado: {r.estado}</span>
-                        <button className="btn-mini danger" onClick={() => eliminarReserva(r.id)}>Eliminar</button>
-                      </div>
-                      <div className="reserva-detalles">
-                        <pre>{JSON.stringify(r.detalles, null, 2)}</pre>
-                      </div>
-                      <small className="reserva-fecha">Creada: {new Date(r.createdAt).toLocaleString()}</small>
-                    </li>
-                  ))}
-                </ul>
-              )}
-            </>
-          )}
+        <div className="perfil-panel">
+          <div className="perfil-section">
+            <h2>Mis reservas</h2>
+            {loadingData ? (
+              <p>Cargando...</p>
+            ) : (
+              <>
+                {reservas.length === 0 ? (
+                  <p>No tienes reservas aún.</p>
+                ) : (
+                  <ul className="lista-reservas">
+                    {reservas.slice(0, 5).map((r) => (
+                      <li key={r.id} className={`reserva-item estado-${r.estado}`}>
+                        <div className="reserva-header">
+                          <span className="reserva-estado">Estado: {r.estado}</span>
+                          <button className="btn-mini danger" onClick={() => eliminarReserva(r.id)}>Eliminar</button>
+                        </div>
+                        <div className="reserva-detalles">
+                          <pre>{JSON.stringify(r.detalles, null, 2)}</pre>
+                        </div>
+                        <small className="reserva-fecha">Creada: {new Date(r.createdAt).toLocaleString()}</small>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </>
+            )}
+          </div>
 
-          <h2 style={{ marginTop: '2rem' }}>Mis opiniones</h2>
-          {loadingData ? (
-            <p>Cargando...</p>
-          ) : (
-            <>
-              {opiniones.length === 0 ? (
-                <p>No has publicado opiniones aún.</p>
-              ) : (
-                <ul className="lista-opiniones">
-                  {opiniones.map((o) => (
-                    <li key={o.id} className="opinion-item">
-                      <div className="opinion-top">
-                        <strong>{o.nombre}</strong>
-                        <button className="btn-mini danger" onClick={() => eliminarOpinion(o.id)}>Eliminar</button>
-                      </div>
-                      <p>{o.opinion}</p>
-                      <small>{new Date(o.createdAt).toLocaleString()}</small>
-                    </li>
-                  ))}
-                </ul>
-              )}
-            </>
-          )}
-          {error && <p className="error-text">{error}</p>}
+          <div className="perfil-section">
+            <h2>Mis opiniones</h2>
+            {loadingData ? (
+              <p>Cargando...</p>
+            ) : (
+              <>
+                {opiniones.length === 0 ? (
+                  <p>No has publicado opiniones aún.</p>
+                ) : (
+                  <ul className="lista-opiniones">
+                    {opiniones.map((o) => (
+                      <li key={o.id} className="opinion-item">
+                        <div className="opinion-top">
+                          <strong>{o.nombre}</strong>
+                          <button className="btn-mini danger" onClick={() => eliminarOpinion(o.id)}>Eliminar</button>
+                        </div>
+                        <p>{o.opinion}</p>
+                        <small>{new Date(o.createdAt).toLocaleString()}</small>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </>
+            )}
+            {error && <p className="error-text">{error}</p>}
+          </div>
         </div>
       </div>
       <Footer />
