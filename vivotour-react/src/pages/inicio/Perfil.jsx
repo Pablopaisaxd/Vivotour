@@ -1,6 +1,6 @@
 import React, { useContext, useEffect, useRef, useState } from "react";
 import { AuthContext } from "../../AuthContext";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import Nav from './Navbar';
 import Footer from "../../components/use/Footer";
 import "./style/Perfil.css";
@@ -185,7 +185,10 @@ export const Perfil = () => {
                 </button>
               </div>
             </div>
-          </div>
+            <div className="perfil-change-wrapper">
+              <Link to="/reset" className="perfil-change-password">Cambiar Contraseña</Link>
+            </div>
+          </div>   
         </div>
         <div className="perfil-panel">
           <div className="perfil-section">

@@ -2,10 +2,10 @@ import React, { useMemo, useState } from 'react';
 import axios from 'axios';
 import Footer from "../../components/use/Footer";
 import './style/Forgot.css';
-import { Link, useNavigate } from 'react-router-dom';
-import { AuthContext } from '../../AuthContext';
+import { useNavigate } from 'react-router-dom';
 
 export default function Reset() {
+  const navigate = useNavigate();
   const params = useMemo(() => new URLSearchParams(window.location.search), []);
   const token = params.get('token') || '';
   const [password, setPassword] = useState('');
@@ -41,13 +41,17 @@ export default function Reset() {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
+              disabled={status.sending}
             />
-            <Link to={"/login"} type="submit" className="forgot-btn" disabled={status.sending} >
+            <button type="submit" className="forgot-btn" disabled={status.sending}>
               {status.sending ? 'Actualizando...' : 'Actualizar contraseña'}
-            </Link>
+            </button>
           </form>
           {status.message && (
             <p className={status.error ? 'forgot-error' : 'forgot-success'}>{status.message}</p>
+          )}
+          {(!status.error && status.message && status.message.includes('correctamente')) && (
+            <p style={{fontSize: '.8rem', marginTop: '.5rem'}}>Redirigiendo a inicio de sesión...</p>
           )}
         </div>
       </div>
