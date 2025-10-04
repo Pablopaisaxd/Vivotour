@@ -1,6 +1,7 @@
 import React from "react";
 import MyLine from "./MyLine";
 import LaunchIcon from "@mui/icons-material/Launch";
+import '../style/Metrics.css';
 
 function TotalVisits() {
     const borderColor = "#FFC914";
@@ -9,39 +10,13 @@ function TotalVisits() {
     const height = "100px";
     const width = "220px";
 
-    const styles = {
-        title: {
-            fontSize: "12px",
-            color: "var(--rich-black)",
-            fontWeight: "600",
-        },
-        value: {
-            fontSize: "28px",
-            color: "var(--rich-black)",
-        },
-        percentage: {
-            color: "red",
-            fontWeight: "700",
-            display: "flex",
-            alignItems: "center",
-        },
-        launchIcon: {
-            paddingRight: "10px",
-            transform: "rotate(180deg)",
-            color: "red",
-        }
-    };
+  const valueClass = "metric-value";
 
   return (
     <div className="total-visits">
-      <p style={styles.title}>
-        VISITAS TOTALES
-      </p>
-      <p style={styles.value}>54,598</p>
-      <p style={styles.percentage}>
-        -11.9%{" "}
-        <LaunchIcon sx={styles.launchIcon} />
-      </p>
+      <p className="metric-title">VISITAS TOTALES</p>
+      <p className={valueClass}>54,598</p>
+      <p className="metric-percentage down">-11.9% <span className="metric-launch" style={{paddingLeft:0,paddingRight:'10px',transform:'rotate(180deg)'}}><LaunchIcon/></span></p>
       <MyLine color={color} height={height} width={width} />
     </div>
   );
