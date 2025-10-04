@@ -1,11 +1,12 @@
 .App {
   text-align: center;
-  height: 100vh; /* Asegura que ocupe toda la altura de la ventana */
+  min-height: 100vh; /* Permite crecer y scrollear */
   width: 100%;
   display: grid;
   grid-template: 60px 20px auto / 270px 15px 12fr 15px;
   background: var(--dashboard-background); /* Aplicar el degradado */
   border: none; /* Eliminar borde principal */
+  overflow-x: hidden; /* Sólo ocultar scroll horizontal si se desborda */
 }
 
 .header{
@@ -16,6 +17,9 @@
   border-bottom: 1px solid var(--border-color-light);
   background-color: var(--card-background); /* Fondo para el header */
   box-shadow: 0 2px 5px var(--shadow-light);
+  z-index: 1000; /* Below sidebar but above content */
+  position: relative;
+  min-width: 0; /* evita colisiones de flex internos */
 }
 
 .sidebar{
@@ -35,7 +39,7 @@
   display: grid;
   grid-template: 330px 240px 400px / repeat(4, minmax(240px, 1fr));
   grid-gap: 1em;
-  padding: 1em; /* Añadir padding para que no esté pegado a los bordes */
+  padding: 1em;
 }
 
 .header-second{
@@ -243,7 +247,6 @@
     grid-column: 3 / 4;
     grid-template-columns: repeat(auto-fill,minmax(220px,1fr));
     grid-auto-rows: minmax(170px, auto);
-    grid-template-rows: masonry; /* hint (no estándar pero no rompe) */
   }
   .daily-visitors { grid-column: 1 / -1; }
   .realtime-users, .total-visits, .bounce-rate, .visit-duration { min-height: 170px; }
@@ -254,7 +257,7 @@
 @media screen and (max-width: 820px) and (orientation: portrait) {
   .App { grid-template: 60px auto / 1fr; }
   .sidebar { display: none; }
-  .content { grid-template-columns: repeat(auto-fill,minmax(260px,1fr)); }
+  .content { grid-template-columns: repeat(auto-fill,minmax(200px,1fr)); gap: 0.8em; padding: 0.8em; }
   .daily-visitors { grid-column: 1 / -1; }
 }
 
@@ -273,8 +276,11 @@
   .content{
     grid-row: 3;
     grid-column: 1;
-    grid-template: auto auto auto / 1fr; /* Una columna en móvil */
-    padding: 0.5em;
+    display: grid;
+    grid-template-columns: 1fr;
+    grid-auto-rows: auto;
+    gap: 0.8em;
+    padding: 0.8em;
   }
   .header{
     grid-column: 1;
@@ -307,8 +313,8 @@
 
 /* Mejoras extra para móviles muy pequeños (≤ 560px) */
 @media screen and (max-width: 560px) {
-  .content { grid-gap: .75em; padding: .6em; }
-  .daily-visitors, .realtime-users, .total-visits, .bounce-rate, .visit-duration, .most-visited, .social-media { padding: 12px; }
+  .content { grid-gap: .65em; padding: .55em .55em 2em; }
+  .daily-visitors, .realtime-users, .total-visits, .bounce-rate, .visit-duration, .most-visited, .social-media { padding: 10px; }
   .social-media-table > span, .most-visited-table > span { padding: 10px 8px; font-size: .78rem; }
   .most-visited-table { grid-template-columns: 2.2fr .9fr 1.4fr 1.1fr .9fr; }
 }
@@ -325,3 +331,449 @@
 
 /* Scroll suave y soporte para anclajes potenciales */
 html { scroll-behavior: smooth; }
+
+/* ============================= */
+/*  Off-Canvas Sidebar (Mobile)  */
+/* ============================= */
+/* These rules appear LAST to override earlier mobile hiding of .sidebar */
+
+@media (max-width: 900px) {
+  .sidebar {
+    /* Override earlier display:none; */
+    display: grid !important;
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100dvh;
+    width: 250px;
+    max-width: 80vw;
+    grid-template-rows: 205px 1fr;
+    background: var(--card-background, #ffffff); /* Fondo sólido */
+    border-right: 1px solid var(--border-color-light);
+    border-bottom: none;
+    transform: translateX(-100%);
+    transition: transform .28s ease, box-shadow .28s ease;
+    z-index: 1300; /* Above everything including header */
+    box-shadow: 0 0 0 rgba(0,0,0,0);
+  }
+  .sidebar.open {
+    transform: translateX(0);
+    box-shadow: 2px 0 16px rgba(0,0,0,0.35);
+    background: var(--card-background, #ffffff); /* Asegurar sin transparencia */
+  }
+  /* Prevent underlying grid from reserving sidebar column when small */
+  .App { grid-template: 60px auto / 1fr !important; }
+  .content { grid-column: 1; }
+  /* Backdrop */
+  .sidebar-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.5);
+    backdrop-filter: blur(2px);
+    transition: opacity .25s ease;
+    z-index: 1200; /* Below sidebar but above everything else */
+  }
+}
+
+/* Sidebar toggle button */
+.sidebar-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: #ffffff;
+  border: 1px solid #d0d7de;
+  color: #333;
+  padding: 6px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 1rem;
+  line-height: 1;
+  transition: background .2s ease, box-shadow .2s ease;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.08);
+}
+.sidebar-toggle:hover { background: #f3f4f6; }
+.sidebar-toggle:active { background: #e5e7eb; box-shadow: 0 0 0 rgba(0,0,0,0.08); }
+.sidebar-toggle:focus-visible { outline: 2px solid #1d4ed8; outline-offset: 2px; }
+
+@media (min-width: 901px) {
+  .sidebar-toggle { display: none; }
+  .sidebar-backdrop { display: none !important; }
+}
+
+.header-left { display: flex; align-items: center; gap: 12px; }
+
+/* Dashboard branding - always visible and properly spaced */
+.dashboard-branding { 
+  display: flex; 
+  align-items: center; 
+  justify-content: space-between; 
+  width: 100%; 
+  padding: 8px 16px; 
+  border-left: 1px solid var(--border-color-light);
+  min-height: 44px;
+}
+.dashboard-title { 
+  font-size: 1.2rem; 
+  line-height: 1.2; 
+  margin: 0; 
+  color: var(--rich-black);
+  filter: drop-shadow(0 0 0.25rem rgba(0,0,0,0.05));
+  white-space: nowrap;
+  flex: 1;
+  text-align: left;
+}
+.dashboard-logo { 
+  height: 65px; 
+  width: auto; 
+  flex-shrink: 0;
+  filter: drop-shadow(0 0 0.25rem rgba(0,0,0,0.1));
+  margin-left: 12px;
+}
+
+/* Responsive adjustments - prevent fusion */
+@media (max-width: 900px) {
+  .dashboard-branding { 
+    padding: 6px 12px; 
+    min-height: 40px;
+    gap: 8px;
+  }
+  .dashboard-title { font-size: 1rem; }
+  .dashboard-logo { height: 60px; margin-left: 10px; }
+}
+@media (max-width: 640px) {
+  .dashboard-branding { 
+    padding: 5px 10px; 
+    min-height: 38px;
+    flex-direction: row;
+    gap: 6px;
+  }
+  .dashboard-title { font-size: 0.9rem; }
+  .dashboard-logo { height: 55px; margin-left: 8px; }
+}
+
+/* Only hide title on very small screens */
+@media (max-width: 320px) {
+  .dashboard-title { display: none; }
+  .dashboard-logo { height: 50px; margin-left: 0; }
+  .dashboard-branding { justify-content: center; }
+}
+
+/* Management components mobile responsiveness */
+.reservation-management-container,
+.gallery-management-container,
+.availability-management-container,
+.comments-management-container,
+.homepage-settings-container {
+  width: 100%;
+  max-width: none;
+  margin: 0;
+  padding: 15px;
+  box-sizing: border-box;
+}
+
+@media (max-width: 768px) {
+  /* Ensure management pages have proper mobile layout */
+  .reservation-management-container,
+  .gallery-management-container,
+  .availability-management-container,
+  .comments-management-container,
+  .homepage-settings-container {
+    padding: 12px;
+    margin: 0;
+    width: 100%;
+    min-width: 0;
+  }
+  
+  /* Fix text overflow and ensure readability */
+  .reservation-management-container h1,
+  .gallery-management-container h1,
+  .availability-management-container h1,
+  .comments-management-container h1,
+  .homepage-settings-container h1 {
+    font-size: 1.3rem;
+    line-height: 1.3;
+    margin-bottom: 15px;
+    word-wrap: break-word;
+  }
+  
+  /* Ensure sections have proper spacing */
+  .reservation-management-container > div,
+  .gallery-management-container > div,
+  .availability-management-container > div,
+  .comments-management-container > div,
+  .homepage-settings-container > div {
+    margin-bottom: 20px;
+    padding: 12px;
+    width: 100%;
+    box-sizing: border-box;
+  }
+  
+  /* Make buttons and inputs full width on mobile */
+  .reservation-management-container button,
+  .gallery-management-container button,
+  .availability-management-container button,
+  .comments-management-container button,
+  .homepage-settings-container button {
+    width: 100%;
+    max-width: 300px;
+    margin: 5px 0;
+  }
+  
+  /* Fix input and select elements */
+  .reservation-management-container input,
+  .reservation-management-container select,
+  .gallery-management-container input,
+  .gallery-management-container select,
+  .availability-management-container input,
+  .availability-management-container select {
+    width: 100%;
+    max-width: none;
+    box-sizing: border-box;
+    font-size: 16px; /* Prevent zoom on iOS */
+  }
+}
+
+@media (max-width: 480px) {
+  .reservation-management-container,
+  .gallery-management-container,
+  .availability-management-container,
+  .comments-management-container,
+  .homepage-settings-container {
+    padding: 8px;
+  }
+  
+  /* Smaller text on very small screens but still readable */
+  .reservation-management-container h1,
+  .gallery-management-container h1,
+  .availability-management-container h1,
+  .comments-management-container h1,
+  .homepage-settings-container h1 {
+    font-size: 1.1rem;
+  }
+  
+  .reservation-management-container h2,
+  .gallery-management-container h2,
+  .availability-management-container h2,
+  .comments-management-container h2,
+  .homepage-settings-container h2 {
+    font-size: 1rem;
+  }
+}
+
+/* ============ User Management Responsive Table ============ */
+/* Apply only if a table inside a user management container exists */
+@media (max-width: 860px) {
+  .user-management-container table thead { display: none; }
+  .user-management-container table,
+  .user-management-container tbody,
+  .user-management-container tr,
+  .user-management-container td { display: block; width: 100%; }
+  .user-management-container tr { margin: 0 0 12px; border: 1px solid var(--border-color-light); border-radius: 6px; overflow: hidden; background: var(--alice-blue); }
+  .user-management-container td { padding: 10px 14px; position: relative; }
+  .user-management-container td:last-child { display: flex; gap: 8px; flex-wrap: wrap; }
+  .user-management-container td::before {
+    content: attr(data-label);
+    font-weight: 600;
+    display: block;
+    margin-bottom: 4px;
+    color: var(--rich-black);
+    font-size: .78rem;
+    text-transform: uppercase;
+    letter-spacing: .5px;
+    opacity: .85;
+  }
+}
+
+@media (max-width: 480px) {
+  .user-management-container td { padding: 8px 12px; }
+  .user-management-container td:last-child { flex-direction: column; }
+  .user-management-container button { width: 100%; }
+}
+
+/* Optimización específica para pantallas muy pequeñas (430px y menores) */
+@media screen and (max-width: 480px) {
+  .content {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-auto-rows: auto;
+    gap: 0.8em;
+    padding: 0.8em;
+  }
+  
+  .daily-visitors {
+    grid-column: 1 / -1;
+    min-height: auto;
+    margin-bottom: 0.4em;
+    padding: 12px;
+  }
+  
+  /* Optimizar header de DailyVisitors para móvil */
+  .daily-visitors header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.8em;
+    padding: 0.8em 0.8em 0.6em;
+  }
+  
+  .daily-visitors header p {
+    font-size: 15px;
+    margin: 0;
+    font-weight: 600;
+  }
+  
+  .daily-visitors header div {
+    align-self: stretch;
+    display: flex;
+    gap: 8px;
+    width: 100%;
+  }
+  
+  /* Optimizar selects del filtro para móvil */
+  .daily-visitors header div > * {
+    flex: 1;
+    min-width: 0;
+  }
+  
+  /* Las métricas se auto-organizan en el grid 2x2 */
+  .realtime-users,
+  .total-visits,
+  .bounce-rate,
+  .visit-duration {
+    min-height: 120px;
+    padding: 12px 8px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: center;
+  }
+  
+  /* LAYOUT VERTICAL PARA FOOTER - UNO DEBAJO DEL OTRO */
+  .footer {
+    grid-column: 1 / -1;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5em;
+    padding: 16px;
+    background: transparent;
+  }
+  
+  /* TABLAS OPTIMIZADAS SIN COMPRESIÓN - LAYOUT VERTICAL */
+  .most-visited {
+    width: 100%;
+    margin-bottom: 0;
+    background: var(--card-background);
+    border-radius: 8px;
+    padding: 16px;
+    box-shadow: 0 2px 8px var(--shadow-light);
+  }
+  
+  .social-media {
+    width: 100%;
+    background: var(--card-background);
+    border-radius: 8px;
+    padding: 16px;
+    box-shadow: 0 2px 8px var(--shadow-light);
+  }
+  
+  /* MostVisited: Convertir a lista vertical */
+  .most-visited-table {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    width: 100%;
+  }
+  
+  .most-visited-table > span {
+    padding: 12px 16px;
+    font-size: 0.9rem;
+    background: var(--alice-blue);
+    border-radius: 6px;
+    border: none;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  
+  /* Ocultar headers - solo mostrar datos */
+  .most-visited-table span:nth-child(-n+5) {
+    display: none;
+  }
+  
+  /* Social Media: Convertir a lista vertical */
+  .social-media-table {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    width: 100%;
+  }
+  
+  .social-media-table > span {
+    padding: 12px 16px;
+    font-size: 0.9rem;
+    background: var(--alice-blue);
+    border-radius: 6px;
+    border: none;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  
+  /* Ocultar headers de Social Media */
+  .social-media-table span:nth-child(-n+3) {
+    display: none;
+  }
+  
+  /* LOGO MÁS GRANDE Y TEXTO VISIBLE */
+  .dashboard-branding { 
+    padding: 10px 15px;
+    min-height: 50px;
+    gap: 10px;
+    flex-wrap: nowrap;
+  }
+  
+  .dashboard-title { 
+    font-size: 1rem;
+    font-weight: 600;
+    white-space: nowrap;
+    flex: 0 0 auto;
+  }
+  
+  /* LOGO OPTIMIZADO para móvil - tamaño equilibrado */
+  .dashboard-logo { 
+    height: 60px;
+    width: auto;
+    flex-shrink: 0;
+    margin-left: 8px;
+    filter: drop-shadow(0 0 0.25rem rgba(0,0,0,0.1));
+  }
+  
+  /* Mejorar header general en 430px - LOGO NORMAL para otras secciones */
+  .header {
+    padding: 0.8em;
+    min-height: 60px;
+  }
+  
+  .header .dashboard-branding img {
+    width: auto;
+    height: 50px; /* ↓ Tamaño normal para otras secciones */
+  }
+  
+  .dashboard-branding h1 {
+    font-size: 18px;
+    font-weight: 600;
+    margin: 0;
+  }
+}
+
+/* Scroll helpers for data tables in narrow screens */
+@media (max-width: 900px) {
+  .most-visited-table,
+  .social-media-table {
+    overflow-x: auto;
+    display: grid;
+    -webkit-overflow-scrolling: touch;
+  }
+}
+
+/* Utility: screen-reader only (accessible text) */
+.sr-only { position: absolute; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden; clip:rect(0,0,0,0); white-space:nowrap; border:0; }

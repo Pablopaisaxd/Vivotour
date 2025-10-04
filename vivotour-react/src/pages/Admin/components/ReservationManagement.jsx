@@ -132,7 +132,7 @@ const ReservationManagement = () => {
     };
 
     return (
-        <div style={styles.container}>
+        <div style={styles.container} className="reservation-management-container">
             <h2 style={styles.title}>Gestión de Reservas</h2>
 
             <div style={styles.section}>

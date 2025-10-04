@@ -243,7 +243,7 @@ const GalleryManagement = () => {
     };
 
     return (
-        <div style={styles.container}>
+        <div style={styles.container} className="gallery-management-container">
             <h2 style={styles.title}>Gestión de Galería</h2>
 
             <div style={styles.section}>

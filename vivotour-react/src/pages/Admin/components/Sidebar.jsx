@@ -4,12 +4,15 @@ import Menu from "./Menu"
 import { AdminContext } from '../AdminContext';
 
 function Sidebar() {
-    const { activeComponent } = useContext(AdminContext);
+    const { sidebarOpen, closeSidebar } = useContext(AdminContext);
     return (
-        <div className="sidebar">
-            <ProfileCard />
-            <Menu />
-        </div>
+        <>
+            {sidebarOpen && <div className="sidebar-backdrop" onClick={closeSidebar} aria-hidden="true" />}
+            <div className={`sidebar ${sidebarOpen ? 'open' : ''}`}>
+                <ProfileCard />
+                <Menu onNavigate={closeSidebar} />
+            </div>
+        </>
     )
 }
 

@@ -50,3 +50,23 @@
       border-color: var(--forest-green); /* Borde al pasar el ratón */
       animation: border-color 0.5s ease-in-out;
     }
+
+/* Responsive para custom select en móviles muy pequeños */
+@media screen and (max-width: 480px) {
+  .select-holder {
+    min-width: 120px;
+  }
+  
+  .select-holder::after {
+    left: 95px;
+    top: 10px;
+    font-size: 8px;
+  }
+  
+  .select-holder > select {
+    max-width: 100px;
+    height: 35px;
+    padding: 4px 20px;
+    font-size: 12px;
+  }
+}

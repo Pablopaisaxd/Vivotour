@@ -1,8 +1,9 @@
-.metric-title{font-size:12px;color:var(--rich-black);font-weight:600;margin:0 0 4px}
-.metric-value{font-size:28px;color:var(--rich-black);font-weight:600;margin:0 0 6px}
-.metric-percentage{display:flex;align-items:center;font-weight:700;margin:0 0 10px}
+.metric-title{font-size:12px;color:var(--rich-black);font-weight:600;margin:0 0 4px;text-align:center}
+.metric-value{font-size:28px;color:var(--rich-black);font-weight:600;margin:0 0 6px;text-align:center}
+.metric-percentage{display:flex;align-items:center;justify-content:center;font-weight:700;margin:0 0 10px}
 .metric-percentage.up{color:var(--forest-green)}
 .metric-percentage.down{color:#c0392b}
 .metric-launch{padding-left:10px;color:inherit;display:inline-flex}
 @media (max-width:900px){.metric-value{font-size:24px}.metric-title{font-size:11px}}
 @media (max-width:600px){.metric-value{font-size:22px}.metric-title{font-size:10px}}
+@media (max-width:480px){.metric-value{font-size:16px;margin:0 0 3px}.metric-title{font-size:8px;margin:0 0 2px;line-height:1.2}.metric-percentage{font-size:10px;margin:0 0 4px}.metric-launch{padding-left:4px}}

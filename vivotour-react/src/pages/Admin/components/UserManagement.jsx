@@ -240,7 +240,7 @@ const UserManagement = () => {
     };
 
     return (
-        <div style={styles.container}>
+        <div style={styles.container} className="user-management-container">
             <h2 style={styles.title}>Gestión de Usuarios</h2>
 
             <div style={styles.headerControls}>
@@ -267,11 +267,11 @@ const UserManagement = () => {
                 <tbody>
                     {filteredUsers.map(user => (
                         <tr key={user.id} style={styles.tableRow}>
-                            <td style={styles.tableCell}>{user.name}</td>
-                            <td style={styles.tableCell}>{user.email}</td>
-                            <td style={styles.tableCell}>{user.phone}</td>
-                            <td style={styles.tableCell}>{user.docType} {user.docNumber}</td>
-                            <td style={styles.tableCell}>
+                            <td style={styles.tableCell} data-label="Nombre">{user.name}</td>
+                            <td style={styles.tableCell} data-label="Email">{user.email}</td>
+                            <td style={styles.tableCell} data-label="Teléfono">{user.phone}</td>
+                            <td style={styles.tableCell} data-label="Documento">{user.docType} {user.docNumber}</td>
+                            <td style={styles.tableCell} data-label="Acciones">
                                 <button
                                     onClick={() => openEditModal(user)}
                                     style={{ ...styles.actionButton, ...styles.editButton }}

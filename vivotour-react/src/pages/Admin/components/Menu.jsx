@@ -21,7 +21,7 @@ import PeopleIcon from '@mui/icons-material/People';
 import { ListItemButton } from "@mui/material";
 import { AdminContext } from '../AdminContext';
 
-export default function Menu() {
+export default function Menu({ onNavigate }) {
   const theme = useTheme();
   const [openDashboard, setOpenDashboard] = React.useState(true);
   const { setActiveComponent } = useContext(AdminContext);
@@ -33,7 +33,7 @@ export default function Menu() {
       <List>
         <Divider />
         <ListItemButton
-          onClick={() => setActiveComponent('dashboard')}
+          onClick={() => { setActiveComponent('dashboard'); onNavigate && onNavigate(); }}
           sx={{
             pl: 4,
             "&:hover": { color: theme.palette.primary.main },
@@ -57,7 +57,7 @@ export default function Menu() {
         <Divider variant="middle" />
 
         <ListItemButton
-          onClick={() => setActiveComponent('homePageSettings')}
+          onClick={() => { setActiveComponent('homePageSettings'); onNavigate && onNavigate(); }}
           sx={{
             pl: 4,
             "&:hover": { color: theme.palette.primary.main },
@@ -81,7 +81,7 @@ export default function Menu() {
         <Divider variant="middle" />
 
         <ListItemButton
-          onClick={() => setActiveComponent('commentsManagement')}
+          onClick={() => { setActiveComponent('commentsManagement'); onNavigate && onNavigate(); }}
           sx={{
             pl: 4,
             "&:hover": { color: theme.palette.primary.main },
@@ -105,7 +105,7 @@ export default function Menu() {
         <Divider variant="middle" />
 
         <ListItemButton
-          onClick={() => setActiveComponent('galleryManagement')}
+          onClick={() => { setActiveComponent('galleryManagement'); onNavigate && onNavigate(); }}
           sx={{
             pl: 4,
             "&:hover": { color: theme.palette.primary.main },
@@ -129,7 +129,7 @@ export default function Menu() {
         <Divider variant="middle" />
 
         <ListItemButton
-          onClick={() => setActiveComponent('reservationManagement')}
+          onClick={() => { setActiveComponent('reservationManagement'); onNavigate && onNavigate(); }}
           sx={{
             pl: 4,
             "&:hover": { color: theme.palette.primary.main },
@@ -153,7 +153,7 @@ export default function Menu() {
         <Divider variant="middle" />
 
         <ListItemButton
-          onClick={() => setActiveComponent('availabilityManagement')}
+          onClick={() => { setActiveComponent('availabilityManagement'); onNavigate && onNavigate(); }}
           sx={{
             pl: 4,
             "&:hover": { color: theme.palette.primary.main },
@@ -177,7 +177,7 @@ export default function Menu() {
         <Divider variant="middle" />
 
         <ListItemButton
-          onClick={() => setActiveComponent('userManagement')}
+          onClick={() => { setActiveComponent('userManagement'); onNavigate && onNavigate(); }}
           sx={{
             pl: 4,
             "&:hover": { color: theme.palette.primary.main },

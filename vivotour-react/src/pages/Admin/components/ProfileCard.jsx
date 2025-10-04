@@ -14,6 +14,7 @@ function ProfileCard() {
             padding: "15px",
             backgroundColor: "var(--card-background)",
             borderBottom: "1px solid var(--border-color-light)",
+            position: "relative",
         },
         pictureLink: {
             paddingBottom: "10px",
@@ -29,10 +30,10 @@ function ProfileCard() {
         },
         settings: {
             position: "absolute",
+            top: "10px",
+            right: "10px",
             padding: "8px",
             borderRadius: "50%",
-            margin: "0 auto",
-            left: "160px",
             backgroundColor: "var(--alice-blue)",
             filter: "opacity(80%) drop-shadow(0 0 0.45rem var(--shadow-light))",
         },
