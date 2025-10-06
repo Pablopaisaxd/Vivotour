@@ -235,8 +235,13 @@ export const Perfil = () => {
                           <strong>{o.nombre}</strong>
                           <button className="btn-mini danger" onClick={() => eliminarOpinion(o.id)}>Eliminar</button>
                         </div>
-                        <p>{o.opinion}</p>
-                        <small>{new Date(o.createdAt).toLocaleString()}</small>
+                        <p className="opinion-texto">"{o.opinion}"</p>
+                        <div className="opinion-footer">
+                          <small>Email: {o.email}</small>
+                          {o.numeroDocumento && (
+                            <small>• {o.tipoDocumento}: {o.numeroDocumento}</small>
+                          )}
+                        </div>
                       </li>
                     ))}
                   </ul>

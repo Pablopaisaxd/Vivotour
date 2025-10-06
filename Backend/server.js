@@ -99,12 +99,12 @@ app.get("/auth/google/callback", async (req, res) => {
     // Verificar / crear usuario y obtener datos
     let celular = ""; let numeroDocumento = ""; let tipoDocumento = "";
     try {
-      const [rows] = await db.query("SELECT * FROM registros WHERE email = ?", [email]);
+      const [rows] = await db.query("SELECT * FROM accounts WHERE email = ?", [email]);
       if (rows.length === 0) {
         // Insertar usuario mínimo
         try {
           await db.query(
-            "INSERT INTO registros (nombre, email, password, celular, numeroDocumento, tipoDocumento) VALUES (?, ?, ?, ?, ?, ?)",
+            "INSERT INTO accounts (nombre, email, password, celular, numeroDocumento, tipoDocumento) VALUES (?, ?, ?, ?, ?, ?)",
             [nombre, email, "", "", "", ""]
           );
         } catch (insertErr) {
@@ -199,11 +199,11 @@ app.get("/auth/facebook/callback", async (req, res) => {
     // Verificar / crear usuario en DB y obtener datos
     let celular = ""; let numeroDocumento = ""; let tipoDocumento = "";
     try {
-      const [rows] = await db.query("SELECT * FROM registros WHERE email = ?", [email]);
+      const [rows] = await db.query("SELECT * FROM accounts WHERE email = ?", [email]);
       if (rows.length === 0) {
         try {
           await db.query(
-            "INSERT INTO registros (nombre, email, password, celular, numeroDocumento, tipoDocumento) VALUES (?, ?, ?, ?, ?, ?)",
+            "INSERT INTO accounts (nombre, email, password, celular, numeroDocumento, tipoDocumento) VALUES (?, ?, ?, ?, ?, ?)",
             [nombre, email, "", "", "", ""]
           );
         } catch (insertErr) {
@@ -287,15 +287,15 @@ app.get('/auth/google/config-check', (req, res) => {
   } catch (e) {
     console.error("Error creando tabla reservas:", e);
   }
-  // Asegurar columna email en opinion para asociar al usuario
+  // Asegurar columna email en opiniones para asociar al usuario
   try {
-    const [cols] = await db.query("SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME='opinion' AND COLUMN_NAME='email'");
+    const [cols] = await db.query("SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME='opiniones' AND COLUMN_NAME='email'");
     if (!cols || cols.length === 0) {
-      await db.query("ALTER TABLE opinion ADD COLUMN email VARCHAR(255) NULL AFTER nombre");
-      console.log("Columna email agregada a opinion");
+      await db.query("ALTER TABLE opiniones ADD COLUMN email VARCHAR(255) NULL AFTER nombre");
+      console.log("Columna email agregada a opiniones");
     }
   } catch (e) {
-    console.warn("No se pudo asegurar columna email en opinion (puede existir ya):", e.code || e.message);
+    console.warn("No se pudo asegurar columna email en opiniones (puede existir ya):", e.code || e.message);
   }
 })();
 
@@ -357,7 +357,7 @@ app.post('/forgot-password', async (req, res) => {
     // Buscar usuario (respuesta genérica para evitar enumeración)
     let userExists = false;
     try {
-      const [rows] = await db.query("SELECT email FROM registros WHERE email = ?", [email]);
+      const [rows] = await db.query("SELECT email FROM accounts WHERE email = ?", [email]);
       userExists = rows.length > 0;
     } catch (e) {
       console.error('Error buscando usuario para reset:', e);
@@ -403,7 +403,7 @@ app.post('/reset-password', async (req, res) => {
     if (new Date(rec.expiresAt) < new Date()) return res.status(400).json({ success: false, mensaje: 'Token expirado' });
 
     // Actualizar contraseña (en tu sistema actual no hay hash; mantener consistencia)
-    await db.query("UPDATE registros SET password = ? WHERE email = ?", [password, rec.email]);
+    await db.query("UPDATE accounts SET password = ? WHERE email = ?", [password, rec.email]);
 
     // Limpiar tokens usados
     await db.query("DELETE FROM password_resets WHERE email = ?", [rec.email]);
@@ -423,7 +423,7 @@ app.post("/registro", async (req, res) => {
     console.log(" Datos recibidos:", req.body);
 
     const query = `
-      INSERT INTO registros (nombre, email, password, celular, numeroDocumento, tipoDocumento)
+      INSERT INTO accounts (nombre, email, password, celular, numeroDocumento, tipoDocumento)
       VALUES (?, ?, ?, ?, ?, ?)
     `;
 
@@ -450,7 +450,7 @@ app.post("/login", async (req, res) => {
   const { email, password } = req.body;
 
   try {
-    const [rows] = await db.query("SELECT * FROM registros WHERE email = ?", [email]);
+    const [rows] = await db.query("SELECT * FROM accounts WHERE email = ?", [email]);
 
     if (rows.length === 0) {
       return res.status(401).json({ success: false, mensaje: "Usuario no encontrado" });
@@ -501,7 +501,7 @@ app.post("/auth/complete-profile", requireAuth, async (req, res) => {
     }
 
     // Obtener datos actualizados para token nuevo
-    const [rows] = await db.query("SELECT nombre, email, celular, numeroDocumento, tipoDocumento FROM registros WHERE email = ?", [email]);
+    const [rows] = await db.query("SELECT nombre, email, celular, numeroDocumento, tipoDocumento FROM accounts WHERE email = ?", [email]);
     const u = rows[0];
     const newToken = jwt.sign({ nombre: u.nombre, email: u.email, celular: u.celular, numeroDocumento: u.numeroDocumento, tipoDocumento: u.tipoDocumento }, JWT_SECRET, { expiresIn: "3h" });
 
@@ -519,23 +519,36 @@ app.post("/opinion", async (req, res) => {
   }
 
   try {
-    // Capturar email del usuario si viene autenticado
+    // Capturar datos del usuario si viene autenticado
     let email = null;
+    let IdAccount = null;
     try {
       const auth = req.headers.authorization || "";
       if (auth.startsWith("Bearer ")) {
         const token = auth.slice("Bearer ".length);
         const payload = jwt.verify(token, JWT_SECRET);
         email = payload.email || null;
+        
+        // Obtener IdAccount desde la tabla accounts
+        if (email) {
+          const [userRows] = await db.query("SELECT IdAccount FROM accounts WHERE email = ?", [email]);
+          if (userRows.length > 0) {
+            IdAccount = userRows[0].IdAccount;
+          }
+        }
       }
     } catch {}
-    // Insertar la nueva opinión
-    await db.query("INSERT INTO opinion (nombre, email, opinion) VALUES (?, ?, ?)", [nombre, email, opinion]);
+    
+    // Insertar la nueva opinión con relación a accounts
+    await db.query(
+      "INSERT INTO opiniones (nombre, email, opinion, IdAccount) VALUES (?, ?, ?, ?)", 
+      [nombre, email, opinion, IdAccount]
+    );
 
     //Traer solo las 3 más recientes (sin borrar las demás)
     const [ultimasOpiniones] = await db.query(`
-      SELECT * FROM opinion
-      ORDER BY id DESC
+      SELECT * FROM opiniones
+      ORDER BY IdOpinion DESC
       LIMIT 3
     `);
 
@@ -549,8 +562,8 @@ app.post("/opinion", async (req, res) => {
 app.get("/ultimas-opiniones", async (req, res) => {
   try {
     const [ultimasOpiniones] = await db.query(`
-      SELECT * FROM opinion
-      ORDER BY id DESC
+      SELECT * FROM opiniones
+      ORDER BY IdOpinion DESC
       LIMIT 3
     `);
 
@@ -565,8 +578,8 @@ app.get("/ultimas-opiniones", async (req, res) => {
 app.get("/opiniones", async (req, res) => {
   try {
     const [todasOpiniones] = await db.query(`
-      SELECT * FROM opinion
-      ORDER BY id DESC
+      SELECT * FROM opiniones
+      ORDER BY IdOpinion DESC
     `);
 
     res.json({ success: true, opiniones: todasOpiniones });
@@ -581,7 +594,7 @@ app.delete("/opiniones/:id", async (req, res) => {
   const { id } = req.params;
 
   try {
-    await db.query("DELETE FROM opinion WHERE id = ?", [id]);
+    await db.query("DELETE FROM opiniones WHERE IdOpinion = ?", [id]);
     res.json({ success: true, mensaje: "Opinión eliminada correctamente" });
   } catch (err) {
     console.error("Error en DB:", err);
@@ -593,7 +606,23 @@ app.delete("/opiniones/:id", async (req, res) => {
 app.get('/mis-opiniones', requireAuth, async (req, res) => {
   try {
     const email = req.user.email;
-    const [rows] = await db.query("SELECT id, nombre, opinion, createdAt FROM opinion WHERE email = ? ORDER BY id DESC", [email]);
+    
+    // Obtener opiniones del usuario usando JOIN con accounts para mayor precisión
+    const [rows] = await db.query(`
+      SELECT 
+        o.IdOpinion as id, 
+        o.nombre, 
+        o.opinion, 
+        o.email,
+        a.IdAccount,
+        a.numeroDocumento,
+        a.tipoDocumento
+      FROM opiniones o
+      LEFT JOIN accounts a ON o.IdAccount = a.IdAccount
+      WHERE o.email = ? OR a.email = ?
+      ORDER BY o.IdOpinion DESC
+    `, [email, email]);
+    
     res.json({ success: true, opiniones: rows });
   } catch (e) {
     console.error('Error obteniendo mis opiniones:', e);
@@ -605,7 +634,7 @@ app.delete('/mis-opiniones/:id', requireAuth, async (req, res) => {
   try {
     const email = req.user.email;
     const { id } = req.params;
-    const [result] = await db.query("DELETE FROM opinion WHERE id = ? AND email = ?", [id, email]);
+    const [result] = await db.query("DELETE FROM opiniones WHERE IdOpinion = ? AND email = ?", [id, email]);
     if (result.affectedRows === 0) {
       return res.status(404).json({ success: false, mensaje: 'Opinión no encontrada o no pertenece al usuario' });
     }
