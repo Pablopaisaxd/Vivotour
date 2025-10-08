@@ -285,18 +285,6 @@ body {
 @keyframes slideInCenter {
   from { 
     opacity: 0;
-    transform: translateY(30px) scale(0.95);
-  }
-  to { 
-    opacity: 1;
-    transform: translateY(0) scale(1);
-  }
-}
-
-/* Animación solo para el contenido al abrir el modal */
-@keyframes slideInCenter {
-  from { 
-    opacity: 0;
     transform: translateY(20px) scale(0.95);
   }
   to { 
@@ -350,10 +338,13 @@ body {
   transform: scale(1.1);
 }
 
+/* --- CAMBIO 2: Ampliar el contenedor de imagen --- */
 .servicios-postal-img-container {
   width: 100%;
-  max-width: 380px;
-  height: 420px;
+  /* Aumento de ancho máximo de 380px a 450px */
+  max-width: 450px; 
+  /* Aumento de altura de 420px a 480px */
+  height: 480px; 
   display: flex;
   align-items: center;
   justify-content: center;
@@ -370,6 +361,7 @@ body {
   display: block;
 }
 
+/* --- CAMBIO 1: Eliminar min-height (no existía, pero se aumenta el max-width) y ampliar la modal --- */
 .servicios-postal {
   display: flex;
   flex-direction: column;
@@ -379,7 +371,8 @@ body {
   border-radius: 12px;
   border: 1px solid #e6e6e6;
   box-shadow: 0 12px 40px rgba(0,0,0,0.35);
-  max-width: min(420px, 92vw);
+  /* Aumento del ancho máximo de 420px a 500px */
+  max-width: min(500px, 92vw); 
   width: 100%;
   box-sizing: border-box;
   overflow: hidden;
@@ -444,16 +437,21 @@ body {
   justify-content: center;
 }
 
+/* --- CAMBIO 3: Mover botones de navegación más lejos para evitar superposición con modal más ancha --- */
 .servicios-modal-nav-prev {
-  left: -80px;
+  /* De -80px a -100px */
+  left: -100px; 
   padding-right: 5px;
   padding-bottom: 3px;
 }
 .servicios-modal-nav-next {
-  right: -80px;
+  /* De -80px a -100px */
+  right: -100px; 
   padding-left: 5px;
   padding-bottom: 3px;
 }
+/* ------------------------------------------------------------------------------------------------------ */
+
 
 .servicios-modal-nav-btn:disabled {
   opacity: 0.4;
@@ -518,8 +516,8 @@ body {
 /* --- Responsivo --- */
 
 
-
 @media (max-width: 600px) {
+  /* Se mantiene la lógica responsiva, pero se ajustan los límites */
   .servicios-modal-nav-prev { left: calc(50% - 180px); }
   .servicios-modal-nav-next { right: calc(50% - 180px); }
   .servicios-modal-nav-btn {
@@ -537,7 +535,8 @@ body {
 @media (max-width: 420px) {
   .servicios-modal-overlay { padding: 12px; }
   .servicios-postal { padding: 10px 10px 18px; }
-  .servicios-postal-img-container { height: 280px; }
+  /* Se reduce un poco para móviles muy pequeños, manteniendo la proporción */
+  .servicios-postal-img-container { height: 320px; max-width: 100%; } 
 }
 
 @media (max-width: 1024px) {
