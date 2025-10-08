@@ -338,13 +338,11 @@ body {
   transform: scale(1.1);
 }
 
-/* --- CAMBIO 2: Ampliar el contenedor de imagen --- */
+/* --- CAMBIO 2: Contenedor de imagen con tamaño fijo --- */
 .servicios-postal-img-container {
-  width: 100%;
-  /* Aumento de ancho máximo de 380px a 450px */
-  max-width: 450px; 
-  /* Aumento de altura de 420px a 480px */
-  height: 480px; 
+  /* Tamaño fijo exacto para consistencia */
+  width: 450px;
+  height: 480px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -352,6 +350,7 @@ body {
   border-radius: 8px;
   background: #eee;
   margin-bottom: 8px;
+  flex-shrink: 0; /* Evita que se reduzca */
 }
 
 .servicios-postal-img-container img {
@@ -361,19 +360,18 @@ body {
   display: block;
 }
 
-/* --- CAMBIO 1: Eliminar min-height (no existía, pero se aumenta el max-width) y ampliar la modal --- */
+/* --- CAMBIO 1: Modal con tamaño fijo para consistencia --- */
 .servicios-postal {
   display: flex;
   flex-direction: column;
   align-items: center;
   background: #fff;
-  padding: 15px 15px 25px;
+  padding: 25px 30px 25px;
   border-radius: 12px;
   border: 1px solid #e6e6e6;
   box-shadow: 0 12px 40px rgba(0,0,0,0.35);
-  /* Aumento del ancho máximo de 420px a 500px */
-  max-width: min(500px, 92vw); 
-  width: 100%;
+  width: 500px;
+  min-height: 600px;
   box-sizing: border-box;
   overflow: hidden;
 }
@@ -439,14 +437,14 @@ body {
 
 /* --- CAMBIO 3: Mover botones de navegación más lejos para evitar superposición con modal más ancha --- */
 .servicios-modal-nav-prev {
-  /* De -80px a -100px */
-  left: -100px; 
+  /* Ajustado para modal menos ancha */
+  left: -110px; 
   padding-right: 5px;
   padding-bottom: 3px;
 }
 .servicios-modal-nav-next {
-  /* De -80px a -100px */
-  right: -100px; 
+  /* Ajustado para modal menos ancha */
+  right: -110px; 
   padding-left: 5px;
   padding-bottom: 3px;
 }
@@ -517,13 +515,23 @@ body {
 
 
 @media (max-width: 600px) {
-  /* Se mantiene la lógica responsiva, pero se ajustan los límites */
-  .servicios-modal-nav-prev { left: calc(50% - 180px); }
-  .servicios-modal-nav-next { right: calc(50% - 180px); }
+  /* Ajustar posición de botones para modal de tamaño fijo */
+  .servicios-modal-nav-prev { left: calc(50% - 320px); }
+  .servicios-modal-nav-next { right: calc(50% - 320px); }
   .servicios-modal-nav-btn {
     width: 40px;
     height: 40px;
     font-size: 1.5rem;
+  }
+  /* Reducir modal en pantallas intermedias */
+  .servicios-postal {
+    width: 420px;
+    min-height: 520px;
+    padding: 20px 30px 20px;
+  }
+  .servicios-postal-img-container {
+    width: 350px;
+    height: 400px;
   }
 }
 
@@ -534,9 +542,16 @@ body {
 
 @media (max-width: 420px) {
   .servicios-modal-overlay { padding: 12px; }
-  .servicios-postal { padding: 10px 10px 18px; }
-  /* Se reduce un poco para móviles muy pequeños, manteniendo la proporción */
-  .servicios-postal-img-container { height: 320px; max-width: 100%; } 
+  .servicios-postal { 
+    padding: 15px 20px 18px;
+    /* En móviles pequeños, mantener proporción pero reducir tamaño */
+    width: 320px;
+    min-height: 480px;
+  }
+  .servicios-postal-img-container { 
+    width: 290px;
+    height: 320px;
+  } 
 }
 
 @media (max-width: 1024px) {

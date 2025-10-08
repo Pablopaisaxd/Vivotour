@@ -57,7 +57,7 @@
   border-radius: 20px;
   border: 2px solid rgba(75, 172, 53, 0.1);
   box-shadow: 0 12px 30px var(--shadow-medium);
-  padding: 1.5rem;
+  padding: 0.5rem;
   flex: 1 1 0;
   overflow: auto;
 }
@@ -81,7 +81,7 @@
   background: var(--input-bg);
   border: 2px solid var(--input-border);
   border-radius: 12px;
-  padding: 0.8rem 1rem;
+  padding: 0.2rem .5rem;
 }
 
 .reserva-header, .opinion-top {
@@ -92,7 +92,7 @@
 
 .reserva-actions {
   display: flex;
-  gap: 0.5rem;
+  gap: 0.2rem;
   align-items: center;
 }
 
@@ -117,7 +117,7 @@
 .reserva-detalles pre {
   white-space: pre-wrap;
   word-break: break-word;
-  margin: 0.5rem 0;
+  margin: 0.2rem 0;
 }
 
 .error-text {
@@ -347,7 +347,7 @@
   background: rgba(75, 172, 53, 0.05);
   border: 1px solid rgba(75, 172, 53, 0.2);
   border-radius: 12px;
-  padding: 1rem;
+  padding: 0.5rem;
   transition: var(--transition);
 }
 
@@ -433,16 +433,15 @@
 }
 
 .reserva-item {
-  background: rgba(255, 201, 20, 0.05);
-  border: 1px solid rgba(255, 201, 20, 0.3);
+  background: rgba(75, 172, 53, 0.05);
+  border: 1px solid rgba(75, 172, 53, 0.2);
   border-radius: 12px;
-  padding: 1.2rem;
+  padding: 0.5rem;
   transition: var(--transition);
 }
 
 .reserva-item:hover {
   transform: translateY(-2px);
-  box-shadow: 0 5px 15px rgba(255, 201, 20, 0.15);
 }
 
 .reserva-header {
@@ -463,7 +462,7 @@
 .reserva-detalles {
   display: flex;
   flex-direction: column;
-  gap: 0.8rem;
+  gap: 0.5rem;
 }
 
 .reserva-fechas,
