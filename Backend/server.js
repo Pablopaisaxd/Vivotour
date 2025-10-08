@@ -18,6 +18,24 @@ app.use(express.json());
 
 const JWT_SECRET = process.env.JWT_SECRET || "clave_super_secreta"; 
 
+// Función para asignar rol automáticamente basado en el email
+function asignarRolPorEmail(email) {
+  const emailLower = email.toLowerCase();
+  
+  // Admin específico
+  if (emailLower === "pablogira71@gmail.com") {
+    return 1; // Admin
+  }
+  
+  // Empleados (dominio @vivotour.com)
+  if (emailLower.endsWith("@vivotour.com")) {
+    return 3; // Empleado
+  }
+  
+  // Clientes (cualquier @gmail.com u otros dominios)
+  return 2; // Cliente
+}
+
 // Middleware simple para verificar JWT en endpoints protegidos
 function requireAuth(req, res, next) {
   try {
@@ -271,10 +289,71 @@ app.get('/auth/google/config-check', (req, res) => {
   } catch (e) {
     console.error("Error creando tabla password_resets:", e);
   }
-  // Crear tabla reservas si no existe (almacena reservas por usuario)
+
+  // Crear tablas del sistema de reservas
   try {
+    // Tabla de roles
+    await db.query(`
+      CREATE TABLE IF NOT EXISTS roles (
+        IdRol INT AUTO_INCREMENT PRIMARY KEY,
+        NombreRol VARCHAR(50) NOT NULL
+      ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+    `);
+
+    // Insertar roles por defecto si no existen
+    await db.query(`
+      INSERT IGNORE INTO roles (IdRol, NombreRol) VALUES 
+      (1, 'Admin'),
+      (2, 'Cliente'),
+      (3, 'Empleado');
+    `);
+    console.log("Tabla roles lista");
+
+    // Tabla de alojamientos
+    await db.query(`
+      CREATE TABLE IF NOT EXISTS alojamientos (
+        IdAlojamiento INT AUTO_INCREMENT PRIMARY KEY,
+        IdTipoAlojamiento INT NULL,
+        IdEmpleado INT NULL,
+        Descripcion TEXT,
+        Proveedor VARCHAR(255),
+        Ubicacion VARCHAR(50),
+        Capacidad VARCHAR(40),
+        FechaIngreso DATE NULL,
+        FechaSalida DATE NULL,
+        createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        INDEX (IdEmpleado)
+      ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+    `);
+    console.log("Tabla alojamientos lista");
+
+    // Tabla de reservas actualizada
     await db.query(`
       CREATE TABLE IF NOT EXISTS reservas (
+        IdReserva INT AUTO_INCREMENT PRIMARY KEY,
+        IdAlojamiento INT,
+        IdCliente INT NULL,
+        FechaReserva DATE,
+        FechaIngreso DATE,
+        FechaSalida DATE,
+        InformacionReserva TEXT,
+        IdAccount INT,
+        createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        INDEX (IdAlojamiento),
+        INDEX (IdAccount),
+        FOREIGN KEY (IdAccount) REFERENCES accounts(IdAccount) ON DELETE RESTRICT ON UPDATE RESTRICT
+      ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+    `);
+    console.log("Tabla reservas actualizada lista");
+
+  } catch (e) {
+    console.error("Error creando tablas del sistema:", e);
+  }
+
+  // Crear tabla reservas antigua (para compatibilidad temporal)
+  try {
+    await db.query(`
+      CREATE TABLE IF NOT EXISTS reservas_old (
         id INT AUTO_INCREMENT PRIMARY KEY,
         email VARCHAR(255) NOT NULL,
         estado ENUM('pendiente','confirmado') DEFAULT 'pendiente',
@@ -283,10 +362,11 @@ app.get('/auth/google/config-check', (req, res) => {
         INDEX (email)
       ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
     `);
-    console.log("Tabla reservas lista");
+    console.log("Tabla reservas_old (backup) lista");
   } catch (e) {
-    console.error("Error creando tabla reservas:", e);
+    console.error("Error creando tabla reservas_old:", e);
   }
+
   // Asegurar columna email en opiniones para asociar al usuario
   try {
     const [cols] = await db.query("SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME='opiniones' AND COLUMN_NAME='email'");
@@ -296,6 +376,28 @@ app.get('/auth/google/config-check', (req, res) => {
     }
   } catch (e) {
     console.warn("No se pudo asegurar columna email en opiniones (puede existir ya):", e.code || e.message);
+  }
+
+  // Asegurar columna IdAccount en opiniones
+  try {
+    const [cols] = await db.query("SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME='opiniones' AND COLUMN_NAME='IdAccount'");
+    if (!cols || cols.length === 0) {
+      await db.query("ALTER TABLE opiniones ADD COLUMN IdAccount INT NULL AFTER email");
+      console.log("Columna IdAccount agregada a opiniones");
+    }
+  } catch (e) {
+    console.warn("No se pudo asegurar columna IdAccount en opiniones:", e.code || e.message);
+  }
+
+  // Asegurar columna IdRol en accounts
+  try {
+    const [cols] = await db.query("SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME='accounts' AND COLUMN_NAME='IdRol'");
+    if (!cols || cols.length === 0) {
+      await db.query("ALTER TABLE accounts ADD COLUMN IdRol INT NULL AFTER email");
+      console.log("Columna IdRol agregada a accounts");
+    }
+  } catch (e) {
+    console.warn("No se pudo asegurar columna IdRol en accounts:", e.code || e.message);
   }
 })();
 
@@ -422,19 +524,36 @@ app.post("/registro", async (req, res) => {
 
     console.log(" Datos recibidos:", req.body);
 
+    // Asignar rol automáticamente basado en el email
+    const IdRol = asignarRolPorEmail(email);
+
     const query = `
-      INSERT INTO accounts (nombre, email, password, celular, numeroDocumento, tipoDocumento)
-      VALUES (?, ?, ?, ?, ?, ?)
+      INSERT INTO accounts (nombre, email, password, celular, numeroDocumento, tipoDocumento, IdRol)
+      VALUES (?, ?, ?, ?, ?, ?, ?)
     `;
 
-    const [resultado] = await db.query(query, [nombre, email, password, celular, numeroDocumento, tipoDocumento]);
+    const [resultado] = await db.query(query, [nombre, email, password, celular, numeroDocumento, tipoDocumento, IdRol]);
 
-  const token = jwt.sign({ nombre, email, celular, numeroDocumento, tipoDocumento  }, JWT_SECRET, { expiresIn: "3h" });
+    // Obtener el nombre del rol para incluirlo en el token
+    const [rolRows] = await db.query("SELECT NombreRol FROM roles WHERE IdRol = ?", [IdRol]);
+    const nombreRol = rolRows.length > 0 ? rolRows[0].NombreRol : "Cliente";
+
+    const token = jwt.sign({ 
+      IdAccount: resultado.insertId,
+      nombre, 
+      email, 
+      celular, 
+      numeroDocumento, 
+      tipoDocumento,
+      IdRol,
+      rol: nombreRol
+    }, JWT_SECRET, { expiresIn: "3h" });
 
     res.json({
       success: true,
-      mensaje: "Usuario registrado correctamente ",
+      mensaje: `Usuario registrado correctamente como ${nombreRol}`,
       token,
+      rol: nombreRol
     });
   } catch (err) {
     console.error(" Error en DB:", err);
@@ -450,7 +569,13 @@ app.post("/login", async (req, res) => {
   const { email, password } = req.body;
 
   try {
-    const [rows] = await db.query("SELECT * FROM accounts WHERE email = ?", [email]);
+    // JOIN con roles para obtener información completa del usuario
+    const [rows] = await db.query(`
+      SELECT a.*, r.NombreRol 
+      FROM accounts a 
+      LEFT JOIN roles r ON a.IdRol = r.IdRol 
+      WHERE a.email = ?
+    `, [email]);
 
     if (rows.length === 0) {
       return res.status(401).json({ success: false, mensaje: "Usuario no encontrado" });
@@ -462,9 +587,36 @@ app.post("/login", async (req, res) => {
       return res.status(401).json({ success: false, mensaje: "Contraseña incorrecta" });
     }
 
-  const token = jwt.sign({ nombre: user.nombre,  email: user.email, celular: user.celular, numeroDocumento: user.numeroDocumento, tipoDocumento: user.tipoDocumento }, JWT_SECRET, { expiresIn: "3h" });
+    // Si el usuario no tiene rol asignado, asignarlo automáticamente
+    let IdRol = user.IdRol;
+    let nombreRol = user.NombreRol;
+    
+    if (!IdRol) {
+      IdRol = asignarRolPorEmail(email);
+      await db.query("UPDATE accounts SET IdRol = ? WHERE IdAccount = ?", [IdRol, user.IdAccount]);
+      
+      const [rolRows] = await db.query("SELECT NombreRol FROM roles WHERE IdRol = ?", [IdRol]);
+      nombreRol = rolRows.length > 0 ? rolRows[0].NombreRol : "Cliente";
+    }
 
-    res.json({ success: true, mensaje: "Login exitoso", token });
+    const token = jwt.sign({ 
+      IdAccount: user.IdAccount,
+      nombre: user.nombre,  
+      email: user.email, 
+      celular: user.celular, 
+      numeroDocumento: user.numeroDocumento, 
+      tipoDocumento: user.tipoDocumento,
+      IdRol,
+      rol: nombreRol
+    }, JWT_SECRET, { expiresIn: "3h" });
+
+    res.json({ 
+      success: true, 
+      mensaje: "Login exitoso", 
+      token,
+      rol: nombreRol,
+      IdAccount: user.IdAccount
+    });
   } catch (error) {
     console.error("Error en DB:", error);
     res.status(500).json({ success: false, mensaje: "Error del servidor" });
@@ -492,7 +644,7 @@ app.post("/auth/complete-profile", requireAuth, async (req, res) => {
 
     // Actualizar registros
     const [result] = await db.query(
-      "UPDATE registros SET celular = ?, numeroDocumento = ?, tipoDocumento = ? WHERE email = ?",
+      "UPDATE accounts SET celular = ?, numeroDocumento = ?, tipoDocumento = ? WHERE email = ?",
       [celular, numeroDocumento, tipoDocumento, email]
     );
 
@@ -648,14 +800,40 @@ app.delete('/mis-opiniones/:id', requireAuth, async (req, res) => {
 // ----- Reservas del usuario autenticado -----
 app.get('/mis-reservas', requireAuth, async (req, res) => {
   try {
-    const email = req.user.email;
-    const [rows] = await db.query("SELECT id, estado, detalles, createdAt FROM reservas WHERE email = ? ORDER BY id DESC", [email]);
+    const IdAccount = req.user.IdAccount;
+    
+    // JOIN con alojamientos para obtener información completa
+    const [rows] = await db.query(`
+      SELECT 
+        r.IdReserva,
+        r.FechaReserva,
+        r.FechaIngreso,
+        r.FechaSalida,
+        r.InformacionReserva,
+        a.Descripcion as AlojamientoDescripcion,
+        a.Ubicacion,
+        a.Capacidad,
+        a.Proveedor
+      FROM reservas r
+      LEFT JOIN alojamientos a ON r.IdAlojamiento = a.IdAlojamiento
+      WHERE r.IdAccount = ?
+      ORDER BY r.IdReserva DESC
+    `, [IdAccount]);
+    
     const reservas = rows.map(r => ({
-      id: r.id,
-      estado: r.estado,
-      detalles: typeof r.detalles === 'string' ? JSON.parse(r.detalles || '{}') : r.detalles,
-      createdAt: r.createdAt
+      id: r.IdReserva,
+      fechaReserva: r.FechaReserva,
+      fechaIngreso: r.FechaIngreso,
+      fechaSalida: r.FechaSalida,
+      informacion: r.InformacionReserva,
+      alojamiento: {
+        descripcion: r.AlojamientoDescripcion,
+        ubicacion: r.Ubicacion,
+        capacidad: r.Capacidad,
+        proveedor: r.Proveedor
+      }
     }));
+    
     res.json({ success: true, reservas });
   } catch (e) {
     console.error('Error obteniendo mis reservas:', e);
@@ -665,9 +843,9 @@ app.get('/mis-reservas', requireAuth, async (req, res) => {
 
 app.delete('/reservas/:id', requireAuth, async (req, res) => {
   try {
-    const email = req.user.email;
+    const IdAccount = req.user.IdAccount;
     const { id } = req.params;
-    const [result] = await db.query("DELETE FROM reservas WHERE id = ? AND email = ?", [id, email]);
+    const [result] = await db.query("DELETE FROM reservas WHERE IdReserva = ? AND IdAccount = ?", [id, IdAccount]);
     if (result.affectedRows === 0) {
       return res.status(404).json({ success: false, mensaje: 'Reserva no encontrada o no pertenece al usuario' });
     }
@@ -678,8 +856,274 @@ app.delete('/reservas/:id', requireAuth, async (req, res) => {
   }
 });
 
-/*
-// Guardar una reserva (plan-based)
+// ===== GESTIÓN DE ALOJAMIENTOS =====
+
+// Obtener todos los alojamientos (público)
+app.get('/alojamientos', async (req, res) => {
+  try {
+    const [rows] = await db.query(`
+      SELECT 
+        a.*,
+        emp.nombre as NombreEmpleado,
+        emp.email as EmailEmpleado
+      FROM alojamientos a
+      LEFT JOIN accounts emp ON a.IdEmpleado = emp.IdAccount AND emp.IdRol = 3
+      ORDER BY a.IdAlojamiento DESC
+    `);
+    
+    res.json({ success: true, alojamientos: rows });
+  } catch (e) {
+    console.error('Error obteniendo alojamientos:', e);
+    res.status(500).json({ success: false, mensaje: 'Error del servidor' });
+  }
+});
+
+// Crear nuevo alojamiento (solo Admin y Empleados)
+app.post('/alojamientos', requireAuth, async (req, res) => {
+  try {
+    const { IdRol } = req.user;
+    
+    // Verificar permisos (Admin=1 o Empleado=3)
+    if (IdRol !== 1 && IdRol !== 3) {
+      return res.status(403).json({ success: false, mensaje: 'Sin permisos para crear alojamientos' });
+    }
+
+    const { 
+      IdTipoAlojamiento, 
+      Descripcion, 
+      Proveedor, 
+      Ubicacion, 
+      Capacidad, 
+      FechaIngreso, 
+      FechaSalida,
+      IdEmpleado 
+    } = req.body;
+
+    // Validaciones
+    if (!Descripcion || !Ubicacion || !Capacidad) {
+      return res.status(400).json({ success: false, mensaje: 'Descripción, ubicación y capacidad son requeridos' });
+    }
+
+    const [resultado] = await db.query(`
+      INSERT INTO alojamientos (
+        IdTipoAlojamiento, IdEmpleado, Descripcion, Proveedor, 
+        Ubicacion, Capacidad, FechaIngreso, FechaSalida
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+    `, [
+      IdTipoAlojamiento || null,
+      IdEmpleado || null,
+      Descripcion,
+      Proveedor || null,
+      Ubicacion,
+      Capacidad,
+      FechaIngreso || null,
+      FechaSalida || null
+    ]);
+
+    res.json({
+      success: true,
+      mensaje: 'Alojamiento creado correctamente',
+      IdAlojamiento: resultado.insertId
+    });
+  } catch (e) {
+    console.error('Error creando alojamiento:', e);
+    res.status(500).json({ success: false, mensaje: 'Error del servidor' });
+  }
+});
+
+// Crear nueva reserva
+app.post('/reservas', requireAuth, async (req, res) => {
+  try {
+    const IdAccount = req.user.IdAccount;
+    console.log('Datos del usuario autenticado:', req.user);
+    console.log('IdAccount recibido:', IdAccount);
+
+    if (!IdAccount) {
+      return res.status(400).json({ 
+        success: false, 
+        mensaje: 'Usuario no tiene IdAccount válido. Por favor, inicia sesión nuevamente.' 
+      });
+    }
+
+    const { 
+      IdAlojamiento, 
+      FechaIngreso, 
+      FechaSalida, 
+      InformacionReserva 
+    } = req.body;
+
+    console.log('Datos de la reserva recibidos:', req.body);
+
+    // Validaciones
+    if (!IdAlojamiento || !FechaIngreso || !FechaSalida) {
+      return res.status(400).json({ 
+        success: false, 
+        mensaje: 'Alojamiento, fecha de ingreso y fecha de salida son requeridos' 
+      });
+    }
+
+    // Verificar que el alojamiento existe
+    const [alojamientoRows] = await db.query(
+      "SELECT IdAlojamiento FROM alojamientos WHERE IdAlojamiento = ?", 
+      [IdAlojamiento]
+    );
+    
+    if (alojamientoRows.length === 0) {
+      return res.status(404).json({ success: false, mensaje: 'Alojamiento no encontrado' });
+    }
+
+    // Verificar que el usuario existe
+    const [userRows] = await db.query(
+      "SELECT IdAccount FROM accounts WHERE IdAccount = ?", 
+      [IdAccount]
+    );
+    
+    if (userRows.length === 0) {
+      return res.status(404).json({ success: false, mensaje: 'Usuario no encontrado' });
+    }
+
+    console.log('Creando reserva con datos:', {
+      IdAlojamiento,
+      IdAccount,
+      FechaIngreso,
+      FechaSalida,
+      InformacionReserva
+    });
+
+    // Crear la reserva
+    const [resultado] = await db.query(`
+      INSERT INTO reservas (
+        IdAlojamiento, IdAccount, FechaReserva, FechaIngreso, FechaSalida, InformacionReserva
+      ) VALUES (?, ?, CURDATE(), ?, ?, ?)
+    `, [IdAlojamiento, IdAccount, FechaIngreso, FechaSalida, InformacionReserva || null]);
+
+    console.log('Reserva creada exitosamente:', resultado.insertId);
+
+    res.json({
+      success: true,
+      mensaje: 'Reserva creada correctamente',
+      IdReserva: resultado.insertId
+    });
+  } catch (e) {
+    console.error('Error detallado creando reserva:', e);
+    res.status(500).json({ 
+      success: false, 
+      mensaje: 'Error del servidor: ' + e.message 
+    });
+  }
+});
+
+// Obtener empleados (para asignar a alojamientos)
+app.get('/empleados', requireAuth, async (req, res) => {
+  try {
+    const { IdRol } = req.user;
+    
+    // Solo Admin puede ver lista de empleados
+    if (IdRol !== 1) {
+      return res.status(403).json({ success: false, mensaje: 'Sin permisos para ver empleados' });
+    }
+
+    const [rows] = await db.query(`
+      SELECT IdAccount, nombre, email 
+      FROM accounts 
+      WHERE IdRol = 3 
+      ORDER BY nombre
+    `);
+    
+    res.json({ success: true, empleados: rows });
+  } catch (e) {
+    console.error('Error obteniendo empleados:', e);
+    res.status(500).json({ success: false, mensaje: 'Error del servidor' });
+  }
+});
+
+// Endpoint temporal para verificar token
+app.get('/verify-token', requireAuth, (req, res) => {
+  res.json({ 
+    success: true, 
+    user: req.user,
+    hasIdAccount: !!req.user.IdAccount 
+  });
+});
+
+// Endpoint temporal para insertar datos de prueba (GET para fácil acceso)
+app.get('/setup-data', async (req, res) => {
+  try {
+    // Insertar alojamientos de ejemplo
+    const alojamientos = [
+      {
+        Descripcion: 'Cabaña Familiar Vista al Río',
+        Ubicacion: 'Sector Norte',
+        Capacidad: '4-6 personas',
+        Proveedor: 'VivoTour'
+      },
+      {
+        Descripcion: 'Camping Premium con Servicios',
+        Ubicacion: 'Zona Central',
+        Capacidad: '2-4 personas',
+        Proveedor: 'VivoTour'
+      },
+      {
+        Descripcion: 'Casa de Campo Completa',
+        Ubicacion: 'Sector Sur',
+        Capacidad: '8-10 personas',
+        Proveedor: 'Aliado Local'
+      }
+    ];
+
+    for (const aloj of alojamientos) {
+      await db.query(`
+        INSERT IGNORE INTO alojamientos (Descripcion, Ubicacion, Capacidad, Proveedor)
+        VALUES (?, ?, ?, ?)
+      `, [aloj.Descripcion, aloj.Ubicacion, aloj.Capacidad, aloj.Proveedor]);
+    }
+
+    res.json({ success: true, mensaje: 'Datos de prueba insertados' });
+  } catch (e) {
+    console.error('Error insertando datos de prueba:', e);
+    res.status(500).json({ success: false, mensaje: 'Error insertando datos' });
+  }
+});
+
+// Endpoint temporal para insertar datos de prueba
+app.post('/setup-data', async (req, res) => {
+  try {
+    // Insertar alojamientos de ejemplo
+    const alojamientos = [
+      {
+        Descripcion: 'Cabaña Familiar Vista al Río',
+        Ubicacion: 'Sector Norte',
+        Capacidad: '4-6 personas',
+        Proveedor: 'VivoTour'
+      },
+      {
+        Descripcion: 'Camping Premium con Servicios',
+        Ubicacion: 'Zona Central',
+        Capacidad: '2-4 personas',
+        Proveedor: 'VivoTour'
+      },
+      {
+        Descripcion: 'Casa de Campo Completa',
+        Ubicacion: 'Sector Sur',
+        Capacidad: '8-10 personas',
+        Proveedor: 'Aliado Local'
+      }
+    ];
+
+    for (const aloj of alojamientos) {
+      await db.query(`
+        INSERT IGNORE INTO alojamientos (Descripcion, Ubicacion, Capacidad, Proveedor)
+        VALUES (?, ?, ?, ?)
+      `, [aloj.Descripcion, aloj.Ubicacion, aloj.Capacidad, aloj.Proveedor]);
+    }
+
+    res.json({ success: true, mensaje: 'Datos de prueba insertados' });
+  } catch (e) {
+    console.error('Error insertando datos de prueba:', e);
+    res.status(500).json({ success: false, mensaje: 'Error insertando datos' });
+  }
+});
+
 app.post("/opinion", async (req, res) => {
   const { nombre: nombreBody, opinion } = req.body;
   try {
@@ -731,27 +1175,6 @@ app.post("/opinion", async (req, res) => {
     res.status(500).json({ success: false, mensaje: "Error al guardar opinión" });
   }
 });
-      planId,
-      planTitulo,
-      fechaInicio,
-      fechaFin,
-      adultos,
-      ninos,
-      noches,
-      addonsStr,
-      totals.subtotal || 0,
-      totals.insurance || 0,
-      totals.total || 0,
-    ];
-
-    const [resultado] = await db.query(query, params);
-    res.json({ success: true, id: resultado.insertId });
-  } catch (err) {
-    console.error("Error al guardar reserva:", err);
-    res.status(500).json({ success: false, mensaje: "Error al guardar la reserva" });
-  }
-});
-*/
 
 app.listen(5000, () => {
   console.log(" Servidor corriendo en http://localhost:5000");

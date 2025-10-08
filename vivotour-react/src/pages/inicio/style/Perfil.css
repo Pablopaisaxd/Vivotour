@@ -90,6 +90,12 @@
   align-items: center;
 }
 
+.reserva-actions {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
 .reserva-estado {
   font-weight: 700;
   color: var(--forest-green);
@@ -413,5 +419,114 @@
   .opinion-footer {
     flex-direction: column;
     gap: 0.3rem;
+  }
+}
+
+/* ===== ESTILOS PARA RESERVAS EN EL PERFIL ===== */
+.lista-reservas {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 1.2rem;
+}
+
+.reserva-item {
+  background: rgba(255, 201, 20, 0.05);
+  border: 1px solid rgba(255, 201, 20, 0.3);
+  border-radius: 12px;
+  padding: 1.2rem;
+  transition: var(--transition);
+}
+
+.reserva-item:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(255, 201, 20, 0.15);
+}
+
+.reserva-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid rgba(255, 201, 20, 0.2);
+}
+
+.reserva-id {
+  color: var(--rich-black);
+  font-weight: 600;
+  font-size: 1rem;
+}
+
+.reserva-detalles {
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+}
+
+.reserva-fechas,
+.reserva-alojamiento,
+.reserva-info {
+  padding: 0.5rem 0;
+}
+
+.reserva-fechas strong,
+.reserva-alojamiento strong,
+.reserva-info strong {
+  color: var(--rich-black);
+  display: block;
+  margin-bottom: 0.3rem;
+}
+
+.reserva-fechas span {
+  display: inline-block;
+  margin-right: 1rem;
+  color: rgba(26, 24, 27, 0.8);
+  font-size: 0.9rem;
+}
+
+.reserva-alojamiento p {
+  margin: 0.3rem 0;
+  color: var(--rich-black);
+  font-style: italic;
+}
+
+.reserva-alojamiento small {
+  display: block;
+  color: rgba(26, 24, 27, 0.6);
+  font-size: 0.8rem;
+  margin-top: 0.2rem;
+}
+
+.reserva-info p {
+  margin: 0.3rem 0;
+  color: rgba(26, 24, 27, 0.8);
+  font-size: 0.9rem;
+  background: rgba(255, 255, 255, 0.5);
+  padding: 0.5rem;
+  border-radius: 6px;
+}
+
+.reserva-fecha {
+  color: rgba(26, 24, 27, 0.5);
+  font-size: 0.75rem;
+  margin-top: 0.5rem;
+  font-style: italic;
+}
+
+/* Responsive para reservas */
+@media (max-width: 640px) {
+  .reserva-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+  
+  .reserva-fechas span {
+    display: block;
+    margin-right: 0;
+    margin-bottom: 0.2rem;
   }
 }

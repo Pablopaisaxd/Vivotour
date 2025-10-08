@@ -26,10 +26,14 @@ export const AuthProvider = ({ children }) => {
 
         setIsAuthenticated(true);
         setUser({
+          IdAccount: decoded.IdAccount,
           nombre: decoded.nombre,
           email: decoded.email,
           numeroDocumento: decoded.numeroDocumento,
-          tipoDocumento: decoded.tipoDocumento
+          tipoDocumento: decoded.tipoDocumento,
+          celular: decoded.celular,
+          IdRol: decoded.IdRol,
+          rol: decoded.rol
         });
       } catch (error) {
         console.error("Token inválido:", error);
@@ -47,11 +51,14 @@ export const AuthProvider = ({ children }) => {
     try {
       const decoded = jwtDecode(token);
       setUser({
+        IdAccount: userData?.IdAccount ?? decoded?.IdAccount,
         nombre: userData?.nombre ?? decoded?.nombre,
         email: userData?.email ?? decoded?.email,
         celular: userData?.celular ?? decoded?.celular,
         numeroDocumento: userData?.numeroDocumento ?? decoded?.numeroDocumento,
         tipoDocumento: userData?.tipoDocumento ?? decoded?.tipoDocumento,
+        IdRol: userData?.IdRol ?? decoded?.IdRol,
+        rol: userData?.rol ?? decoded?.rol
       });
     } catch (e) {
       setUser(userData || null);

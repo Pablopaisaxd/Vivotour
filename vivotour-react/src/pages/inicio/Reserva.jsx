@@ -7,6 +7,7 @@ import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 import imgR1 from '../../assets/Fondos/Cabaña estandar.jpg';
 import imgR2 from '../../assets/Fondos/refcamping.jpg';
+import logoVivoTour from "../../assets/Logos/new vivo contorno2.png";
 import { AuthContext } from '../../AuthContext';
 // Carga de imágenes para los modales (carruseles)
 const imgsRio = Object.values(import.meta.glob('../../assets/imgs/rio/*.{jpg,jpeg,png}', { eager: true, as: 'url' }));
@@ -81,8 +82,30 @@ const normalizarFecha = (fechaStr) => {
     return new Date(year, month - 1, day);
 };
 
+// Función para formatear fecha para mostrar al usuario
+const formatDateForDisplay = (dateStr) => {
+    const date = new Date(dateStr);
+    return date.toLocaleDateString();
+};
+
+// Función para formatear fechas para PDF (evita desfase de zona horaria)
+const formatDateForPDF = (dateStr) => {
+    try {
+        // Usar la fecha tal como viene, sin conversión de zona horaria
+        const date = new Date(dateStr + 'T00:00:00');
+        return date.toLocaleDateString('es-ES', {
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric'
+        });
+    } catch (e) {
+        return dateStr;
+    }
+};
+
 const Reserva = () => {
-    const SAVE_ENABLED = false; // Deshabilita guardado mientras el backend /reservas está comentado
+    const SAVE_ENABLED = true; // Habilitar guardado ahora que el backend está funcionando
+    const navigate = useNavigate();
     const [selectedPlan, setSelectedPlan] = useState(null);
     const [summaryData, setSummaryData] = useState(null);
     const [planModalOpen, setPlanModalOpen] = useState(false);
@@ -173,8 +196,8 @@ const Reserva = () => {
         const total = subtotal + insurance;
 
         setSummaryData({
-            dateS: fechaInicio.toLocaleDateString(),
-            dateE: fechaFinal.toLocaleDateString(),
+            dateS: fechaInicio.toISOString().split('T')[0],
+            dateE: fechaFinal.toISOString().split('T')[0],
             adults,
             children,
             plan: selectedPlan,
@@ -204,22 +227,40 @@ const Reserva = () => {
             return;
         }
         try {
+            // Obtener token de autenticación
+            const token = localStorage.getItem('token');
+            if (!token) {
+                alert('Debe iniciar sesión para realizar una reserva');
+                return;
+            }
+
+            // Crear información de la reserva como texto
+            const informacionReserva = `
+Plan: ${summaryData.plan.title}
+Adultos: ${summaryData.adults}
+Niños: ${summaryData.children}
+Noches: ${summaryData.nights}
+Fecha inicio: ${formatDateForDisplay(summaryData.dateS)}
+Fecha fin: ${formatDateForDisplay(summaryData.dateE)}
+Addons: ${summaryData.addons?.map(a => `${a.name} (+$${a.price})`).join(', ') || 'Ninguno'}
+Total: $${summaryData.totals?.total || 0}
+            `.trim();
+
             const payload = {
-                userEmail: user?.email || user?.correo,
-                userNombre: user?.nombre,
-                planId: summaryData.plan.id,
-                planTitulo: summaryData.plan.title,
-                fechaInicio: summaryData.dateS,
-                fechaFin: summaryData.dateE,
-                adultos: Number(summaryData.adults),
-                ninos: Number(summaryData.children),
-                noches: Number(summaryData.nights),
-                addons: summaryData.addons,
-                totals: summaryData.totals,
+                IdAlojamiento: 1, // Por ahora usamos el primer alojamiento, más adelante se puede hacer dinámico
+                FechaIngreso: summaryData.dateS,
+                FechaSalida: summaryData.dateE,
+                InformacionReserva: informacionReserva
             };
+
+            console.log('Enviando reserva:', payload);
+
             const res = await fetch('http://localhost:5000/reservas', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: { 
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
                 body: JSON.stringify(payload),
             });
             if (!res.ok) {
@@ -228,7 +269,15 @@ const Reserva = () => {
             }
             const data = await res.json();
             if (!data.success) throw new Error(data.mensaje || 'No se pudo guardar la reserva');
-            alert('Reserva guardada correctamente');
+            
+            // Mostrar opciones después de guardar exitosamente
+            const userChoice = confirm('Reserva guardada correctamente!\n\n¿Qué deseas hacer?\n\nOK: Ir al perfil para ver tus reservas\nCancelar: Volver al inicio');
+            
+            if (userChoice) {
+                navigate('/Perfil');
+            } else {
+                navigate('/');
+            }
         } catch (err) {
             alert(`Error al guardar la reserva: ${err.message}`);
         } finally {
@@ -242,51 +291,153 @@ const Reserva = () => {
         if (!summaryData) return;
 
         const doc = new jsPDF();
-
-        doc.setFontSize(18);
-        doc.text("Confirmación de Reserva", 20, 20);
-
-        doc.setFontSize(12);
-        doc.text(`Nombre: ${user?.nombre || "No disponible"}`, 20, 40);
-        doc.text(`Correo: ${user?.correo || user?.email || "No disponible"}`, 20, 50);
-
-        doc.text(`Fecha inicio: ${summaryData.dateS}`, 20, 70);
-        doc.text(`Fecha de Salida: ${summaryData.dateE}`, 20, 78);
-        doc.text(`Noches: ${summaryData.nights}`, 20, 86);
-        doc.text(`Personas: ${summaryData.adults} adulto(s), ${summaryData.children} niño(s)`, 20, 94);
-    doc.text(`Plan: ${summaryData.plan.title}`, 20, 102);
-
-        // Imagen del alojamiento si existe
-        let tableStartY = 120;
-
-        // Detalle del plan y addons
-
-        const rows = [];
-        rows.push([`Base del plan`, formatCOP(summaryData.totals.planBase)]);
-        if (summaryData.addons?.length) {
-            summaryData.addons.forEach((a) => rows.push([
-                `Extra: ${a.label} (${formatCOP(a.unit)} x ${a.persons})`,
-                formatCOP(a.total)
-            ]));
-            rows.push([`Total extras`, formatCOP(summaryData.totals.addonsTotal)]);
+        const pageWidth = doc.internal.pageSize.width;
+        const pageHeight = doc.internal.pageSize.height;
+        
+        // Colores del tema VivoTour
+        const colorPrimario = [75, 172, 53]; // Verde VivoTour
+        const colorSecundario = [255, 201, 20]; // Amarillo VivoTour
+        const colorTexto = [45, 45, 45]; // Gris oscuro
+        
+        try {
+            // Header con fondo verde
+            doc.setFillColor(colorPrimario[0], colorPrimario[1], colorPrimario[2]);
+            doc.rect(0, 0, pageWidth, 35, 'F');
+            
+            // Título principal en blanco
+            doc.setTextColor(255, 255, 255);
+            doc.setFontSize(22);
+            doc.setFont("helvetica", "bold");
+            doc.text("CONFIRMACIÓN DE RESERVA", pageWidth / 2, 20, { align: 'center' });
+            
+            // Subtítulo
+            doc.setFontSize(12);
+            doc.setFont("helvetica", "normal");
+            doc.text("La Ventana del Río Melcocho", pageWidth / 2, 28, { align: 'center' });
+            
+            // Reset color para el contenido
+            doc.setTextColor(colorTexto[0], colorTexto[1], colorTexto[2]);
+            
+            // Sección de información del cliente
+            let yPos = 50;
+            doc.setFillColor(240, 248, 255);
+            doc.rect(15, yPos - 5, pageWidth - 30, 25, 'F');
+            
+            doc.setFontSize(14);
+            doc.setFont("helvetica", "bold");
+            doc.setTextColor(colorPrimario[0], colorPrimario[1], colorPrimario[2]);
+            doc.text("INFORMACIÓN DEL CLIENTE", 20, yPos + 5);
+            
+            doc.setFontSize(11);
+            doc.setFont("helvetica", "normal");
+            doc.setTextColor(colorTexto[0], colorTexto[1], colorTexto[2]);
+            doc.text(`Nombre: ${user?.nombre || "No disponible"}`, 20, yPos + 15);
+            doc.text(`Correo: ${user?.correo || user?.email || "No disponible"}`, 20, yPos + 22);
+            
+            // Sección de detalles de la reserva
+            yPos += 40;
+            doc.setFillColor(255, 249, 230);
+            doc.rect(15, yPos - 5, pageWidth - 30, 45, 'F');
+            
+            doc.setFontSize(14);
+            doc.setFont("helvetica", "bold");
+            doc.setTextColor(colorSecundario[0], colorSecundario[1], colorSecundario[2]);
+            doc.text("DETALLES DE LA RESERVA", 20, yPos + 5);
+            
+            doc.setFontSize(11);
+            doc.setFont("helvetica", "normal");
+            doc.setTextColor(colorTexto[0], colorTexto[1], colorTexto[2]);
+            doc.text(`Check-in: ${formatDateForPDF(summaryData.dateS)}`, 20, yPos + 15);
+            doc.text(`Check-out: ${formatDateForPDF(summaryData.dateE)}`, 20, yPos + 22);
+            doc.text(`Noches: ${summaryData.nights}`, 20, yPos + 29);
+            doc.text(`Huéspedes: ${summaryData.adults} adulto(s), ${summaryData.children} niño(s)`, 20, yPos + 36);
+            
+            // Plan seleccionado
+            yPos += 60;
+            doc.setFillColor(250, 255, 250);
+            doc.rect(15, yPos - 5, pageWidth - 30, 20, 'F');
+            
+            doc.setFontSize(14);
+            doc.setFont("helvetica", "bold");
+            doc.setTextColor(colorPrimario[0], colorPrimario[1], colorPrimario[2]);
+            doc.text("PLAN SELECCIONADO", 20, yPos + 5);
+            
+            doc.setFontSize(11);
+            doc.setFont("helvetica", "normal");
+            doc.setTextColor(colorTexto[0], colorTexto[1], colorTexto[2]);
+            doc.text(`${summaryData.plan.title}`, 20, yPos + 15);
+            
+            // Tabla de costos
+            yPos += 30;
+            const rows = [];
+            rows.push([`Base del plan`, formatCOP(summaryData.totals.planBase)]);
+            
+            if (summaryData.addons?.length) {
+                summaryData.addons.forEach((a) => rows.push([
+                    `Extra: ${a.label} (${formatCOP(a.unit)} x ${a.persons})`,
+                    formatCOP(a.total)
+                ]));
+                rows.push([`Total extras`, formatCOP(summaryData.totals.addonsTotal)]);
+            }
+            
+            autoTable(doc, {
+                startY: yPos,
+                head: [['Concepto', 'Precio']],
+                body: rows,
+                styles: { 
+                    fontSize: 10,
+                    cellPadding: 4
+                },
+                headStyles: {
+                    fillColor: colorPrimario,
+                    textColor: [255, 255, 255],
+                    fontStyle: 'bold'
+                },
+                alternateRowStyles: {
+                    fillColor: [248, 249, 250]
+                },
+                theme: 'striped'
+            });
+            
+            // Totales
+            const afterTableY = doc.lastAutoTable?.finalY || yPos + 40;
+            yPos = afterTableY + 15;
+            
+            doc.setFillColor(255, 245, 238);
+            doc.rect(15, yPos - 5, pageWidth - 30, 35, 'F');
+            
+            doc.setFontSize(12);
+            doc.setFont("helvetica", "normal");
+            doc.setTextColor(colorTexto[0], colorTexto[1], colorTexto[2]);
+            doc.text(`Subtotal: ${formatCOP(summaryData.totals.subtotal)}`, 20, yPos + 8);
+            doc.text(`Seguro (10%): ${formatCOP(summaryData.totals.insurance)}`, 20, yPos + 18);
+            
+            doc.setFontSize(14);
+            doc.setFont("helvetica", "bold");
+            doc.setTextColor(colorPrimario[0], colorPrimario[1], colorPrimario[2]);
+            doc.text(`TOTAL: ${formatCOP(summaryData.totals.total)}`, 20, yPos + 28);
+            
+            // Footer decorativo
+            const footerY = pageHeight - 30;
+            doc.setFillColor(colorPrimario[0], colorPrimario[1], colorPrimario[2]);
+            doc.rect(0, footerY, pageWidth, 30, 'F');
+            
+            doc.setTextColor(255, 255, 255);
+            doc.setFontSize(10);
+            doc.setFont("helvetica", "bold");
+            doc.text("VivoTour - La Ventana del Río Melcocho", pageWidth / 2, footerY + 10, { align: 'center' });
+            
+            doc.setFont("helvetica", "normal");
+            doc.setFontSize(8);
+            doc.text("Cocorná, Antioquia - Colombia", pageWidth / 2, footerY + 16, { align: 'center' });
+            doc.text(`Generado el ${new Date().toLocaleDateString('es-ES')}`, pageWidth / 2, footerY + 22, { align: 'center' });
+            
+            doc.save(`VivoTour_Confirmacion_${new Date().toISOString().split('T')[0]}.pdf`);
+            
+        } catch (error) {
+            console.error('Error generando PDF:', error);
+            alert('Error al generar el PDF. Por favor, inténtalo de nuevo.');
         }
-
-        autoTable(doc, {
-            startY: tableStartY,
-            head: [['Concepto', 'Precio']],
-            body: rows,
-            styles: { fontSize: 11 },
-            theme: 'grid'
-        });
-
-        // Total
-        const afterTableY = doc.lastAutoTable?.finalY || 140;
-        doc.setFontSize(14);
-        doc.text(`SUBTOTAL: ${formatCOP(summaryData.totals.subtotal)}`, 20, afterTableY + 10);
-        doc.text(`SEGURO (10%): ${formatCOP(summaryData.totals.insurance)}`, 20, afterTableY + 18);
-        doc.text(`TOTAL: ${formatCOP(summaryData.totals.total)}`, 20, afterTableY + 26);
-
-        doc.save("reserva.pdf");
     };
 
     // Utilidad para formato COP
@@ -394,8 +545,8 @@ const Reserva = () => {
                         <div className="reserva-modal-overlay" onClick={(e) => { if (e.target === e.currentTarget) handleCloseModal(); }}>
                             <div className="reserva-modal-content" onClick={(e) => e.stopPropagation()}>
                                 <h2>Confirmar Reservación</h2>
-                                <p><strong>Fecha inicio:</strong> {summaryData.dateS}</p>
-                                <p><strong>Fecha final:</strong> {summaryData.dateE}</p>
+                                <p><strong>Fecha inicio:</strong> {formatDateForDisplay(summaryData.dateS)}</p>
+                                <p><strong>Fecha final:</strong> {formatDateForDisplay(summaryData.dateE)}</p>
                                 <p><strong>Cantidad:</strong> {summaryData.adults} adulto(s), {summaryData.children} niño(s)</p>
                                 <p><strong>Plan:</strong> {summaryData.plan.title}</p>
                                 {summaryData.addons?.length > 0 && (

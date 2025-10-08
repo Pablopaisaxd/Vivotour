@@ -3,6 +3,9 @@ import { AuthContext } from "../../AuthContext";
 import { useNavigate, Link } from "react-router-dom";
 import Nav from './Navbar';
 import Footer from "../../components/use/Footer";
+import jsPDF from "jspdf";
+import autoTable from "jspdf-autotable";
+import logoVivoTour from "../../assets/Logos/new vivo contorno2.png";
 import "./style/Perfil.css";
 
 export const Perfil = () => {
@@ -14,6 +17,194 @@ export const Perfil = () => {
   const [opiniones, setOpiniones] = useState([]);
   const [loadingData, setLoadingData] = useState(true);
   const [error, setError] = useState("");
+
+  // Función para formatear fechas de forma segura
+  const formatSafeDate = (dateStr) => {
+    if (!dateStr || dateStr === '0000-00-00') return 'Fecha no disponible';
+    try {
+      const date = new Date(dateStr);
+      return isNaN(date.getTime()) ? 'Fecha inválida' : date.toLocaleDateString();
+    } catch (e) {
+      return 'Fecha inválida';
+    }
+  };
+
+  // Función para formatear fechas para PDF (evita desfase de zona horaria)
+  const formatDateForPDF = (dateStr) => {
+    if (!dateStr || dateStr === '0000-00-00') return 'Fecha no disponible';
+    try {
+      // Usar la fecha tal como viene, sin conversión de zona horaria
+      const [year, month, day] = dateStr.split('-');
+      if (year && month && day) {
+        const date = new Date(year, month - 1, day);
+        return date.toLocaleDateString('es-ES', {
+          year: 'numeric',
+          month: 'long',
+          day: 'numeric'
+        });
+      }
+      return dateStr;
+    } catch (e) {
+      return 'Fecha inválida';
+    }
+  };
+
+  // Función para generar PDF de una reserva específica con diseño mejorado
+  const generarPDFReserva = (reserva) => {
+    const doc = new jsPDF();
+    const pageWidth = doc.internal.pageSize.width;
+    const pageHeight = doc.internal.pageSize.height;
+    
+    // Colores del tema
+    const colorPrimario = [75, 172, 53]; // Verde VivoTour
+    const colorSecundario = [255, 201, 20]; // Amarillo VivoTour
+    const colorTexto = [45, 45, 45]; // Gris oscuro
+    const colorSubtitulo = [100, 100, 100]; // Gris medio
+    
+    try {
+      // Cargar y agregar logo (como imagen base64 o directamente)
+      // Header con fondo verde
+      doc.setFillColor(colorPrimario[0], colorPrimario[1], colorPrimario[2]);
+      doc.rect(0, 0, pageWidth, 35, 'F');
+      
+      // Título principal en blanco
+      doc.setTextColor(255, 255, 255);
+      doc.setFontSize(22);
+      doc.setFont("helvetica", "bold");
+      doc.text("COMPROBANTE DE RESERVA", pageWidth / 2, 20, { align: 'center' });
+      
+      // Subtítulo
+      doc.setFontSize(12);
+      doc.setFont("helvetica", "normal");
+      doc.text("La Ventana del Río Melcocho", pageWidth / 2, 28, { align: 'center' });
+      
+      // Reset color para el contenido
+      doc.setTextColor(colorTexto[0], colorTexto[1], colorTexto[2]);
+      
+      // Sección de información del cliente
+      let yPos = 50;
+      doc.setFillColor(240, 248, 255);
+      doc.rect(15, yPos - 5, pageWidth - 30, 25, 'F');
+      
+      doc.setFontSize(14);
+      doc.setFont("helvetica", "bold");
+      doc.setTextColor(colorPrimario[0], colorPrimario[1], colorPrimario[2]);
+      doc.text("INFORMACIÓN DEL CLIENTE", 20, yPos + 5);
+      
+      doc.setFontSize(11);
+      doc.setFont("helvetica", "normal");
+      doc.setTextColor(colorTexto[0], colorTexto[1], colorTexto[2]);
+      doc.text(`Nombre: ${user?.nombre || "No disponible"}`, 20, yPos + 15);
+      doc.text(`Correo: ${user?.correo || user?.email || "No disponible"}`, 20, yPos + 22);
+      
+      // Sección de fechas de reserva
+      yPos += 40;
+      doc.setFillColor(255, 249, 230);
+      doc.rect(15, yPos - 5, pageWidth - 30, 35, 'F');
+      
+      doc.setFontSize(14);
+      doc.setFont("helvetica", "bold");
+      doc.setTextColor(colorSecundario[0], colorSecundario[1], colorSecundario[2]);
+      doc.text("FECHAS DE LA RESERVA", 20, yPos + 5);
+      
+      doc.setFontSize(11);
+      doc.setFont("helvetica", "normal");
+      doc.setTextColor(colorTexto[0], colorTexto[1], colorTexto[2]);
+      doc.text(`Fecha de reserva: ${formatDateForPDF(reserva.fechaReserva)}`, 20, yPos + 15);
+      doc.text(`Check-in: ${formatDateForPDF(reserva.fechaIngreso)}`, 20, yPos + 22);
+      doc.text(`Check-out: ${formatDateForPDF(reserva.fechaSalida)}`, 20, yPos + 29);
+      
+      // Sección de alojamiento
+      yPos += 50;
+      if (reserva.alojamiento) {
+        const altoAlojamiento = reserva.alojamiento.proveedor ? 45 : 35;
+        doc.setFillColor(250, 255, 250);
+        doc.rect(15, yPos - 5, pageWidth - 30, altoAlojamiento, 'F');
+        
+        doc.setFontSize(14);
+        doc.setFont("helvetica", "bold");
+        doc.setTextColor(colorPrimario[0], colorPrimario[1], colorPrimario[2]);
+        doc.text("DETALLES DEL ALOJAMIENTO", 20, yPos + 5);
+        
+        doc.setFontSize(11);
+        doc.setFont("helvetica", "normal");
+        doc.setTextColor(colorTexto[0], colorTexto[1], colorTexto[2]);
+        doc.text(`Tipo: ${reserva.alojamiento.descripcion || 'No especificado'}`, 20, yPos + 15);
+        doc.text(`Ubicación: ${reserva.alojamiento.ubicacion || 'No especificada'}`, 20, yPos + 22);
+        doc.text(`Capacidad: ${reserva.alojamiento.capacidad || 'No especificada'}`, 20, yPos + 29);
+        
+        if (reserva.alojamiento.proveedor) {
+          doc.text(`Proveedor: ${reserva.alojamiento.proveedor}`, 20, yPos + 36);
+          yPos += 7;
+        }
+        
+        yPos += 35;
+      }
+      
+      // Información adicional (manejo seguro)
+      if (reserva.informacion && reserva.informacion.trim()) {
+        yPos += 10;
+        
+        doc.setFillColor(255, 245, 238);
+        
+        // Calcular altura necesaria para la información adicional
+        const maxWidth = pageWidth - 40;
+        const infoLines = doc.splitTextToSize(reserva.informacion, maxWidth);
+        const altoInfo = Math.max(25, (infoLines.length * 5) + 15);
+        
+        // Verificar si necesitamos una nueva página
+        if (yPos + altoInfo > pageHeight - 40) {
+          doc.addPage();
+          yPos = 20;
+        }
+        
+        doc.rect(15, yPos - 5, pageWidth - 30, altoInfo, 'F');
+        
+        doc.setFontSize(14);
+        doc.setFont("helvetica", "bold");
+        doc.setTextColor(colorPrimario[0], colorPrimario[1], colorPrimario[2]);
+        doc.text("INFORMACIÓN ADICIONAL", 20, yPos + 5);
+        
+        doc.setFontSize(10);
+        doc.setFont("helvetica", "normal");
+        doc.setTextColor(colorTexto[0], colorTexto[1], colorTexto[2]);
+        
+        // Agregar texto línea por línea de manera segura
+        let lineYPos = yPos + 15;
+        infoLines.forEach((line, index) => {
+          if (lineYPos + 5 < pageHeight - 30) {
+            doc.text(line, 20, lineYPos);
+            lineYPos += 5;
+          }
+        });
+        
+        yPos = lineYPos + 10;
+      }
+      
+      // Footer decorativo
+      const footerY = pageHeight - 30;
+      doc.setFillColor(colorPrimario[0], colorPrimario[1], colorPrimario[2]);
+      doc.rect(0, footerY, pageWidth, 30, 'F');
+      
+      doc.setTextColor(255, 255, 255);
+      doc.setFontSize(10);
+      doc.setFont("helvetica", "bold");
+      doc.text("VivoTour - La Ventana del Río Melcocho", pageWidth / 2, footerY + 10, { align: 'center' });
+      
+      doc.setFont("helvetica", "normal");
+      doc.setFontSize(8);
+      doc.text("Cocorná, Antioquia - Colombia", pageWidth / 2, footerY + 16, { align: 'center' });
+      doc.text(`Generado el ${new Date().toLocaleDateString('es-ES')}`, pageWidth / 2, footerY + 22, { align: 'center' });
+      
+      // Descargar con nombre más descriptivo
+      const fechaDescarga = new Date().toISOString().split('T')[0];
+      doc.save(`VivoTour_Reserva_${fechaDescarga}.pdf`);
+      
+    } catch (error) {
+      console.error('Error generando PDF:', error);
+      alert('Error al generar el PDF. Por favor, inténtalo de nuevo.');
+    }
+  };
 
   const handleLogout = () => {
     logout();
@@ -202,15 +393,36 @@ export const Perfil = () => {
                 ) : (
                   <ul className="lista-reservas">
                     {reservas.slice(0, 5).map((r) => (
-                      <li key={r.id} className={`reserva-item estado-${r.estado}`}>
+                      <li key={r.id} className="reserva-item">
                         <div className="reserva-header">
-                          <span className="reserva-estado">Estado: {r.estado}</span>
-                          <button className="btn-mini danger" onClick={() => eliminarReserva(r.id)}>Eliminar</button>
+                          <span className="reserva-estado">Reserva</span>
+                          <div className="reserva-actions">
+                            <button className="btn-mini" onClick={() => generarPDFReserva(r)}>Descargar PDF</button>
+                            <button className="btn-mini danger" onClick={() => eliminarReserva(r.id)}>Eliminar</button>
+                          </div>
                         </div>
                         <div className="reserva-detalles">
-                          <pre>{JSON.stringify(r.detalles, null, 2)}</pre>
+                          <div className="reserva-fechas">
+                            <strong>📅 Fechas:</strong>
+                            <span>Ingreso: {formatSafeDate(r.fechaIngreso)}</span>
+                            <span>Salida: {formatSafeDate(r.fechaSalida)}</span>
+                          </div>
+                          {r.alojamiento && (
+                            <div className="reserva-alojamiento">
+                              <strong>🏠 Alojamiento:</strong>
+                              <p>{r.alojamiento.descripcion}</p>
+                              <small>📍 {r.alojamiento.ubicacion} | 👥 Capacidad: {r.alojamiento.capacidad}</small>
+                              {r.alojamiento.proveedor && <small>🏢 Proveedor: {r.alojamiento.proveedor}</small>}
+                            </div>
+                          )}
+                          {r.informacion && (
+                            <div className="reserva-info">
+                              <strong>ℹ️ Información adicional:</strong>
+                              <p>{r.informacion}</p>
+                            </div>
+                          )}
                         </div>
-                        <small className="reserva-fecha">Creada: {new Date(r.createdAt).toLocaleString()}</small>
+                        <small className="reserva-fecha">Reserva realizada: {formatSafeDate(r.fechaReserva)}</small>
                       </li>
                     ))}
                   </ul>
