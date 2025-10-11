@@ -1,7 +1,27 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import ProgressBar from "./ProgressBar";
 
 function SocialMediaTraffic() {
+  const [socialData, setSocialData] = useState({
+    facebook: { name: 'Facebook', followers: 0, url: 'https://www.facebook.com/ventanadelmelcocho' },
+    instagram: { name: 'Instagram', followers: 0, url: 'https://www.instagram.com/ventanadelmelcocho/' }
+  });
+
+  // Simulamos datos de seguidores (en una aplicación real, estos vendrían de APIs de las redes sociales)
+  useEffect(() => {
+    // Datos simulados más realistas para una empresa turística pequeña
+    setSocialData({
+      facebook: { name: 'Facebook', followers: 145, url: 'https://www.facebook.com/ventanadelmelcocho' },
+      instagram: { name: 'Instagram', followers: 89, url: 'https://www.instagram.com/ventanadelmelcocho/' }
+    });
+  }, []);
+
+  const maxFollowers = Math.max(socialData.facebook.followers, socialData.instagram.followers);
+  
+  const calculatePercentage = (followers) => {
+    return maxFollowers > 0 ? Math.round((followers / maxFollowers) * 100) : 0;
+  };
+
   const styles = {
     headerSpan: {
       filter: 'drop-shadow(0 0 0.25rem rgba(0,0,0,0.05))',
@@ -16,10 +36,12 @@ function SocialMediaTraffic() {
     tableDataText: {
       fontWeight: "600",
       color: "var(--rich-black)",
+      cursor: "pointer",
+      transition: "color 0.3s ease",
     },
     tableDataValue: {
       fontWeight: "700",
-      color: "var(--rich-black)",
+      color: "var(--forest-green)",
       fontSize: "14px",
     },
     progressBarContainer: {
@@ -27,40 +49,52 @@ function SocialMediaTraffic() {
     }
   };
 
+  const handleSocialClick = (url) => {
+    window.open(url, '_blank');
+  };
+
   return (
     <div className="social-media">
       <header className="social-media-header">
-        <span style={styles.headerSpan}>Tráfico de Redes Sociales</span>
+        <span style={styles.headerSpan}>Seguidores en Redes Sociales</span>
       </header>
       <div className="social-media-table">
         <span style={styles.tableHeader}>
           <strong>RED</strong>
         </span>
         <span style={styles.tableHeader} className="visitors">
-          <strong>VISITANTES</strong>
+          <strong>SEGUIDORES</strong>
         </span>
-        <span></span>
-        <span style={styles.tableDataText}>Instagram</span>
+        <span style={styles.tableHeader}>
+          <strong>PROGRESO</strong>
+        </span>
+        
+        <span 
+          style={styles.tableDataText}
+          onClick={() => handleSocialClick(socialData.instagram.url)}
+          title="Visitar Instagram"
+        >
+          Instagram
+        </span>
         <span style={styles.tableDataValue} className="border-issue">
-          3,550
+          {socialData.instagram.followers.toLocaleString()}
         </span>
         <span style={styles.progressBarContainer}>
-          <ProgressBar percentage="50%" />
+          <ProgressBar percentage={`${calculatePercentage(socialData.instagram.followers)}%`} />
         </span>
-        <span style={styles.tableDataText}>Facebook</span>
-        <span style={styles.tableDataValue}>2,236</span>
-        <span style={styles.progressBarContainer}>
-          <ProgressBar percentage="40%" />
+        
+        <span 
+          style={styles.tableDataText}
+          onClick={() => handleSocialClick(socialData.facebook.url)}
+          title="Visitar Facebook"
+        >
+          Facebook
         </span>
-        <span style={styles.tableDataText}>Twitter</span>
-        <span style={styles.tableDataValue}>1,795</span>
-        <span style={styles.progressBarContainer}>
-          <ProgressBar percentage="30%" />
+        <span style={styles.tableDataValue}>
+          {socialData.facebook.followers.toLocaleString()}
         </span>
-        <span style={styles.tableDataText}>Linkedin</span>
-        <span style={styles.tableDataValue}>62</span>
         <span style={styles.progressBarContainer}>
-          <ProgressBar percentage="20%" />
+          <ProgressBar percentage={`${calculatePercentage(socialData.facebook.followers)}%`} />
         </span>
       </div>
     </div>

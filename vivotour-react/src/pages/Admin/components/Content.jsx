@@ -1,10 +1,8 @@
 import React, { useContext } from 'react';
 import DailyVisitors from "./DailyVisitors";
-import RealtimeUsers from "./RealtimeUsers";
 import TotalVisits from "./TotalVists";
-import BounceRate from "./BounceRate";
-import VisitDuration from "./VisitDuration";
-import Footer from "./Footer";
+import SocialMediaTraffic from "./SocialMediaTraffic";
+import MostVisited from "./MostVisited";
 import HomePageSettings from './HomePageSettings';
 import CommentsManagement from './CommentsManagement';
 import GalleryManagement from './GalleryManagement';
@@ -22,11 +20,9 @@ function Content() {
                 return (
                     <>
                         <DailyVisitors />
-                        <RealtimeUsers />
                         <TotalVisits />
-                        <BounceRate />
-                        <VisitDuration />
-                        <Footer />
+                        <SocialMediaTraffic />
+                        <MostVisited />
                     </>
                 );
             case 'homePageSettings':
@@ -45,11 +41,9 @@ function Content() {
                 return (
                     <>
                         <DailyVisitors />
-                        <RealtimeUsers />
                         <TotalVisits />
-                        <BounceRate />
-                        <VisitDuration />
-                        <Footer />
+                        <SocialMediaTraffic />
+                        <MostVisited />
                     </>
                 );
         }

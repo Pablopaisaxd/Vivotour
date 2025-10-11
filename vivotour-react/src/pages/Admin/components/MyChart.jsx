@@ -12,19 +12,40 @@ import {
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
 
-const MyChart = ({ month, year }) => {
+const MyChart = ({ month, year, dailyData }) => {
   const [chartData, setChartData] = useState({
     labels: [],
     datasets: [],
   });
 
   useEffect(() => {
+    if (!dailyData || dailyData.length === 0) {
+      // Si no hay datos, mostrar chart vacío
+      setChartData({
+        labels: [],
+        datasets: [
+          {
+            label: "Llegadas",
+            data: [],
+            backgroundColor: "#4BAC35",
+            hoverBackgroundColor: "#3d9129",
+            barThickness: 9,
+            minBarLength: 1,
+          },
+        ],
+      });
+      return;
+    }
+
+    // Procesar los datos de reservas por fecha
+    const processedData = processReservationData(dailyData, month, year);
+    
     setChartData({
-      labels: Array.from({ length: 31 }, (_, i) => (i + 1).toString()),
+      labels: processedData.labels,
       datasets: [
         {
-          label: "Visitantes",
-          data: [3,1,4,2,1,2,1,3,1,4,2,3,4,1,2,4,2,1,2,3,2,1,4,3,1,3,2,1,4,1,2],
+          label: "Llegadas",
+          data: processedData.data,
           backgroundColor: "#4BAC35",
           hoverBackgroundColor: "#3d9129",
           barThickness: 9,
@@ -32,7 +53,48 @@ const MyChart = ({ month, year }) => {
         },
       ],
     });
-  }, [month, year]);
+  }, [month, year, dailyData]);
+
+  const processReservationData = (data, selectedMonth, selectedYear) => {
+    // Convertir nombres de meses a números
+    const monthNames = {
+      'Enero': 1, 'Febrero': 2, 'Marzo': 3, 'Abril': 4, 'Mayo': 5, 'Junio': 6,
+      'Julio': 7, 'Agosto': 8, 'Septiembre': 9, 'Octubre': 10, 'Noviembre': 11, 'Diciembre': 12
+    };
+    
+    const selectedMonthNum = monthNames[selectedMonth];
+    const selectedYearNum = parseInt(selectedYear);
+    
+    // Filtrar datos para el mes/año seleccionado
+    const monthData = data.filter(item => {
+      const date = new Date(item.fecha);
+      return date.getMonth() + 1 === selectedMonthNum && date.getFullYear() === selectedYearNum;
+    });
+    
+    // Obtener número de días en el mes
+    const daysInMonth = new Date(selectedYearNum, selectedMonthNum, 0).getDate();
+    
+    // Crear array para todos los días del mes
+    const labels = [];
+    const reservationCounts = [];
+    
+    for (let day = 1; day <= daysInMonth; day++) {
+      labels.push(day.toString());
+      
+      // Buscar reservas para este día específico
+      const dayData = monthData.find(item => {
+        const date = new Date(item.fecha);
+        return date.getDate() === day;
+      });
+      
+      reservationCounts.push(dayData ? dayData.reservas : 0);
+    }
+    
+    return {
+      labels: labels,
+      data: reservationCounts
+    };
+  };
 
   const chartContainerStyle = {
     position: "relative",
@@ -80,7 +142,9 @@ const MyChart = ({ month, year }) => {
                 label: (tooltipItem) => {
                   let label = tooltipItem.dataset.label || "";
                   if (label) label += ": ";
-                  label += Math.round(tooltipItem.raw * 100) / 100;
+                  const count = Math.round(tooltipItem.raw);
+                  label += count;
+                  label += count === 1 ? " reserva" : " reservas";
                   return label;
                 },
                 labelTextColor: function(tooltipItem, chart) {
@@ -98,7 +162,16 @@ const MyChart = ({ month, year }) => {
             },
             y: {
               beginAtZero: true,
-              ticks: { display: false },
+              ticks: { 
+                display: true,
+                color: 'var(--rich-black)',
+                stepSize: 1,
+                callback: function(value) {
+                  if (value % 1 === 0) {
+                    return value;
+                  }
+                }
+              },
             },
           },
         }}

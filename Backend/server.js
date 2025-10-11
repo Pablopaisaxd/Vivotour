@@ -1176,6 +1176,131 @@ app.post("/opinion", async (req, res) => {
   }
 });
 
+// ----- ENDPOINTS PARA DASHBOARD ADMIN -----
+
+// Obtener estadísticas diarias de reservas
+app.get('/admin/daily-stats', requireAuth, async (req, res) => {
+  try {
+    // Debug: Verificar qué contiene el token
+    console.log('Token payload:', req.user);
+    console.log('IdRol del usuario:', req.user.IdRol);
+    console.log('Email del usuario:', req.user.email);
+    
+    // Verificar que sea admin
+    if (req.user.IdRol !== 1) {
+      return res.status(403).json({ 
+        success: false, 
+        mensaje: 'Acceso denegado. Solo administradores.',
+        debug: {
+          userRole: req.user.IdRol,
+          email: req.user.email,
+          requiredRole: 1
+        }
+      });
+    }
+
+    // Obtener estadísticas basadas en fechas de ingreso
+    const [dailyStats] = await db.query(`
+      SELECT 
+        DATE(FechaIngreso) as fecha,
+        COUNT(*) as reservas
+      FROM reservas 
+      WHERE FechaIngreso IS NOT NULL 
+        AND FechaIngreso >= DATE_SUB(CURDATE(), INTERVAL 30 DAY)
+      GROUP BY DATE(FechaIngreso)
+      ORDER BY fecha ASC
+    `);
+
+    console.log('Daily stats query result:', dailyStats);
+    
+    res.json({ success: true, data: dailyStats });
+  } catch (error) {
+    console.error('Error obteniendo estadísticas diarias:', error);
+    res.status(500).json({ success: false, mensaje: 'Error del servidor' });
+  }
+});
+
+// Obtener estadísticas totales
+app.get('/admin/total-stats', requireAuth, async (req, res) => {
+  try {
+    // Debug: Verificar qué contiene el token
+    console.log('Total-stats - Token payload:', req.user);
+    
+    // Verificar que sea admin
+    if (req.user.IdRol !== 1) {
+      return res.status(403).json({ 
+        success: false, 
+        mensaje: 'Acceso denegado. Solo administradores.',
+        debug: {
+          userRole: req.user.IdRol,
+          email: req.user.email,
+          requiredRole: 1
+        }
+      });
+    }
+
+    const [stats] = await db.query(`
+      SELECT 
+        (SELECT COUNT(*) FROM accounts) as totalUsuarios,
+        (SELECT COUNT(*) FROM reservas) as totalReservas,
+        (SELECT COUNT(*) FROM reservas WHERE MONTH(FechaReserva) = MONTH(CURDATE()) AND YEAR(FechaReserva) = YEAR(CURDATE())) as reservasMesActual,
+        (SELECT COUNT(*) FROM reservas WHERE MONTH(FechaReserva) = MONTH(DATE_SUB(CURDATE(), INTERVAL 1 MONTH)) AND YEAR(FechaReserva) = YEAR(DATE_SUB(CURDATE(), INTERVAL 1 MONTH))) as reservasMesAnterior,
+        (SELECT COUNT(*) FROM opiniones) as totalOpiniones
+    `);
+
+    res.json({ success: true, data: stats[0] });
+  } catch (error) {
+    console.error('Error obteniendo estadísticas totales:', error);
+    res.status(500).json({ success: false, mensaje: 'Error del servidor' });
+  }
+});
+
+// Obtener estadísticas de planes preferidos
+app.get('/admin/preferred-plans', requireAuth, async (req, res) => {
+  try {
+    // Debug: Verificar qué contiene el token
+    console.log('Preferred-plans - Token payload:', req.user);
+    
+    // Verificar que sea admin
+    if (req.user.IdRol !== 1) {
+      return res.status(403).json({ 
+        success: false, 
+        mensaje: 'Acceso denegado. Solo administradores.',
+        debug: {
+          userRole: req.user.IdRol,
+          email: req.user.email,
+          requiredRole: 1
+        }
+      });
+    }
+
+    const [planStats] = await db.query(`
+      SELECT 
+        CASE 
+          WHEN InformacionReserva LIKE '%Cabaña Fénix%' OR InformacionReserva LIKE '%Fenix%' THEN 'Cabaña Fénix'
+          WHEN InformacionReserva LIKE '%Plan Amanecer%' OR InformacionReserva LIKE '%Amanecer%' THEN 'Plan Amanecer del Río'
+          WHEN InformacionReserva LIKE '%Camping%' OR InformacionReserva LIKE '%camping%' THEN 'Zona de Camping'
+          WHEN InformacionReserva LIKE '%Cabalgata%' OR InformacionReserva LIKE '%cabalgata%' THEN 'Cabalgatas'
+          WHEN InformacionReserva LIKE '%Aventureros%' THEN 'Cabaña Aventureros'
+          ELSE 'Otros'
+        END as planTipo,
+        COUNT(*) as cantidad,
+        ROUND((COUNT(*) * 100.0 / (SELECT COUNT(*) FROM reservas WHERE InformacionReserva IS NOT NULL AND InformacionReserva != '')), 2) as porcentaje
+      FROM reservas 
+      WHERE InformacionReserva IS NOT NULL AND InformacionReserva != ''
+      GROUP BY planTipo
+      HAVING planTipo != 'Otros'
+      ORDER BY cantidad DESC
+      LIMIT 4
+    `);
+
+    res.json({ success: true, data: planStats });
+  } catch (error) {
+    console.error('Error obteniendo planes preferidos:', error);
+    res.status(500).json({ success: false, mensaje: 'Error del servidor' });
+  }
+});
+
 app.listen(5000, () => {
   console.log(" Servidor corriendo en http://localhost:5000");
 });

@@ -23,35 +23,61 @@ ChartJS.register(
   Filler
 );
 
-const MyLine = ({ color, height, width }) => {
+const MyLine = ({ color, height, width, data: chartInputData }) => {
   const [data, setData] = useState({
     labels: [],
     datasets: [],
   });
 
   useEffect(() => {
-    setData({
-      labels: ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10"],
-      datasets: [
-        {
-          data: [3, 2, 3, 2, 2, 3, 1, 2, 2, 4],
-          fill: true,
-          backgroundColor: color.backgroundColor,
-          borderColor: color.borderColor,
-          borderWidth: 2,
-          pointBorderColor: "#4BAC35",
-          pointBackgroundColor: "#fff",
-          pointHoverRadius: 5,
-          pointHoverBackgroundColor: "#4BAC35",
-          pointHoverBorderColor: "rgba(75, 172, 53, 0.5)",
-          pointHoverBorderWidth: 7,
-          pointRadius: 0,
-          pointHitRadius: 30,
-          tension: 0.4,
-        },
-      ],
-    });
-  }, [color]);
+    // Si se proporcionan datos reales, usarlos
+    if (chartInputData && chartInputData.labels && chartInputData.data) {
+      setData({
+        labels: chartInputData.labels,
+        datasets: [
+          {
+            data: chartInputData.data,
+            fill: true,
+            backgroundColor: color.backgroundColor,
+            borderColor: color.borderColor,
+            borderWidth: 2,
+            pointBorderColor: "#4BAC35",
+            pointBackgroundColor: "#fff",
+            pointHoverRadius: 5,
+            pointHoverBackgroundColor: "#4BAC35",
+            pointHoverBorderColor: "rgba(75, 172, 53, 0.5)",
+            pointHoverBorderWidth: 7,
+            pointRadius: 0,
+            pointHitRadius: 30,
+            tension: 0.4,
+          },
+        ],
+      });
+    } else {
+      // Datos por defecto
+      setData({
+        labels: ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10"],
+        datasets: [
+          {
+            data: [3, 2, 3, 2, 2, 3, 1, 2, 2, 4],
+            fill: true,
+            backgroundColor: color.backgroundColor,
+            borderColor: color.borderColor,
+            borderWidth: 2,
+            pointBorderColor: "#4BAC35",
+            pointBackgroundColor: "#fff",
+            pointHoverRadius: 5,
+            pointHoverBackgroundColor: "#4BAC35",
+            pointHoverBorderColor: "rgba(75, 172, 53, 0.5)",
+            pointHoverBorderWidth: 7,
+            pointRadius: 0,
+            pointHitRadius: 30,
+            tension: 0.4,
+          },
+        ],
+      });
+    }
+  }, [color, chartInputData]);
 
   const chartContainerStyle = {
     height: height,
