@@ -9,7 +9,7 @@ import logoVivoTour from "../../assets/Logos/new vivo contorno2.png";
 import "./style/Perfil.css";
 
 export const Perfil = () => {
-  const { user, logout } = useContext(AuthContext);
+  const { user, logout, setUser } = useContext(AuthContext);
   const navigate = useNavigate();
   const fileInputRef = useRef(null);
   const [avatar, setAvatar] = useState(user?.avatar || "https://www.w3schools.com/howto/img_avatar.png");
@@ -17,6 +17,12 @@ export const Perfil = () => {
   const [opiniones, setOpiniones] = useState([]);
   const [loadingData, setLoadingData] = useState(true);
   const [error, setError] = useState("");
+  // Estados para edición de nombre y email
+  const [editField, setEditField] = useState(null); // 'nombre' | 'email' | null
+  const [nombreEdit, setNombreEdit] = useState(user?.nombre || "");
+  const [emailEdit, setEmailEdit] = useState(user?.email || "");
+  const [saving, setSaving] = useState(false);
+  const [editError, setEditError] = useState("");
 
   // Función para formatear fechas de forma segura
   const formatSafeDate = (dateStr) => {
@@ -82,23 +88,6 @@ export const Perfil = () => {
       doc.setTextColor(colorTexto[0], colorTexto[1], colorTexto[2]);
       
       // Sección de información del cliente
-      let yPos = 50;
-      doc.setFillColor(240, 248, 255);
-      doc.rect(15, yPos - 5, pageWidth - 30, 25, 'F');
-      
-      doc.setFontSize(14);
-      doc.setFont("helvetica", "bold");
-      doc.setTextColor(colorPrimario[0], colorPrimario[1], colorPrimario[2]);
-      doc.text("INFORMACIÓN DEL CLIENTE", 20, yPos + 5);
-      
-      doc.setFontSize(11);
-      doc.setFont("helvetica", "normal");
-      doc.setTextColor(colorTexto[0], colorTexto[1], colorTexto[2]);
-      doc.text(`Nombre: ${user?.nombre || "No disponible"}`, 20, yPos + 15);
-      doc.text(`Correo: ${user?.correo || user?.email || "No disponible"}`, 20, yPos + 22);
-      
-      // Sección de fechas de reserva
-      yPos += 40;
       doc.setFillColor(255, 249, 230);
       doc.rect(15, yPos - 5, pageWidth - 30, 35, 'F');
       
@@ -320,44 +309,149 @@ export const Perfil = () => {
           </div>
 
           <div className="perfil-info">
+            {/* NOMBRE */}
             <div className="perfil-info-item">
               <label>Nombre</label>
-              <div className="perfil-info-content">
-                <span>{user?.nombre || "Usuario"}</span>
-                <button className="btn-edit" title="Editar nombre" disabled>
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    className="icon-edit"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                    strokeWidth={2}
-                  >
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M15.232 5.232l3.536 3.536M9 11l6-6 3 3-6 6H9v-3z" />
-                  </svg>
-                </button>
+              <div style={{ display: 'flex', alignItems: 'center' }}>
+                <div className="perfil-info-content" style={{ marginRight: '0.5rem' }}>
+                  {editField === "nombre" ? (
+                    <>
+                      <input
+                        className="perfil-edit-input"
+                        type="text"
+                        value={nombreEdit}
+                        onChange={e => setNombreEdit(e.target.value)}
+                        disabled={saving}
+                      />
+                      <button className="btn-mini" onClick={async () => {
+                        setSaving(true);
+                        setEditError("");
+                        try {
+                          const token = localStorage.getItem('token');
+                          const res = await fetch('http://localhost:5000/usuario/update', {
+                            method: 'PUT',
+                            headers: {
+                              'Content-Type': 'application/json',
+                              Authorization: `Bearer ${token}`
+                            },
+                            body: JSON.stringify({ nombre: nombreEdit })
+                          });
+                          let json;
+                          try {
+                            json = await res.json();
+                          } catch {
+                            setEditError('No se pudo conectar con el servidor');
+                            setSaving(false);
+                            return;
+                          }
+                          if (json.success && json.usuario) {
+                            setUser(prev => ({ ...prev, ...json.usuario }));
+                            setEditField(null);
+                            setEditError('Nombre actualizado correctamente');
+                          } else {
+                            setEditError(json.mensaje || 'Error al actualizar');
+                          }
+                        } catch (e) {
+                          setEditError('No se pudo conectar con el servidor');
+                        }
+                        setSaving(false);
+                      }} disabled={saving}>Aceptar</button>
+                      <button className="btn-mini danger" onClick={() => { setEditField(null); setNombreEdit(user?.nombre || ""); }} disabled={saving}>Cancelar</button>
+                    </>
+                  ) : (
+                    <span>{user?.nombre || "Usuario"}</span>
+                  )}
+                </div>
+                {editField !== "nombre" && (
+                  <button className="btn-edit" title="Editar nombre" onClick={() => setEditField("nombre") }>
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      className="icon-edit"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                      strokeWidth={2}
+                    >
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M15.232 5.232l3.536 3.536M9 11l6-6 3 3-6 6H9v-3z" />
+                    </svg>
+                  </button>
+                )}
               </div>
+              {editField === "nombre" && editError && <div className="perfil-edit-error">{editError}</div>}
             </div>
 
+            {/* EMAIL */}
             <div className="perfil-info-item">
               <label>Correo</label>
-              <div className="perfil-info-content">
-                <span>{user?.email || "Correo no disponible"}</span>
-                <button className="btn-edit" title="Editar correo" disabled>
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    className="icon-edit"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                    strokeWidth={2}
-                  >
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M15.232 5.232l3.536 3.536M9 11l6-6 3 3-6 6H9v-3z" />
-                  </svg>
-                </button>
+              <div style={{ display: 'flex', alignItems: 'center' }}>
+                <div className="perfil-info-content" style={{ marginRight: '0.5rem' }}>
+                  {editField === "email" ? (
+                    <>
+                      <input
+                        className="perfil-edit-input"
+                        type="email"
+                        value={emailEdit}
+                        onChange={e => setEmailEdit(e.target.value)}
+                        disabled={saving}
+                      />
+                      <button className="btn-mini" onClick={async () => {
+                        setSaving(true);
+                        setEditError("");
+                        try {
+                          const token = localStorage.getItem('token');
+                          const res = await fetch('http://localhost:5000/usuario/update', {
+                            method: 'PUT',
+                            headers: {
+                              'Content-Type': 'application/json',
+                              Authorization: `Bearer ${token}`
+                            },
+                            body: JSON.stringify({ email: emailEdit })
+                          });
+                          let json;
+                          try {
+                            json = await res.json();
+                          } catch {
+                            setEditError('No se pudo conectar con el servidor');
+                            setSaving(false);
+                            return;
+                          }
+                          if (json.success && json.usuario) {
+                            setUser(prev => ({ ...prev, ...json.usuario }));
+                            setEditField(null);
+                            setEditError('Correo actualizado correctamente');
+                          } else {
+                            setEditError(json.mensaje || 'Error al actualizar');
+                          }
+                        } catch (e) {
+                          setEditError('No se pudo conectar con el servidor');
+                        }
+                        setSaving(false);
+                      }} disabled={saving}>Aceptar</button>
+                      <button className="btn-mini danger" onClick={() => { setEditField(null); setEmailEdit(user?.email || ""); }} disabled={saving}>Cancelar</button>
+                    </>
+                  ) : (
+                    <span>{user?.email || "Correo no disponible"}</span>
+                  )}
+                </div>
+                {editField !== "email" && (
+                  <button className="btn-edit" title="Editar correo" onClick={() => setEditField("email") }>
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      className="icon-edit"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                      strokeWidth={2}
+                    >
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M15.232 5.232l3.536 3.536M9 11l6-6 3 3-6 6H9v-3z" />
+                    </svg>
+                  </button>
+                )}
               </div>
+              {editField === "email" && editError && <div className="perfil-edit-error">{editError}</div>}
             </div>
 
+            {/* DOCUMENTO (solo visual) */}
             <div className="perfil-info-item">
               <label>Documento</label>
               <div className="perfil-info-content">

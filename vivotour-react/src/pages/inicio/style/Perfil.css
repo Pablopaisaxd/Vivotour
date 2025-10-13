@@ -165,6 +165,8 @@
   height: 20px;
   stroke: white;
   stroke-width: 2;
+  position: relative;
+  z-index: 2;
 }
 
 .perfil-info {
@@ -187,7 +189,6 @@
 .perfil-info-content {
   display: flex;
   align-items: center;
-  justify-content: space-between;
   background: var(--input-bg);
   border: 2px solid var(--input-border);
   border-radius: 15px;
@@ -195,26 +196,65 @@
   font-size: 1rem;
   color: var(--rich-black);
   transition: var(--transition);
+  width: 100%;
+  box-sizing: border-box;
+  position: relative;
 }
+
+.perfil-info-content span,
+.perfil-info-content input {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 
 .perfil-info-content span {
   user-select: text;
 }
 
 .btn-edit {
-  background: transparent;
-  border: none;
-  cursor: not-allowed; 
-  padding: 0;
   margin-left: 0.5rem;
+  position: static;
+  z-index: 2;
+  background: var(--forest-green);
+  border: none;
+  flex-shrink: 0;
+  color: #fff;
+  border-radius: 8px;
+  padding: 0.3rem 0.6rem;
   display: flex;
   align-items: center;
-  color: rgba(26, 24, 27, 0.4);
-  transition: color var(--transition);
+  cursor: pointer;
+  transition: background var(--transition), color var(--transition);
 }
 
 .btn-edit:hover {
+  background: var(--golden-yellow);
   color: var(--forest-green);
+}
+
+.perfil-edit-input {
+  padding: 0.5rem 0.8rem;
+  border-radius: 8px;
+  border: 1.5px solid var(--forest-green);
+  font-size: 1rem;
+  margin-right: 0.5rem;
+  background: var(--input-bg-focus);
+  color: var(--rich-black);
+  outline: none;
+  transition: var(--transition);
+}
+.perfil-edit-input:focus {
+  border-color: var(--golden-yellow);
+  background: #fffbe6;
+}
+
+.perfil-edit-error {
+  color: #c0392b;
+  font-size: 0.95rem;
+  margin-top: 0.3rem;
+  margin-left: 0.2rem;
 }
 
 .perfil-change-wrapper { 
@@ -283,7 +323,7 @@
   .perfil-grid {
     grid-template-columns: 1fr;
   }
-  /* On small screens, revert to natural heights to avoid cramped layout */
+ 
   .perfil-panel {
     height: auto;
   }
@@ -300,19 +340,19 @@
   }
   .perfil-info-content {
     font-size: 0.95rem;
-  }
-  .perfil-info-item label {
-    font-size: 0.9rem;
-  }
-  .perfil-btn {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: var(--input-bg);
+    border: 2px solid var(--input-border);
+    border-radius: 15px;
+    padding: 0.8rem 1rem;
     font-size: 1rem;
-  }
-}
-
-@media (max-width: 480px) {
+    color: var(--rich-black);
+    transition: var(--transition);
   .perfil-card {
     padding: 1.5rem 1rem;
-    margin: 0.5rem;
+    margin-bottom: 1rem;
   }
   .perfil-avatar {
     width: 100px;
@@ -331,7 +371,7 @@
   .perfil-btn {
     font-size: 0.95rem;
   }
-}
+}}
 
 /* ===== ESTILOS PARA OPINIONES EN EL PERFIL ===== */
 .lista-opiniones {
@@ -448,7 +488,7 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 1rem;
+  margin-bottom: 1.5rem;
   padding-bottom: 0.5rem;
   border-bottom: 1px solid rgba(255, 201, 20, 0.2);
 }
@@ -458,15 +498,23 @@
   font-weight: 600;
   font-size: 1rem;
 }
-
-.reserva-detalles {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-}
-
-.reserva-fechas,
-.reserva-alojamiento,
+    margin-left: 0.5rem;
+    position: static;
+    z-index: 2;
+    background: var(--forest-green);
+    border: none;
+    flex-shrink: 0;
+    color: #fff;
+    border-radius: 8px;
+    padding: 0.3rem 0.6rem;
+    display: flex;
+    align-items: center;
+    transition: background var(--transition);
+  }
+  .btn-edit:hover {
+    background: var(--golden-yellow);
+    color: var(--forest-green);
+  }
 .reserva-info {
   padding: 0.5rem 0;
 }
