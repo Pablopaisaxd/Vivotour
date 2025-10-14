@@ -200,6 +200,9 @@ export default function Menu({ onNavigate }) {
 
         <Divider />
       </List>
+      <div>
+        <button></button>
+      </div>
     </div>
   );
 }

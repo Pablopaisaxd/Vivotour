@@ -15,6 +15,7 @@ export const AuthProvider = ({ children }) => {
       try {
         const decoded = jwtDecode(token);
         console.log("Datos decodificados del token:", decoded);
+        console.log("Avatar en token:", decoded.avatar);
 
         const currentTime = Date.now() / 1000;
         if (decoded.exp && decoded.exp < currentTime) {
@@ -25,7 +26,7 @@ export const AuthProvider = ({ children }) => {
         }
 
         setIsAuthenticated(true);
-        setUser({
+        const userData = {
           IdAccount: decoded.IdAccount,
           nombre: decoded.nombre,
           email: decoded.email,
@@ -33,8 +34,12 @@ export const AuthProvider = ({ children }) => {
           tipoDocumento: decoded.tipoDocumento,
           celular: decoded.celular,
           IdRol: decoded.IdRol,
-          rol: decoded.rol
-        });
+          rol: decoded.rol,
+          avatar: decoded.avatar
+        };
+        
+        console.log("Usuario establecido en contexto:", userData);
+        setUser(userData);
       } catch (error) {
         console.error("Token inválido:", error);
         setIsAuthenticated(false);
@@ -58,7 +63,8 @@ export const AuthProvider = ({ children }) => {
         numeroDocumento: userData?.numeroDocumento ?? decoded?.numeroDocumento,
         tipoDocumento: userData?.tipoDocumento ?? decoded?.tipoDocumento,
         IdRol: userData?.IdRol ?? decoded?.IdRol,
-        rol: userData?.rol ?? decoded?.rol
+        rol: userData?.rol ?? decoded?.rol,
+        avatar: userData?.avatar ?? decoded?.avatar
       });
     } catch (e) {
       setUser(userData || null);

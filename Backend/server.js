@@ -4,6 +4,10 @@ import dotenv from "dotenv";
 import jwt from "jsonwebtoken";
 import crypto from "crypto";
 import nodemailer from "nodemailer";
+import multer from "multer";
+import path from "path";
+import fs from "fs";
+import { fileURLToPath } from 'url';
 import db from "./db.js";
 import { google } from "googleapis"; // Google OAuth2
 
@@ -11,12 +15,59 @@ dotenv.config();
 
 const app = express();
 
+// Obtener __dirname en ES modules
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
 // CORS (permitir frontend definido en .env o localhost por defecto)
 const allowedOrigin = process.env.FRONTEND_URL || "http://localhost:5173";
 app.use(cors({ origin: allowedOrigin, credentials: true }));
 app.use(express.json());
 
+// Servir archivos estáticos de la carpeta uploads
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+
+// Configuración de multer para subida de avatares
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    const uploadPath = path.join(__dirname, 'uploads', 'avatars');
+    if (!fs.existsSync(uploadPath)) {
+      fs.mkdirSync(uploadPath, { recursive: true });
+    }
+    cb(null, uploadPath);
+  },
+  filename: (req, file, cb) => {
+    // Usar el ID del usuario + timestamp para nombre único
+    const userId = req.user.id;
+    const timestamp = Date.now();
+    const ext = path.extname(file.originalname);
+    cb(null, `avatar_${userId}_${timestamp}${ext}`);
+  }
+});
+
+const upload = multer({
+  storage: storage,
+  limits: {
+    fileSize: 5 * 1024 * 1024, // 5MB máximo
+  },
+  fileFilter: (req, file, cb) => {
+    // Solo permitir imágenes
+    if (file.mimetype.startsWith('image/')) {
+      cb(null, true);
+    } else {
+      cb(new Error('Solo se permiten archivos de imagen'), false);
+    }
+  }
+});
+
 const JWT_SECRET = process.env.JWT_SECRET || "clave_super_secreta"; 
+
+// Función helper para convertir avatar path a URL completa
+function getAvatarUrl(avatarPath) {
+  if (!avatarPath) return null;
+  if (avatarPath.startsWith('http')) return avatarPath; // Ya es URL completa
+  return `http://localhost:5000${avatarPath}`;
+}
 
 // Función para asignar rol automáticamente basado en el email
 function asignarRolPorEmail(email) {
@@ -459,6 +510,17 @@ app.get('/auth/google/config-check', (req, res) => {
   } catch (e) {
     console.warn("No se pudo asegurar columna IdRol en accounts:", e.code || e.message);
   }
+
+  // Asegurar columna avatar en accounts
+  try {
+    const [avatarCols] = await db.query("SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME='accounts' AND COLUMN_NAME='avatar'");
+    if (!avatarCols || avatarCols.length === 0) {
+      await db.query("ALTER TABLE accounts ADD COLUMN avatar VARCHAR(500) NULL AFTER IdRol");
+      console.log("Columna avatar agregada a accounts");
+    }
+  } catch (e) {
+    console.warn("No se pudo asegurar columna avatar en accounts:", e.code || e.message);
+  }
 })();
 
 async function sendResetMail(toEmail, resetLink) {
@@ -629,21 +691,31 @@ app.post("/login", async (req, res) => {
   const { email, password } = req.body;
 
   try {
-    // JOIN con roles para obtener información completa del usuario
+    console.log('[LOGIN] Intento de login para:', email);
+
+    // JOIN con roles para obtener información completa del usuario incluyendo avatar
     const [rows] = await db.query(`
-      SELECT a.*, r.NombreRol 
+      SELECT a.IdAccount, a.nombre, a.email, a.celular, a.numeroDocumento, a.tipoDocumento, a.password, a.IdRol, a.avatar, r.NombreRol 
       FROM accounts a 
       LEFT JOIN roles r ON a.IdRol = r.IdRol 
       WHERE a.email = ?
     `, [email]);
 
     if (rows.length === 0) {
+      console.log('[LOGIN] Usuario no encontrado:', email);
       return res.status(401).json({ success: false, mensaje: "Usuario no encontrado" });
     }
 
     const user = rows[0];
+    console.log('[LOGIN] Usuario encontrado:', {
+      IdAccount: user.IdAccount,
+      nombre: user.nombre,
+      email: user.email,
+      avatar: user.avatar
+    });
 
     if (user.password !== password) { // temporal, sin encriptar
+      console.log('[LOGIN] Contraseña incorrecta para:', email);
       return res.status(401).json({ success: false, mensaje: "Contraseña incorrecta" });
     }
 
@@ -667,15 +739,29 @@ app.post("/login", async (req, res) => {
       numeroDocumento: user.numeroDocumento, 
       tipoDocumento: user.tipoDocumento,
       IdRol,
-      rol: nombreRol
+      rol: nombreRol,
+      avatar: getAvatarUrl(user.avatar)
     }, JWT_SECRET, { expiresIn: "3h" });
+
+    console.log('[LOGIN] Token generado con avatar:', getAvatarUrl(user.avatar));
 
     res.json({ 
       success: true, 
       mensaje: "Login exitoso", 
       token,
       rol: nombreRol,
-      IdAccount: user.IdAccount
+      IdAccount: user.IdAccount,
+      user: {
+        IdAccount: user.IdAccount,
+        nombre: user.nombre,
+        email: user.email,
+        celular: user.celular,
+        numeroDocumento: user.numeroDocumento,
+        tipoDocumento: user.tipoDocumento,
+        IdRol,
+        rol: nombreRol,
+        avatar: getAvatarUrl(user.avatar)
+      }
     });
   } catch (error) {
     console.error("Error en DB:", error);
@@ -699,7 +785,8 @@ app.post("/Login", async (req, res) => {
         numeroDocumento: '12345678',
         tipoDocumento: 'CC',
         IdRol: 1,
-        rol: 'Admin'
+        rol: 'Admin',
+        avatar: null
       },
       'test@gmail.com': {
         IdAccount: 2,
@@ -710,7 +797,8 @@ app.post("/Login", async (req, res) => {
         numeroDocumento: '87654321',
         tipoDocumento: 'CC',
         IdRol: 2,
-        rol: 'Cliente'
+        rol: 'Cliente',
+        avatar: null
       }
     };
 
@@ -724,9 +812,11 @@ app.post("/Login", async (req, res) => {
     }
 
     if (useDatabase) {
+      console.log('[LOGIN-CAPS] Usando base de datos para:', email);
+
       // Usar base de datos si está disponible
       const [rows] = await db.query(`
-        SELECT a.*, r.NombreRol 
+        SELECT a.IdAccount, a.nombre, a.email, a.celular, a.numeroDocumento, a.tipoDocumento, a.password, a.IdRol, a.avatar, r.NombreRol 
         FROM accounts a 
         LEFT JOIN roles r ON a.IdRol = r.IdRol 
         WHERE a.email = ?
@@ -737,6 +827,12 @@ app.post("/Login", async (req, res) => {
       }
 
       const user = rows[0];
+      console.log('[LOGIN-CAPS] Usuario encontrado:', {
+        IdAccount: user.IdAccount,
+        nombre: user.nombre,
+        email: user.email,
+        avatar: user.avatar
+      });
 
       if (user.password !== password) {
         return res.status(401).json({ success: false, mensaje: "Contraseña incorrecta" });
@@ -761,8 +857,11 @@ app.post("/Login", async (req, res) => {
         numeroDocumento: user.numeroDocumento, 
         tipoDocumento: user.tipoDocumento,
         IdRol,
-        rol: nombreRol
+        rol: nombreRol,
+        avatar: getAvatarUrl(user.avatar)
       }, JWT_SECRET, { expiresIn: "3h" });
+
+      console.log('[LOGIN-CAPS] Token generado con avatar:', getAvatarUrl(user.avatar));
 
       return res.json({ 
         success: true, 
@@ -775,7 +874,8 @@ app.post("/Login", async (req, res) => {
           numeroDocumento: user.numeroDocumento,
           tipoDocumento: user.tipoDocumento,
           IdRol,
-          rol: nombreRol
+          rol: nombreRol,
+          avatar: getAvatarUrl(user.avatar)
         }
       });
     } else {
@@ -798,7 +898,8 @@ app.post("/Login", async (req, res) => {
         numeroDocumento: user.numeroDocumento, 
         tipoDocumento: user.tipoDocumento,
         IdRol: user.IdRol,
-        rol: user.rol
+        rol: user.rol,
+        avatar: getAvatarUrl(user.avatar)
       }, JWT_SECRET, { expiresIn: "3h" });
 
       return res.json({ 
@@ -812,7 +913,8 @@ app.post("/Login", async (req, res) => {
           numeroDocumento: user.numeroDocumento,
           tipoDocumento: user.tipoDocumento,
           IdRol: user.IdRol,
-          rol: user.rol
+          rol: user.rol,
+          avatar: getAvatarUrl(user.avatar)
         }
       });
     }
@@ -1579,6 +1681,90 @@ app.put('/usuario/update', requireAuth, async (req, res) => {
   } catch (e) {
     console.error('[UPDATE USUARIO] Error actualizando usuario:', e);
     return res.status(500).json({ success: false, mensaje: 'Error actualizando usuario' });
+  }
+});
+
+// Endpoint para subir avatar
+app.post("/upload-avatar", requireAuth, upload.single('avatar'), async (req, res) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({ success: false, mensaje: "No se subió ningún archivo" });
+    }
+
+    const userId = req.user.IdAccount || req.user.id;
+    const avatarUrl = `/uploads/avatars/${req.file.filename}`;
+
+    console.log('[UPLOAD AVATAR] Usuario ID:', userId);
+    console.log('[UPLOAD AVATAR] Archivo:', req.file.filename);
+
+    // Buscar avatar anterior para eliminarlo
+    const [userResult] = await db.query("SELECT avatar FROM accounts WHERE IdAccount = ?", [userId]);
+    
+    if (userResult.length > 0 && userResult[0].avatar) {
+      const oldAvatarPath = path.join(__dirname, userResult[0].avatar);
+      if (fs.existsSync(oldAvatarPath)) {
+        try {
+          fs.unlinkSync(oldAvatarPath);
+          console.log('[UPLOAD AVATAR] Avatar anterior eliminado:', oldAvatarPath);
+        } catch (e) {
+          console.warn('[UPLOAD AVATAR] No se pudo eliminar avatar anterior:', e.message);
+        }
+      }
+    }
+
+    // Actualizar avatar en la base de datos
+    await db.query("UPDATE accounts SET avatar = ? WHERE IdAccount = ?", [avatarUrl, userId]);
+
+    // Obtener usuario actualizado
+    const [[updatedUser]] = await db.query(`
+      SELECT a.IdAccount, a.nombre, a.email, a.celular, a.numeroDocumento, a.tipoDocumento, a.IdRol, a.avatar, r.NombreRol as rol
+      FROM accounts a
+      LEFT JOIN roles r ON a.IdRol = r.IdRol
+      WHERE a.IdAccount = ?
+    `, [userId]);
+
+    // Generar nuevo token con avatar actualizado
+    const newToken = jwt.sign({ 
+      IdAccount: updatedUser.IdAccount,
+      nombre: updatedUser.nombre,  
+      email: updatedUser.email, 
+      celular: updatedUser.celular, 
+      numeroDocumento: updatedUser.numeroDocumento, 
+      tipoDocumento: updatedUser.tipoDocumento,
+      IdRol: updatedUser.IdRol,
+      rol: updatedUser.rol,
+      avatar: getAvatarUrl(updatedUser.avatar)
+    }, JWT_SECRET, { expiresIn: "7d" });
+
+    res.json({
+      success: true,
+      mensaje: "Avatar actualizado correctamente",
+      avatarUrl: getAvatarUrl(avatarUrl),
+      token: newToken,
+      user: {
+        IdAccount: updatedUser.IdAccount,
+        nombre: updatedUser.nombre,
+        email: updatedUser.email,
+        celular: updatedUser.celular,
+        numeroDocumento: updatedUser.numeroDocumento,
+        tipoDocumento: updatedUser.tipoDocumento,
+        IdRol: updatedUser.IdRol,
+        rol: updatedUser.rol,
+        avatar: getAvatarUrl(updatedUser.avatar)
+      }
+    });
+
+  } catch (error) {
+    console.error("Error al subir avatar:", error);
+    // Si hay error, eliminar el archivo subido
+    if (req.file) {
+      try {
+        fs.unlinkSync(req.file.path);
+      } catch (e) {
+        console.warn("No se pudo eliminar archivo temporal:", e.message);
+      }
+    }
+    res.status(500).json({ success: false, mensaje: "Error interno del servidor" });
   }
 });
 

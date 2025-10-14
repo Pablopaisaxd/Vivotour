@@ -204,18 +204,72 @@ export const Perfil = () => {
     fileInputRef.current?.click();
   };
 
-  const handleFileChange = (e) => {
+  const handleFileChange = async (e) => {
     const file = e.target.files[0];
-    if (file && file.type.startsWith("image/")) {
+    if (!file) return;
+
+    if (!file.type.startsWith("image/")) {
+      alert("Por favor selecciona un archivo de imagen válido (png, jpg, jpeg, gif).");
+      return;
+    }
+
+    // Verificar tamaño (máximo 5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      alert("La imagen no puede ser mayor a 5MB");
+      return;
+    }
+
+    try {
+      // Mostrar preview inmediatamente
       const reader = new FileReader();
       reader.onload = () => {
         setAvatar(reader.result);
       };
       reader.readAsDataURL(file);
-    } else {
-      alert("Por favor selecciona un archivo de imagen válido (png, jpg, jpeg, gif).");
+
+      // Subir al servidor
+      const formData = new FormData();
+      formData.append('avatar', file);
+
+      const token = localStorage.getItem('token');
+      const response = await fetch('http://localhost:5000/upload-avatar', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`
+        },
+        body: formData
+      });
+
+      const result = await response.json();
+
+      if (result.success) {
+        // Actualizar el avatar con la URL del servidor
+        setAvatar(result.avatarUrl);
+        
+        // Actualizar token y usuario en el contexto
+        localStorage.setItem('token', result.token);
+        setUser(result.user);
+        
+        console.log('Avatar actualizado:', result.avatarUrl);
+      } else {
+        // Si falla, revertir al avatar anterior
+        setAvatar(user?.avatar || "https://www.w3schools.com/howto/img_avatar.png");
+        alert(result.mensaje || 'Error al subir la imagen');
+      }
+    } catch (error) {
+      // Si falla, revertir al avatar anterior
+      setAvatar(user?.avatar || "https://www.w3schools.com/howto/img_avatar.png");
+      console.error('Error al subir avatar:', error);
+      alert('Error de conexión al subir la imagen');
     }
   };
+
+  // Sincronizar avatar cuando user cambia
+  useEffect(() => {
+    if (user?.avatar) {
+      setAvatar(user.avatar);
+    }
+  }, [user?.avatar]);
 
   // Cargar reservas y opiniones del usuario
   useEffect(() => {

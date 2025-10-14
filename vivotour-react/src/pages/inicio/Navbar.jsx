@@ -5,10 +5,14 @@ import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { AuthContext } from '../../AuthContext';
 
 const Nav = () => {
-  const { isAuthenticated, logout } = useContext(AuthContext);
+  const { isAuthenticated, logout, user } = useContext(AuthContext);
   const navigate = useNavigate();
   const location = useLocation();
   const onPerfil = location.pathname.toLowerCase() === '/perfil';
+  const onAdmin = location.pathname.toLowerCase() === '/admin';
+  
+  // Verificar si el usuario es admin (IdRol = 1 o rol = "Admin")
+  const isAdmin = user && (user.IdRol === 1 || user.rol === 'Admin');
 
   const scrollToSection = (id) => {
     const section = document.getElementById(id);
@@ -46,12 +50,25 @@ const Nav = () => {
 
         {isAuthenticated ? (
           <>
-            {onPerfil ? (
-              <li><a className="btnlog" onClick={() => { logout(); navigate('/'); }}>Cerrar sesión</a></li>
+            {isAdmin ? (
+              // Si es admin, mostrar botón Admin en lugar de Perfil
+              <>
+                {onAdmin ? (
+                  <li><a className="btnlog" onClick={() => { logout(); navigate('/'); }}>Cerrar sesión</a></li>
+                ) : (
+                  <li><a className="btnlog" onClick={() => navigate("/Admin")}>Admin</a></li>
+                )}
+              </>
             ) : (
-              <li><a className="btnlog" onClick={() => navigate("/Perfil")}>Perfil</a></li>
+              // Si es cliente, mostrar botón Perfil
+              <>
+                {onPerfil ? (
+                  <li><a className="btnlog" onClick={() => { logout(); navigate('/'); }}>Cerrar sesión</a></li>
+                ) : (
+                  <li><a className="btnlog" onClick={() => navigate("/Perfil")}>Perfil</a></li>
+                )}
+              </>
             )}
-            <li><a className="btnav" onClick={() => navigate("/Admin")}>Admin</a></li>
           </>
         ) : (
           <li><a className="btnlog" onClick={() => navigate("/Login")}>Acceder</a></li>
