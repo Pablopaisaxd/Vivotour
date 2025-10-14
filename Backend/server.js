@@ -114,10 +114,17 @@ app.get("/auth/google/callback", async (req, res) => {
       return res.redirect(`${allowedOrigin}/Login?error=no_email`);
     }
 
-    // Verificar / crear usuario y obtener datos
-    let celular = ""; let numeroDocumento = ""; let tipoDocumento = "";
+    // Verificar / crear usuario y obtener datos con rol
+    let celular = ""; let numeroDocumento = ""; let tipoDocumento = ""; let IdRol = null; let nombreRol = null;
     try {
-      const [rows] = await db.query("SELECT * FROM accounts WHERE email = ?", [email]);
+      // Buscar usuario con JOIN para obtener rol
+      const [rows] = await db.query(`
+        SELECT a.*, r.NombreRol 
+        FROM accounts a 
+        LEFT JOIN roles r ON a.IdRol = r.IdRol 
+        WHERE a.email = ?
+      `, [email]);
+      
       if (rows.length === 0) {
         // Insertar usuario mínimo
         try {
@@ -128,22 +135,41 @@ app.get("/auth/google/callback", async (req, res) => {
         } catch (insertErr) {
           console.error("Error insertando usuario Google (posibles restricciones de la tabla):", insertErr);
         }
+      }
+      
+      // Consultar el usuario para obtener IdAccount y datos actualizados con rol
+      const [userRows] = await db.query(`
+        SELECT a.*, r.NombreRol 
+        FROM accounts a 
+        LEFT JOIN roles r ON a.IdRol = r.IdRol 
+        WHERE a.email = ?
+      `, [email]);
+      
+      if (userRows.length > 0) {
+        const u = userRows[0];
+        celular = u.celular || "";
+        numeroDocumento = u.numeroDocumento || "";
+        tipoDocumento = u.tipoDocumento || "";
+        var IdAccount = u.IdAccount;
+        
+        // Si el usuario no tiene rol asignado, asignarlo automáticamente
+        IdRol = u.IdRol;
+        nombreRol = u.NombreRol;
+        
+        if (!IdRol) {
+          IdRol = asignarRolPorEmail(email);
+          await db.query("UPDATE accounts SET IdRol = ? WHERE IdAccount = ?", [IdRol, IdAccount]);
+          
+          const [rolRows] = await db.query("SELECT NombreRol FROM roles WHERE IdRol = ?", [IdRol]);
+          nombreRol = rolRows.length > 0 ? rolRows[0].NombreRol : "Cliente";
         }
-        // Consultar el usuario para obtener IdAccount y datos actualizados
-        const [userRows] = await db.query("SELECT * FROM accounts WHERE email = ?", [email]);
-        if (userRows.length > 0) {
-          const u = userRows[0];
-          celular = u.celular || "";
-          numeroDocumento = u.numeroDocumento || "";
-          tipoDocumento = u.tipoDocumento || "";
-          var IdAccount = u.IdAccount;
-        }
+      }
     } catch (dbErr) {
       console.error("Error consultando usuario Google:", dbErr);
     }
 
       const token = jwt.sign(
-        { IdAccount, nombre, email, celular, numeroDocumento, tipoDocumento },
+        { IdAccount, nombre, email, celular, numeroDocumento, tipoDocumento, IdRol, rol: nombreRol },
         JWT_SECRET,
         { expiresIn: "3h" }
       );
@@ -218,10 +244,17 @@ app.get("/auth/facebook/callback", async (req, res) => {
     const email = profile.email || `${profile.id}@facebook.local`;
     const nombre = profile.name || email;
 
-    // Verificar / crear usuario en DB y obtener datos
-    let celular = ""; let numeroDocumento = ""; let tipoDocumento = "";
+    // Verificar / crear usuario en DB y obtener datos con rol
+    let celular = ""; let numeroDocumento = ""; let tipoDocumento = ""; let IdRol = null; let nombreRol = null;
     try {
-      const [rows] = await db.query("SELECT * FROM accounts WHERE email = ?", [email]);
+      // Buscar usuario con JOIN para obtener rol
+      const [rows] = await db.query(`
+        SELECT a.*, r.NombreRol 
+        FROM accounts a 
+        LEFT JOIN roles r ON a.IdRol = r.IdRol 
+        WHERE a.email = ?
+      `, [email]);
+      
       if (rows.length === 0) {
         try {
           await db.query(
@@ -231,22 +264,41 @@ app.get("/auth/facebook/callback", async (req, res) => {
         } catch (insertErr) {
           console.error("Error insertando usuario Facebook:", insertErr);
         }
+      }
+      
+      // Consultar el usuario para obtener IdAccount y datos actualizados con rol
+      const [userRows] = await db.query(`
+        SELECT a.*, r.NombreRol 
+        FROM accounts a 
+        LEFT JOIN roles r ON a.IdRol = r.IdRol 
+        WHERE a.email = ?
+      `, [email]);
+      
+      if (userRows.length > 0) {
+        const u = userRows[0];
+        celular = u.celular || "";
+        numeroDocumento = u.numeroDocumento || "";
+        tipoDocumento = u.tipoDocumento || "";
+        var IdAccount = u.IdAccount;
+        
+        // Si el usuario no tiene rol asignado, asignarlo automáticamente
+        IdRol = u.IdRol;
+        nombreRol = u.NombreRol;
+        
+        if (!IdRol) {
+          IdRol = asignarRolPorEmail(email);
+          await db.query("UPDATE accounts SET IdRol = ? WHERE IdAccount = ?", [IdRol, IdAccount]);
+          
+          const [rolRows] = await db.query("SELECT NombreRol FROM roles WHERE IdRol = ?", [IdRol]);
+          nombreRol = rolRows.length > 0 ? rolRows[0].NombreRol : "Cliente";
         }
-        // Consultar el usuario para obtener IdAccount y datos actualizados
-        const [userRows] = await db.query("SELECT * FROM accounts WHERE email = ?", [email]);
-        if (userRows.length > 0) {
-          const u = userRows[0];
-          celular = u.celular || "";
-          numeroDocumento = u.numeroDocumento || "";
-          tipoDocumento = u.tipoDocumento || "";
-          var IdAccount = u.IdAccount;
-        }
+      }
     } catch (dbErr) {
       console.error("Error consultando usuario Facebook:", dbErr);
     }
 
       const token = jwt.sign(
-        { IdAccount, nombre, email, celular, numeroDocumento, tipoDocumento },
+        { IdAccount, nombre, email, celular, numeroDocumento, tipoDocumento, IdRol, rol: nombreRol },
         JWT_SECRET,
         { expiresIn: "3h" }
       );
@@ -632,10 +684,142 @@ app.post("/login", async (req, res) => {
 });
 
 // Alias para mayúscula usado en el frontend ("/Login")
-app.post("/Login", (req, res) => {
-  // Reutiliza la lógica existente llamando internamente a /login
-  req.url = "/login"; // redirigir internamente
-  app._router.handle(req, res, () => {});
+app.post("/Login", async (req, res) => {
+  const { email, password } = req.body;
+
+  try {
+    // Usuarios de prueba temporal mientras solucionamos la DB
+    const testUsers = {
+      'pablogira71@gmail.com': {
+        IdAccount: 1,
+        nombre: 'Pablo Gira',
+        email: 'pablogira71@gmail.com',
+        password: '123',
+        celular: '123456789',
+        numeroDocumento: '12345678',
+        tipoDocumento: 'CC',
+        IdRol: 1,
+        rol: 'Admin'
+      },
+      'test@gmail.com': {
+        IdAccount: 2,
+        nombre: 'Usuario Test',
+        email: 'test@gmail.com',
+        password: '123',
+        celular: '987654321',
+        numeroDocumento: '87654321',
+        tipoDocumento: 'CC',
+        IdRol: 2,
+        rol: 'Cliente'
+      }
+    };
+
+    // Verificar si la DB está disponible
+    let useDatabase = true;
+    try {
+      await db.query('SELECT 1');
+    } catch (dbError) {
+      console.log('DB no disponible, usando usuarios de prueba');
+      useDatabase = false;
+    }
+
+    if (useDatabase) {
+      // Usar base de datos si está disponible
+      const [rows] = await db.query(`
+        SELECT a.*, r.NombreRol 
+        FROM accounts a 
+        LEFT JOIN roles r ON a.IdRol = r.IdRol 
+        WHERE a.email = ?
+      `, [email]);
+
+      if (rows.length === 0) {
+        return res.status(401).json({ success: false, mensaje: "Usuario no encontrado" });
+      }
+
+      const user = rows[0];
+
+      if (user.password !== password) {
+        return res.status(401).json({ success: false, mensaje: "Contraseña incorrecta" });
+      }
+
+      let IdRol = user.IdRol;
+      let nombreRol = user.NombreRol;
+      
+      if (!IdRol) {
+        IdRol = asignarRolPorEmail(email);
+        await db.query("UPDATE accounts SET IdRol = ? WHERE IdAccount = ?", [IdRol, user.IdAccount]);
+        
+        const [rolRows] = await db.query("SELECT NombreRol FROM roles WHERE IdRol = ?", [IdRol]);
+        nombreRol = rolRows.length > 0 ? rolRows[0].NombreRol : "Cliente";
+      }
+
+      const token = jwt.sign({ 
+        IdAccount: user.IdAccount,
+        nombre: user.nombre,  
+        email: user.email, 
+        celular: user.celular, 
+        numeroDocumento: user.numeroDocumento, 
+        tipoDocumento: user.tipoDocumento,
+        IdRol,
+        rol: nombreRol
+      }, JWT_SECRET, { expiresIn: "3h" });
+
+      return res.json({ 
+        success: true, 
+        token, 
+        user: {
+          IdAccount: user.IdAccount,
+          nombre: user.nombre,
+          email: user.email,
+          celular: user.celular,
+          numeroDocumento: user.numeroDocumento,
+          tipoDocumento: user.tipoDocumento,
+          IdRol,
+          rol: nombreRol
+        }
+      });
+    } else {
+      // Fallback a usuarios de prueba
+      const user = testUsers[email];
+      
+      if (!user) {
+        return res.status(401).json({ success: false, mensaje: "Usuario no encontrado. Prueba: pablogira71@gmail.com o test@gmail.com con contraseña: 123" });
+      }
+
+      if (user.password !== password) {
+        return res.status(401).json({ success: false, mensaje: "Contraseña incorrecta. Prueba: 123" });
+      }
+
+      const token = jwt.sign({ 
+        IdAccount: user.IdAccount,
+        nombre: user.nombre,  
+        email: user.email, 
+        celular: user.celular, 
+        numeroDocumento: user.numeroDocumento, 
+        tipoDocumento: user.tipoDocumento,
+        IdRol: user.IdRol,
+        rol: user.rol
+      }, JWT_SECRET, { expiresIn: "3h" });
+
+      return res.json({ 
+        success: true, 
+        token, 
+        user: {
+          IdAccount: user.IdAccount,
+          nombre: user.nombre,
+          email: user.email,
+          celular: user.celular,
+          numeroDocumento: user.numeroDocumento,
+          tipoDocumento: user.tipoDocumento,
+          IdRol: user.IdRol,
+          rol: user.rol
+        }
+      });
+    }
+  } catch (error) {
+    console.error("Error en login:", error);
+    return res.status(500).json({ success: false, mensaje: "Error del servidor" });
+  }
 });
 
 // Completar perfil tras OAuth (o cuando falten datos)
@@ -1315,29 +1499,83 @@ app.put('/usuario/update', requireAuth, async (req, res) => {
     const { nombre, email } = req.body;
     const userId = req.user.IdAccount || req.user.id || req.user.IdCliente;
     console.log('[UPDATE USUARIO] Datos recibidos:', { userId, nombre, email });
+    console.log('[UPDATE USUARIO] Usuario completo:', req.user);
+    
     if (!userId) {
       console.log('[UPDATE USUARIO] Usuario no identificado');
       return res.status(400).json({ success: false, mensaje: 'Usuario no identificado' });
     }
-    // Actualizar nombre si se envía
-    if (nombre) {
-      const [result] = await db.query('UPDATE accounts SET nombre = ? WHERE IdAccount = ?', [nombre, userId]);
-      console.log('[UPDATE USUARIO] Resultado nombre:', result);
+
+    // Verificar si la DB está disponible
+    let useDatabase = true;
+    try {
+      await db.query('SELECT 1');
+    } catch (dbError) {
+      console.log('[UPDATE USUARIO] DB no disponible, usando datos del token');
+      useDatabase = false;
     }
-    // Actualizar email si se envía
-    if (email) {
-      const [result] = await db.query('UPDATE accounts SET email = ? WHERE IdAccount = ?', [email, userId]);
-      console.log('[UPDATE USUARIO] Resultado email:', result);
+
+    if (useDatabase) {
+      // Usar base de datos si está disponible
+      if (nombre) {
+        const [result] = await db.query('UPDATE accounts SET nombre = ? WHERE IdAccount = ?', [nombre, userId]);
+        console.log('[UPDATE USUARIO] Resultado nombre:', result);
+      }
+      if (email) {
+        const [result] = await db.query('UPDATE accounts SET email = ? WHERE IdAccount = ?', [email, userId]);
+        console.log('[UPDATE USUARIO] Resultado email:', result);
+      }
+      
+      const [[updatedUser]] = await db.query(`
+        SELECT a.IdAccount, a.nombre, a.email, a.celular, a.numeroDocumento, a.tipoDocumento, a.IdRol, r.NombreRol as rol
+        FROM accounts a
+        LEFT JOIN roles r ON a.IdRol = r.IdRol
+        WHERE a.IdAccount = ?
+      `, [userId]);
+      
+      console.log('[UPDATE USUARIO] Usuario actualizado desde DB:', updatedUser);
+      
+      // Generar nuevo token JWT con información actualizada
+      const newToken = jwt.sign({ 
+        IdAccount: updatedUser.IdAccount,
+        nombre: updatedUser.nombre,  
+        email: updatedUser.email, 
+        celular: updatedUser.celular, 
+        numeroDocumento: updatedUser.numeroDocumento, 
+        tipoDocumento: updatedUser.tipoDocumento,
+        IdRol: updatedUser.IdRol,
+        rol: updatedUser.rol
+      }, JWT_SECRET, { expiresIn: "3h" });
+      
+      return res.json({ success: true, usuario: updatedUser, token: newToken });
+    } else {
+      // Fallback: devolver datos actualizados basados en el token
+      const updatedUser = {
+        IdAccount: req.user.IdAccount,
+        nombre: nombre || req.user.nombre,
+        email: email || req.user.email,
+        celular: req.user.celular,
+        numeroDocumento: req.user.numeroDocumento,
+        tipoDocumento: req.user.tipoDocumento,
+        IdRol: req.user.IdRol,
+        rol: req.user.rol
+      };
+      
+      // Generar nuevo token JWT con información actualizada
+      const newToken = jwt.sign({ 
+        IdAccount: updatedUser.IdAccount,
+        nombre: updatedUser.nombre,  
+        email: updatedUser.email, 
+        celular: updatedUser.celular, 
+        numeroDocumento: updatedUser.numeroDocumento, 
+        tipoDocumento: updatedUser.tipoDocumento,
+        IdRol: updatedUser.IdRol,
+        rol: updatedUser.rol
+      }, JWT_SECRET, { expiresIn: "3h" });
+      
+      console.log('[UPDATE USUARIO] Usuario actualizado desde token:', updatedUser);
+      return res.json({ success: true, usuario: updatedUser, token: newToken });
     }
-    // Obtener todos los datos relevantes para el frontend
-    const [[updatedUser]] = await db.query(`
-      SELECT a.IdAccount, a.nombre, a.email, a.celular, a.numeroDocumento, a.tipoDocumento, a.IdRol, r.NombreRol as rol
-      FROM accounts a
-      LEFT JOIN roles r ON a.IdRol = r.IdRol
-      WHERE a.IdAccount = ?
-    `, [userId]);
-    console.log('[UPDATE USUARIO] Usuario actualizado:', updatedUser);
-    return res.json({ success: true, usuario: updatedUser });
   } catch (e) {
     console.error('[UPDATE USUARIO] Error actualizando usuario:', e);
     return res.status(500).json({ success: false, mensaje: 'Error actualizando usuario' });

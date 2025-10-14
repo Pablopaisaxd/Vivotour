@@ -339,16 +339,32 @@ export const Perfil = () => {
                           let json;
                           try {
                             json = await res.json();
+                            console.log('Respuesta del servidor (nombre):', json);
                           } catch {
                             setEditError('No se pudo conectar con el servidor');
                             setSaving(false);
                             return;
                           }
                           if (json.success && json.usuario) {
-                            setUser(prev => ({ ...prev, ...json.usuario }));
+                            console.log('Actualizando usuario con:', json.usuario);
+                            
+                            // Si el servidor envía un nuevo token, actualizarlo
+                            if (json.token) {
+                              console.log('Actualizando token JWT');
+                              localStorage.setItem('token', json.token);
+                            }
+                            
+                            setUser(prev => {
+                              const updated = { ...prev, ...json.usuario };
+                              console.log('Usuario actualizado:', updated);
+                              return updated;
+                            });
                             setEditField(null);
                             setEditError('Nombre actualizado correctamente');
+                            // Limpiar mensaje después de 2 segundos
+                            setTimeout(() => setEditError(''), 2000);
                           } else {
+                            console.error('Error en la respuesta:', json);
                             setEditError(json.mensaje || 'Error al actualizar');
                           }
                         } catch (e) {
@@ -410,16 +426,32 @@ export const Perfil = () => {
                           let json;
                           try {
                             json = await res.json();
+                            console.log('Respuesta del servidor (email):', json);
                           } catch {
                             setEditError('No se pudo conectar con el servidor');
                             setSaving(false);
                             return;
                           }
                           if (json.success && json.usuario) {
-                            setUser(prev => ({ ...prev, ...json.usuario }));
+                            console.log('Actualizando usuario con:', json.usuario);
+                            
+                            // Si el servidor envía un nuevo token, actualizarlo
+                            if (json.token) {
+                              console.log('Actualizando token JWT');
+                              localStorage.setItem('token', json.token);
+                            }
+                            
+                            setUser(prev => {
+                              const updated = { ...prev, ...json.usuario };
+                              console.log('Usuario actualizado:', updated);
+                              return updated;
+                            });
                             setEditField(null);
-                            setEditError('Correo actualizado correctamente');
+                            setEditError('Email actualizado correctamente');
+                            // Limpiar mensaje después de 2 segundos
+                            setTimeout(() => setEditError(''), 2000);
                           } else {
+                            console.error('Error en la respuesta:', json);
                             setEditError(json.mensaje || 'Error al actualizar');
                           }
                         } catch (e) {
