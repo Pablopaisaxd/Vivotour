@@ -371,8 +371,8 @@ export const Perfil = () => {
                           setEditError('No se pudo conectar con el servidor');
                         }
                         setSaving(false);
-                      }} disabled={saving}>Aceptar</button>
-                      <button className="btn-mini danger" onClick={() => { setEditField(null); setNombreEdit(user?.nombre || ""); }} disabled={saving}>Cancelar</button>
+                      }} disabled={saving}>✓</button>
+                      <button className="btn-mini danger" onClick={() => { setEditField(null); setNombreEdit(user?.nombre || ""); }} disabled={saving}>X</button>
                     </>
                   ) : (
                     <span>{user?.nombre || "Usuario"}</span>
@@ -458,8 +458,8 @@ export const Perfil = () => {
                           setEditError('No se pudo conectar con el servidor');
                         }
                         setSaving(false);
-                      }} disabled={saving}>Aceptar</button>
-                      <button className="btn-mini danger" onClick={() => { setEditField(null); setEmailEdit(user?.email || ""); }} disabled={saving}>Cancelar</button>
+                      }} disabled={saving}>✓</button>
+                      <button className="btn-mini danger" onClick={() => { setEditField(null); setEmailEdit(user?.email || ""); }} disabled={saving}>X</button>
                     </>
                   ) : (
                     <span>{user?.email || "Correo no disponible"}</span>
@@ -488,18 +488,6 @@ export const Perfil = () => {
               <label>Documento</label>
               <div className="perfil-info-content">
                 <span>{user?.tipoDocumento} {user?.numeroDocumento || "Identificación no disponible"}</span>
-                <button className="btn-edit" title="Editar documento" disabled>
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    className="icon-edit"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                    strokeWidth={2}
-                  >
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M15.232 5.232l3.536 3.536M9 11l6-6 3 3-6 6H9v-3z" />
-                  </svg>
-                </button>
               </div>
             </div>
             <div className="perfil-change-wrapper">

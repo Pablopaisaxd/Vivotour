@@ -174,8 +174,13 @@
   margin-bottom: 1rem;
 }
 
+
 .perfil-info-item {
   margin-bottom: 1.5rem;
+  min-height: 56px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
 }
 
 .perfil-info-item label {
@@ -189,26 +194,46 @@
 .perfil-info-content {
   display: flex;
   align-items: center;
-  background: var(--input-bg);
+  background: #fff !important;
   border: 2px solid var(--input-border);
   border-radius: 15px;
   padding: 0.8rem 1rem;
   font-size: 1rem;
-  color: var(--rich-black);
+  color: var(--rich-black) !important;
   transition: var(--transition);
   width: 100%;
   box-sizing: border-box;
   position: relative;
+  min-height: 48px;
+  gap: 0.5rem;
 }
 
-.perfil-info-content span,
-.perfil-info-content input {
+.perfil-edit-input {
+  max-width: 180px;
+  min-width: 0;
+  flex: 1;
+  font-size: 1rem;
+  border-radius: 8px;
+  border: 1px solid var(--input-border);
+  box-sizing: border-box;
+  vertical-align: middle;
+  height: 2.7em;
+  display: flex;
+  align-items: center;
+}
+
+.perfil-info-content span{
   flex: 1;
   min-width: 0;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-
+  color: var(--rich-black);
+  background: #fff;
+  height: 2.2em;
+  display: flex;
+  align-items: center;
+}
 .perfil-info-content span {
   user-select: text;
 }
@@ -221,12 +246,14 @@
   border: none;
   flex-shrink: 0;
   color: #fff;
-  border-radius: 8px;
-  padding: 0.3rem 0.6rem;
+  border-radius: 50%;
+  width: 36px;
+  height: 36px;
+  padding: 0;
   display: flex;
   align-items: center;
   cursor: pointer;
-  transition: background var(--transition), color var(--transition);
+  transition: background 0.3s, color 0.7s;
 }
 
 .btn-edit:hover {
@@ -244,6 +271,9 @@
   color: var(--rich-black);
   outline: none;
   transition: var(--transition);
+  height: 2.2em;
+  display: flex;
+  align-items: center;
 }
 .perfil-edit-input:focus {
   border-color: var(--golden-yellow);
@@ -498,19 +528,15 @@
   font-weight: 600;
   font-size: 1rem;
 }
-    margin-left: 0.5rem;
-    position: static;
-    z-index: 2;
-    background: var(--forest-green);
-    border: none;
-    flex-shrink: 0;
-    color: #fff;
-    border-radius: 8px;
-    padding: 0.3rem 0.6rem;
+
+  .btn-edit{
     display: flex;
     align-items: center;
-    transition: background var(--transition);
+    justify-content: center;
+    background-color: var(--forest-green);
+    border-radius: 50%;
   }
+
   .btn-edit:hover {
     background: var(--golden-yellow);
     color: var(--forest-green);
