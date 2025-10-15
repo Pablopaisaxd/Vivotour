@@ -3,15 +3,8 @@ import { useTheme } from '@mui/material/styles';
 import List from '@mui/material/List';
 import ListItemIcon from '@mui/material/ListItemIcon';
 import ListItemText from '@mui/material/ListItemText';
-import Collapse from '@mui/material/Collapse';
 import Divider from '@mui/material/Divider';
-import ExpandLess from "@mui/icons-material/ExpandLess";
-import ExpandMore from "@mui/icons-material/ExpandMore";
 import DashboardOutlinedIcon from "@mui/icons-material/DashboardOutlined";
-import TodayOutlinedIcon from "@mui/icons-material/TodayOutlined";
-import MoveToInboxOutlinedIcon from "@mui/icons-material/MoveToInboxOutlined";
-import ReceiptOutlinedIcon from "@mui/icons-material/ReceiptOutlined";
-import ColorizeOutlinedIcon from "@mui/icons-material/ColorizeOutlined";
 import SettingsIcon from '@mui/icons-material/Settings';
 import CommentIcon from '@mui/icons-material/Comment';
 import PhotoLibraryIcon from '@mui/icons-material/PhotoLibrary';
@@ -20,13 +13,19 @@ import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
 import PeopleIcon from '@mui/icons-material/People';
 import { ListItemButton } from "@mui/material";
 import { AdminContext } from '../AdminContext';
+import { AuthContext } from '../../../AuthContext';
+import { Link, useNavigate } from 'react-router-dom';
 
 export default function Menu({ onNavigate }) {
   const theme = useTheme();
-  const [openDashboard, setOpenDashboard] = React.useState(true);
   const { setActiveComponent } = useContext(AdminContext);
+  const { logout } = useContext(AuthContext);
+  const navigate = useNavigate();
 
-  const handleDashboardClick = () => setOpenDashboard(!openDashboard);
+  const handleLogout = () => {
+    logout();
+    navigate("/");
+  };
 
   return (
     <div>
@@ -200,8 +199,11 @@ export default function Menu({ onNavigate }) {
 
         <Divider />
       </List>
-      <div>
-        <button></button>
+
+      <div className="perfil-change-wrapper" style={{ textAlign: 'center', marginTop: '20px' }}>
+        <Link to="/" className="perfil-change-password" onClick={handleLogout}>
+          Cerrar sesión
+        </Link>
       </div>
     </div>
   );

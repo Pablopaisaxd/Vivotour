@@ -10,8 +10,6 @@ const Nav = () => {
   const location = useLocation();
   const onPerfil = location.pathname.toLowerCase() === '/perfil';
   const onAdmin = location.pathname.toLowerCase() === '/admin';
-  
-  // Verificar si el usuario es admin (IdRol = 1 o rol = "Admin")
   const isAdmin = user && (user.IdRol === 1 || user.rol === 'Admin');
 
   const scrollToSection = (id) => {
@@ -30,18 +28,26 @@ const Nav = () => {
     }
   };
 
+  const handleLogoClick = () => {
+    if (location.pathname === "/") {
+      window.location.reload();
+    } else {
+      navigate("/");
+    }
+  };
+
   return (
     <header className="nav">
       <nav className="nav-bottom">
         <li>
-          <a onClick={()=>navigate("/")} className="btnav" >Inicio</a>
+          <a onClick={() => navigate("/")} className="btnav">Inicio</a>
         </li>
         <li>
           <a className="btnav" href="#Descubre" onClick={(e) => { e.preventDefault(); scrollToSection("Descubre"); }}>Descubre</a>
         </li>
 
         <div className="nav-logo">
-          <img src={logo} alt="logoVentana" className="main-logo" onClick={()=> navigate("/")}/>
+          <img src={logo} alt="logoVentana" className="main-logo" onClick={handleLogoClick} />
         </div>
 
         <li>
@@ -51,7 +57,6 @@ const Nav = () => {
         {isAuthenticated ? (
           <>
             {isAdmin ? (
-              // Si es admin, mostrar botón Admin en lugar de Perfil
               <>
                 {onAdmin ? (
                   <li><a className="btnlog" onClick={() => { logout(); navigate('/'); }}>Cerrar sesión</a></li>
@@ -60,7 +65,6 @@ const Nav = () => {
                 )}
               </>
             ) : (
-              // Si es cliente, mostrar botón Perfil
               <>
                 {onPerfil ? (
                   <li><a className="btnlog" onClick={() => { logout(); navigate('/'); }}>Cerrar sesión</a></li>

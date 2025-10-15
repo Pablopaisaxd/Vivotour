@@ -51,7 +51,6 @@ function ProfileCard() {
            <a style={styles.pictureLink}>
                <img src="https://www.w3schools.com/howto/img_avatar.png"
                alt="michael-dam-m-EZ3-Po-FGs-k-unsplash" border="0" style={styles.picture}/></a>
-                       <div style={styles.settings}><SettingsIcon sx={{color: "secondary.main"}}/></div>
            <h4 style={styles.name}>{user?.nombre || "Anonimo"}  <div className="online space"></div></h4>
 
             <p style={styles.role}>Administrador</p>
