@@ -1,13 +1,16 @@
 import React, { useEffect, useState, useContext } from 'react';
-import { useForm } from 'react-hook-form';
+import { useForm, Controller } from 'react-hook-form';
 import { useNavigate, useLocation } from 'react-router-dom';
 import axios from 'axios';
 import Footer from '../../components/use/Footer';
-import './style/Login.css';
+import './style/Registro.css';
 import { AuthContext } from '../../AuthContext';
+import PhoneInput from "react-phone-number-input";
+import "react-phone-number-input/style.css";
+import logo from "../../assets/Logos/new vivo contorno2.png";
 
 const CompleteProfile = () => {
-  const { register, handleSubmit, formState: { errors } } = useForm();
+  const { register, handleSubmit, control, formState: { errors } } = useForm();
   const [submitting, setSubmitting] = useState(false);
   const [serverError, setServerError] = useState('');
   const navigate = useNavigate();
@@ -42,54 +45,84 @@ const CompleteProfile = () => {
   };
 
   return (
-    <div className="login-page">
-      <div className="login-container">
-        <div className="login-box">
-          <h1>Completar perfil</h1>
-          <p className="textcolor" style={{ marginBottom: 16 }}>Solo necesitamos unos datos más para finalizar tu registro.</p>
-          <form className="login-form" onSubmit={handleSubmit(onSubmit)} noValidate>
-            <div className="login-input-group">
-              <input
-                type="tel"
-                placeholder="Teléfono"
-                {...register('celular', { required: 'El teléfono es obligatorio' })}
-                aria-invalid={errors.celular ? 'true' : 'false'}
-              />
-              {errors.celular && (
-                <div className="login-error" role="alert"><p>{errors.celular.message}</p></div>
+    <div className="registro-page">
+      <div className="registro-container">
+        <div className="registro-card">
+          <div className="registro-logo">
+            <img src={logo} alt="logoVentana" className="main-logo" onClick={() => navigate("/")} />
+          </div>
+          <h1 className="registro-title">Completar perfil</h1>
+          <p className="textcolor" style={{ marginBottom: 16, textAlign: 'center', opacity: 0.8 }}>
+            Solo necesitamos unos datos más para finalizar tu registro.
+          </p>
+          
+          <form className="registro-form" onSubmit={handleSubmit(onSubmit)} noValidate>
+            <Controller
+              name="celular"
+              control={control}
+              rules={{
+                required: "El teléfono es obligatorio",
+                validate: (value) => {
+                  if (!value || !/^\+?[0-9]{10,15}$/.test(value)) {
+                    return "Formato de teléfono inválido";
+                  }
+                },
+              }}
+              render={({ field, fieldState }) => (
+                <div>
+                  <PhoneInput
+                    {...field}
+                    defaultCountry="CO"
+                    placeholder="Ingresa tu número"
+                  />
+                  {fieldState.error && (
+                    <div className="registro-error">
+                      <p>{fieldState.error.message}</p>
+                    </div>
+                  )}
+                </div>
               )}
-            </div>
-            <div className="login-input-group">
-              <input
-                type="text"
-                placeholder="Número de documento"
-                {...register('numeroDocumento', { required: 'El número de documento es obligatorio' })}
-                aria-invalid={errors.numeroDocumento ? 'true' : 'false'}
-              />
-              {errors.numeroDocumento && (
-                <div className="login-error" role="alert"><p>{errors.numeroDocumento.message}</p></div>
-              )}
-            </div>
-            <div className="login-input-group">
-              <select
-                {...register('tipoDocumento', { required: 'Selecciona el tipo de documento' })}
-                aria-invalid={errors.tipoDocumento ? 'true' : 'false'}
+            />
+
+            <div className="registro-documento">
+              <select 
+                {...register("tipoDocumento", { required: "Selecciona el tipo de documento" })}
                 defaultValue=""
               >
-                <option value="" disabled>Tipo de documento</option>
-                <option value="CC">Cédula de ciudadanía</option>
-                <option value="CE">Cédula de extranjería</option>
-                <option value="TI">Tarjeta de identidad</option>
-                <option value="PAS">Pasaporte</option>
+                <option value="" disabled>Tipo</option>
+                <option value="CC">CC</option>
+                <option value="CE">CE</option>
+                <option value="TI">TI</option>
+                <option value="PAS">PAS</option>
+                <option value="DNI">DNI</option>
+                <option value="NIT">NIT</option>
               </select>
-              {errors.tipoDocumento && (
-                <div className="login-error" role="alert"><p>{errors.tipoDocumento.message}</p></div>
-              )}
+
+              <input
+                type="text"
+                {...register('numeroDocumento', { 
+                  required: 'El número de documento es obligatorio',
+                  pattern: {
+                    value: /^[0-9]+$/,
+                    message: "El documento solo debe contener números",
+                  },
+                })}
+                placeholder="Número de documento"
+              />
             </div>
+            {(errors.tipoDocumento || errors.numeroDocumento) && (
+              <div className="registro-error">
+                <p>{errors.tipoDocumento?.message || errors.numeroDocumento?.message}</p>
+              </div>
+            )}
 
-            {serverError && <div className="login-error" role="alert"><p>{serverError}</p></div>}
+            {serverError && (
+              <div className="registro-error">
+                <p>{serverError}</p>
+              </div>
+            )}
 
-            <button className="login-btn" type="submit" disabled={submitting}>
+            <button className="registro-btn" type="submit" disabled={submitting}>
               {submitting ? 'Guardando...' : 'Guardar y continuar'}
             </button>
           </form>
