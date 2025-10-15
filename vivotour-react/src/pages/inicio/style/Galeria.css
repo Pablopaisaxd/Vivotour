@@ -220,9 +220,9 @@
 
 .galeria-modal-content {
   background: white;
-  padding: 40px;
+  padding: 20px;
   border-radius: 16px;
-  max-width: 87%;
+  max-width: 85%;
   max-height: 80%;
   overflow-y: auto;
   position: relative;
@@ -261,9 +261,9 @@
 }
 
 .galeria-modal-images img {
-  max-width: 225px;
-  max-height: 225px;
-  margin: 4px;
+  max-width: 220px;
+  max-height: 220px;
+  margin: 1.5px;
   margin-bottom: 20px;
   border-radius: 10px;
   object-fit: cover;

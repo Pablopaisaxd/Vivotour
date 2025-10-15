@@ -40,10 +40,10 @@ const Nav = () => {
     <header className="nav">
       <nav className="nav-bottom">
         <li>
-          <a onClick={() => navigate("/")} className="btnav">Inicio</a>
+          <a onClick={() => navigate("/")} className="btnav">INICIO</a>
         </li>
         <li>
-          <a className="btnav" href="#Descubre" onClick={(e) => { e.preventDefault(); scrollToSection("Descubre"); }}>Descubre</a>
+          <a className="btnav" href="#Descubre" onClick={(e) => { e.preventDefault(); scrollToSection("Descubre"); }}>DESCUBRE</a>
         </li>
 
         <div className="nav-logo">
@@ -51,7 +51,7 @@ const Nav = () => {
         </div>
 
         <li>
-          <a className="btnav" href="#Reservar" onClick={handleReservaClick}>Reservar</a>
+          <a className="btnav" href="#Reservar" onClick={handleReservaClick}>RESERVAR</a>
         </li>
 
         {isAuthenticated ? (
@@ -59,23 +59,23 @@ const Nav = () => {
             {isAdmin ? (
               <>
                 {onAdmin ? (
-                  <li><a className="btnlog" onClick={() => { logout(); navigate('/'); }}>Cerrar sesión</a></li>
+                  <li><a className="btnlog" onClick={() => { logout(); navigate('/'); }}>CERRAR SESIÓN</a></li>
                 ) : (
-                  <li><a className="btnlog" onClick={() => navigate("/Admin")}>Admin</a></li>
+                  <li><a className="btnlog" onClick={() => navigate("/Admin")}>ADMIN</a></li>
                 )}
               </>
             ) : (
               <>
                 {onPerfil ? (
-                  <li><a className="btnlog" onClick={() => { logout(); navigate('/'); }}>Cerrar sesión</a></li>
+                  <li><a className="btnlog" onClick={() => { logout(); navigate('/'); }}>CERRAR SESIÓN</a></li>
                 ) : (
-                  <li><a className="btnlog" onClick={() => navigate("/Perfil")}>Perfil</a></li>
+                  <li><a className="btnlog" onClick={() => navigate("/Perfil")}>PERFIL</a></li>
                 )}
               </>
             )}
           </>
         ) : (
-          <li><a className="btnlog" onClick={() => navigate("/Login")}>Acceder</a></li>
+          <li><a className="btnlog" onClick={() => navigate("/Login")}>ACCEDER</a></li>
         )}
       </nav>
     </header>
