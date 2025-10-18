@@ -1767,6 +1767,155 @@ app.post("/upload-avatar", requireAuth, upload.single('avatar'), async (req, res
     res.status(500).json({ success: false, mensaje: "Error interno del servidor" });
   }
 });
+  destination: (req, file, cb) => {
+    const uploadPath = path.join(__dirname, 'uploads', 'gallery');
+    if (!fs.existsSync(uploadPath)) {
+      fs.mkdirSync(uploadPath, { recursive: true });
+    }
+    cb(null, uploadPath);
+  },
+  filename: (req, file, cb) => {
+    const timestamp = Date.now();
+    const ext = path.extname(file.originalname);
+    const filename = `gallery_${timestamp}_${Math.random().toString(36).substring(7)}${ext}`;
+    cb(null, filename);
+  }
+});
+
+const galleryUpload = multer({
+  storage: galleryStorage,
+  limits: { fileSize: 10 * 1024 * 1024 }, // 10MB
+  fileFilter: (req, file, cb) => {
+    if (file.mimetype.startsWith('image/')) {
+      cb(null, true);
+    } else {
+      cb(new Error('Solo se permiten archivos de imagen'), false);
+    }
+  }
+});
+
+// Obtener todas las categorías de imágenes
+app.get('/api/gallery/categories', autenticarToken, verificarAdmin, async (req, res) => {
+  try {
+    const query = 'SELECT * FROM CategoriaImagen ORDER BY IdCategoria';
+    const [results] = await db.execute(query);
+    res.json({ success: true, categories: results });
+  } catch (error) {
+    console.error('Error obteniendo categorías:', error);
+    res.status(500).json({ success: false, mensaje: 'Error obteniendo categorías' });
+  }
+});
+
+// Obtener imágenes por categoría
+app.get('/api/gallery/images/:categoryId', autenticarToken, verificarAdmin, async (req, res) => {
+  try {
+    const { categoryId } = req.params;
+    const query = 'SELECT * FROM imagenes WHERE IdCategoria = ? ORDER BY IdImagen';
+    const [results] = await db.execute(query, [categoryId]);
+    res.json({ success: true, images: results });
+  } catch (error) {
+    console.error('Error obteniendo imágenes:', error);
+    res.status(500).json({ success: false, mensaje: 'Error obteniendo imágenes' });
+  }
+});
+
+// Subir múltiples imágenes a una categoría
+app.post('/api/gallery/upload/:categoryId', autenticarToken, verificarAdmin, galleryUpload.array('images', 20), async (req, res) => {
+  try {
+    const { categoryId } = req.params;
+    const files = req.files;
+
+    if (!files || files.length === 0) {
+      return res.status(400).json({ success: false, mensaje: 'No se subieron archivos' });
+    }
+
+    const insertedImages = [];
+    
+    for (const file of files) {
+      const rutaImagen = `/uploads/gallery/${file.filename}`;
+      const query = 'INSERT INTO imagenes (RutaImagen, IdCategoria) VALUES (?, ?)';
+      const [result] = await db.execute(query, [rutaImagen, categoryId]);
+      
+      insertedImages.push({
+        IdImagen: result.insertId,
+        RutaImagen: rutaImagen,
+        IdCategoria: categoryId
+      });
+    }
+
+    res.json({ success: true, images: insertedImages });
+  } catch (error) {
+    console.error('Error subiendo imágenes:', error);
+    res.status(500).json({ success: false, mensaje: 'Error subiendo imágenes' });
+  }
+});
+
+// Eliminar imagen
+app.delete('/api/gallery/image/:imageId', autenticarToken, verificarAdmin, async (req, res) => {
+  try {
+    const { imageId } = req.params;
+    
+    // Obtener información de la imagen antes de eliminar
+    const selectQuery = 'SELECT * FROM imagenes WHERE IdImagen = ?';
+    const [images] = await db.execute(selectQuery, [imageId]);
+    
+    if (images.length === 0) {
+      return res.status(404).json({ success: false, mensaje: 'Imagen no encontrada' });
+    }
+
+    const imagen = images[0];
+    
+    // Eliminar de base de datos
+    const deleteQuery = 'DELETE FROM imagenes WHERE IdImagen = ?';
+    await db.execute(deleteQuery, [imageId]);
+
+    // Intentar eliminar archivo físico solo si está en uploads (no assets)
+    if (imagen.RutaImagen.includes('/uploads/')) {
+      const filePath = path.join(__dirname, imagen.RutaImagen.replace(/^\//, ''));
+      try {
+        if (fs.existsSync(filePath)) {
+          fs.unlinkSync(filePath);
+        }
+      } catch (e) {
+        console.warn('No se pudo eliminar archivo físico:', e.message);
+      }
+    }
+
+    res.json({ success: true, mensaje: 'Imagen eliminada correctamente' });
+  } catch (error) {
+    console.error('Error eliminando imagen:', error);
+    res.status(500).json({ success: false, mensaje: 'Error eliminando imagen' });
+  }
+});
+
+// Actualizar imagen de portada de categoría
+app.put('/api/gallery/category/:categoryId/cover', autenticarToken, verificarAdmin, galleryUpload.single('coverImage'), async (req, res) => {
+  try {
+    const { categoryId } = req.params;
+    const file = req.file;
+
+    if (!file) {
+      return res.status(400).json({ success: false, mensaje: 'No se subió archivo de portada' });
+    }
+
+    const rutaImagen = `/uploads/gallery/${file.filename}`;
+    
+    // Insertar nueva imagen de portada en la base de datos
+    const query = 'INSERT INTO imagenes (RutaImagen, IdCategoria) VALUES (?, ?)';
+    const [result] = await db.execute(query, [rutaImagen, categoryId]);
+
+    const newCoverImage = {
+      IdImagen: result.insertId,
+      RutaImagen: rutaImagen,
+      IdCategoria: categoryId
+    };
+
+    res.json({ success: true, coverImage: newCoverImage });
+  } catch (error) {
+    console.error('Error actualizando portada:', error);
+    res.status(500).json({ success: false, mensaje: 'Error actualizando portada' });
+  }
+});
 
 // ============================================
 // GALERÍA - ENDPOINTS PARA ADMINISTRACIÓN

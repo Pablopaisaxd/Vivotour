@@ -1,317 +1,517 @@
-// src/pages/Admin/components/GalleryManagement.jsx
-import React, { useState } from 'react';
+﻿import React, { useState, useEffect } from 'react';
 
 const GalleryManagement = () => {
-    const [coverImages, setCoverImages] = useState({
-        sec1: '../../assets/Fondos/Fauna.png',
-        sec2: '../../assets/Fondos/Vegetacion.jpg',
-        sec3: '../../assets/Fondos/Rio cascada.jpg',
-        sec4: '../../assets/Fondos/cabaña square.jpeg',
-        sec5: '../../assets/Fondos/Puente amarillo.jpg',
-        sec6: '../../assets/Fondos/Cabalgata.jpg',
-        sec7: '../../assets/Fondos/Jacuzzi hamaca.jpg',
-    });
+  const [categories, setCategories] = useState([]);
+  const [selectedCategory, setSelectedCategory] = useState(null);
+  const [categoryImages, setCategoryImages] = useState([]);
+  const [showModal, setShowModal] = useState(false);
+  const [currentPage, setCurrentPage] = useState(0);
+  const [loading, setLoading] = useState(false);
+  const [coverImages, setCoverImages] = useState({});
 
-    const initialModalImages = {
-        sec1: [
-            '../../assets/imgs/fauna/araña.jpg',
-            '../../assets/imgs/fauna/armadillos.jpg',
-            '../../assets/imgs/fauna/barranquero.jpg',
-            '../../assets/imgs/fauna/capy.jpg',
-            '../../assets/imgs/fauna/gallo.jpg',
-            '../../assets/imgs/fauna/gato.jpg',
-            '../../assets/imgs/fauna/gusano.jpg',
-            '../../assets/imgs/fauna/mariposa.jpg',
-            '../../assets/imgs/fauna/mono.jpg',
-            '../../assets/imgs/fauna/OIP.png',
-        ],
-        sec2: [
-            '../../assets/imgs/flora/bota.jpg',
-            '../../assets/imgs/flora/flor.jpg',
-            '../../assets/imgs/flora/florFondo.jpg',
-            '../../assets/imgs/flora/mata.jpg',
-            '../../assets/imgs/flora/ortencia.jpg',
-        ],
-        sec3: [
-            '../../assets/imgs/rio/474329649_627825746425180_7292163290342665103_n.jpg',
-            '../../assets/imgs/rio/474431610_627291289811959_9210614094102960593_n.jpg',
-            '../../assets/imgs/rio/474484262_627826059758482_7801325264117178547_n.jpg',
-            '../../assets/imgs/rio/475832008_635393145668440_7124902200382240738_n.jpg',
-            '../../assets/imgs/rio/476022210_635393129001775_3760402276992579991_n.jpg',
-            '../../assets/imgs/rio/476160060_639738165233938_7453170523491608119_n.jpg',
-            '../../assets/imgs/rio/476436645_639738311900590_4376680368050360241_n.jpg',
-            '../../assets/imgs/rio/476560825_641234385084316_4401260814400449712_n.jpg',
-            '../../assets/imgs/rio/476890838_641874511686970_6786000744136237367_n.jpg',
-            '../../assets/imgs/rio/478705419_643635628177525_2794904906416692158_n.jpg',
-        ],
-        sec4: [
-            '../../assets/imgs/cabañas/477441743_642933308247757_6302000935650247850_n.jpg',
-            '../../assets/imgs/cabañas/479564373_642933251581096_7838498170059657685_n.jpg',
-            '../../assets/imgs/cabañas/480075878_644245944783160_3376660300750906668_n.jpg',
-            '../../assets/imgs/cabañas/480130994_644246084783146_1603066149886287957_n.jpg',
-            '../../assets/imgs/cabañas/480272496_644245804783174_6593899205741647006_n.jpg',
-            '../../assets/imgs/cabañas/480309013_644246141449807_5374636129316272527_n.jpg',
-            '../../assets/imgs/cabañas/480339493_646500557891032_1944932528143366924_n.jpg',
-            '../../assets/imgs/cabañas/480387802_646500441224377_3973318646659518734_n.jpg',
-            '../../assets/imgs/cabañas/480393816_646500447891043_7400385380002287415_n.jpg',
-            '../../assets/imgs/cabañas/480467878_649675070906914_2362241510694720593_n.jpg',
-        ],
-        sec5: [
-            '../../assets/imgs/puentes/472670497_1053955673073418_3318241285626850528_n.jpg',
-            '../../assets/imgs/puentes/472777130_617697124104709_9008114209111382074_n.jpg',
-            '../../assets/imgs/puentes/472788595_618975387310216_3217232377584828492_n.jpg',
-            '../../assets/imgs/puentes/474564467_627153106492444_4186195771352862309_n.jpg',
-            '../../assets/imgs/puentes/474624913_627826076425147_6328919594574258746_n.jpg',
-            '../../assets/imgs/puentes/477501609_642933211581100_5566429112849237554_n.jpg',
-            '../../assets/imgs/puentes/480543669_646500297891058_2562208088458318756_n.jpg',
-            '../../assets/imgs/puentes/495453502_18020252624651046_1422023666079310573_n.jpeg',
-            '../../assets/imgs/puentes/Adecuacion-puentes-1536x1023.jpeg',
-            '../../assets/imgs/puentes/maxresdefault.jpg',
-        ],
-        sec6: [
-            '../../assets/imgs/cabalgatas/472502392_1053694853099500_2785194390021630923_n.jpg',
-            '../../assets/imgs/cabalgatas/474522620_627825749758513_4419009548900141936_n.jpg',
-            '../../assets/imgs/cabalgatas/474573155_627291309811957_6701037663482779535_n.jpg',
-            '../../assets/imgs/cabalgatas/476794478_641221218418966_2784272919739909557_n.jpg',
-            '../../assets/imgs/cabalgatas/478083588_643635631510858_4332432915899354854_n.jpg',
-            '../../assets/imgs/cabalgatas/479547405_643636044844150_2002916860594613394_n.jpg',
-            '../../assets/imgs/cabalgatas/caption (1).jpg',
-            '../../assets/imgs/cabalgatas/caption.jpg',
-        ],
-        sec7: [
-            '../../assets/imgs/experiencias/464307822_17998791962651046_1107245631182794721_n.jpg',
-            '../../assets/imgs/experiencias/472788524_618551407352614_9032495863670563051_n.jpg',
-            '../../assets/imgs/experiencias/472789797_618970930643995_2683850925473442176_n.jpg',
-            '../../assets/imgs/experiencias/472877626_618970927310662_1364184376555738189_n.jpg',
-            '../../assets/imgs/experiencias/472915340_618551387352616_3310294784352409225_n.jpg',
-            '../../assets/imgs/experiencias/475279256_632527145955040_8185283943625516774_n.jpg',
-            '../../assets/imgs/experiencias/475341550_632527039288384_7338752661739790796_n.jpg',
-            '../../assets/imgs/experiencias/475764316_634176379123450_6285350744659013908_n.jpg',
-            '../../assets/imgs/experiencias/475769058_634819549059133_2143391349871963195_n.jpg',
-            '../../assets/imgs/experiencias/475840907_636530595554695_2172388258918632212_n.jpg',
-        ],
-    };
+  const IMAGES_PER_PAGE = 10;
 
-    const [modalImages, setModalImages] = useState(initialModalImages);
-    const [selectedSection, setSelectedSection] = useState('sec1');
+  const defaultCoverImages = {
+    1: '/src/assets/Fondos/Fauna.png',
+    2: '/src/assets/Fondos/Vegetacion.jpg', 
+    3: '/src/assets/Fondos/Rio cascada.jpg',
+    4: '/src/assets/Fondos/cabaña square.jpeg',
+    5: '/src/assets/Fondos/Puente amarillo.jpg',
+    6: '/src/assets/Fondos/Cabalgata.jpg',
+    7: '/src/assets/Fondos/Jacuzzi hamaca.jpg'
+  };
 
-    const handleCoverImageChange = (section, e) => {
-        const file = e.target.files[0];
-        if (file) {
-            const reader = new FileReader();
-            reader.onloadend = () => {
-                setCoverImages(prev => ({ ...prev, [section]: reader.result }));
-            };
-            reader.readAsDataURL(file);
+  const categoryTexts = {
+    1: 'Fauna',
+    2: 'Flora', 
+    3: 'Río',
+    4: 'Cabañas',
+    5: 'Puentes',
+    6: 'Cabalgatas',
+    7: 'Experiencias'
+  };
+
+  useEffect(() => {
+    fetchCategories();
+  }, []);
+
+  const fetchCategories = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      const response = await fetch('http://localhost:5000/api/gallery/categories', {
+        headers: { 
+          'Authorization': `Bearer ${token}` 
         }
-    };
+      });
+      const data = await response.json();
+      
+      if (data.success) {
+        setCategories(data.categories);
+        
+        const covers = {};
+        data.categories.forEach(cat => {
+          covers[cat.IdCategoria] = defaultCoverImages[cat.IdCategoria] || '/src/assets/Fondos/default.jpg';
+        });
+        setCoverImages(covers);
+      }
+    } catch (error) {
+      console.error('Error obteniendo categorías:', error);
+    }
+  };
 
-    const handleModalImageChange = (section, index, e) => {
-        const file = e.target.files[0];
-        if (file) {
-            const reader = new FileReader();
-            reader.onloadend = () => {
-                setModalImages(prev => {
-                    const newImages = [...prev[section]];
-                    newImages[index] = reader.result;
-                    return { ...prev, [section]: newImages };
-                });
-            };
-            reader.readAsDataURL(file);
+  const fetchCategoryImages = async (categoryId) => {
+    try {
+      setLoading(true);
+      const token = localStorage.getItem('token');
+      const response = await fetch(`http://localhost:5000/api/gallery/images/${categoryId}`, {
+        headers: { 
+          'Authorization': `Bearer ${token}` 
         }
-    };
+      });
+      const data = await response.json();
+      
+      if (data.success) {
+        setCategoryImages(data.images);
+      }
+    } catch (error) {
+      console.error('Error obteniendo imágenes:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
-    const handleAddModalImage = (section) => {
-        if (modalImages[section].length < 10) {
-            setModalImages(prev => ({ ...prev, [section]: [...prev[section], ''] }));
-        } else {
-            alert('Solo se permiten un máximo de 10 imágenes en la modal.');
-        }
-    };
+  const handleCoverImageEdit = async (categoryId, event) => {
+    event.stopPropagation();
+    const file = event.target.files[0];
+    if (!file) return;
 
-    const handleRemoveModalImage = (section, index) => {
-        setModalImages(prev => ({
-            ...prev,
-            [section]: prev[section].filter((_, i) => i !== index)
+    try {
+      const token = localStorage.getItem('token');
+      const formData = new FormData();
+      formData.append('coverImage', file);
+
+      const response = await fetch(`http://localhost:5000/api/gallery/category/${categoryId}/cover`, {
+        method: 'PUT',
+        headers: { 
+          'Authorization': `Bearer ${token}` 
+        },
+        body: formData
+      });
+
+      const data = await response.json();
+      if (data.success) {
+        setCoverImages(prev => ({
+          ...prev,
+          [categoryId]: `http://localhost:5000${data.coverImage.RutaImagen}`
         }));
-    };
+        alert('Portada actualizada correctamente');
+      }
+    } catch (error) {
+      console.error('Error actualizando portada:', error);
+      alert('Error al actualizar la portada');
+    }
+  };
 
-    const styles = {
-        container: {
-            padding: '20px',
-            backgroundColor: 'var(--card-background)',
-            borderRadius: '8px',
-            boxShadow: '0 5px 15px var(--shadow-light)',
-            gridColumn: '1 / -1',
-            display: 'flex',
-            flexDirection: 'column',
-            gap: '20px',
+  const handleCategoryClick = (category) => {
+    setSelectedCategory(category);
+    setCurrentPage(0);
+    setShowModal(true);
+    fetchCategoryImages(category.IdCategoria);
+  };
+
+  const handleAddImages = async (event) => {
+    const files = Array.from(event.target.files);
+    if (files.length === 0) return;
+
+    try {
+      setLoading(true);
+      const token = localStorage.getItem('token');
+      const formData = new FormData();
+      
+      files.forEach(file => {
+        formData.append('images', file);
+      });
+
+      const response = await fetch(`http://localhost:5000/api/gallery/upload/${selectedCategory.IdCategoria}`, {
+        method: 'POST',
+        headers: { 
+          'Authorization': `Bearer ${token}` 
         },
-        title: {
-            fontSize: '1.5rem',
-            color: 'var(--rich-black)',
-            marginBottom: '15px',
-            fontWeight: '600',
-        },
-        section: {
-            marginBottom: '20px',
-            border: '1px solid var(--border-color-light)',
-            borderRadius: '8px',
-            padding: '15px',
-        },
-        subtitle: {
-            fontSize: '1.2rem',
-            color: 'var(--rich-black)',
-            marginBottom: '10px',
-            fontWeight: '500',
-        },
-        imageContainer: {
-            display: 'flex',
-            gap: '15px',
-            flexWrap: 'wrap',
-            justifyContent: 'center',
-        },
-        imageWrapper: {
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            gap: '5px',
-            border: '1px solid var(--border-color-light)',
-            borderRadius: '8px',
-            padding: '10px',
-            backgroundColor: 'var(--alice-blue)',
-        },
-        imagePreview: {
-            width: '150px',
-            height: '100px',
-            objectFit: 'cover',
-            borderRadius: '5px',
-            marginBottom: '5px',
-        },
-        fileInput: {
-            marginTop: '5px',
-        },
-        button: {
-            backgroundColor: 'var(--forest-green)',
-            color: 'white',
-            padding: '10px 15px',
-            borderRadius: '5px',
-            border: 'none',
-            cursor: 'pointer',
-            marginTop: '10px',
-            alignSelf: 'flex-end',
-        },
-        removeButton: {
-            backgroundColor: 'var(--error-main)',
-            color: 'white',
-            padding: '5px 10px',
-            borderRadius: '5px',
-            border: 'none',
-            cursor: 'pointer',
-            marginTop: '5px',
-        },
-        addButton: {
-            backgroundColor: 'var(--primary-main)',
-            color: 'white',
-            padding: '8px 12px',
-            borderRadius: '5px',
-            border: 'none',
-            cursor: 'pointer',
-            marginTop: '10px',
-        },
-        modalSelector: {
-            display: 'flex',
-            overflowX: 'auto',
-            gap: '10px',
-            paddingBottom: '10px',
-            marginBottom: '20px',
-            borderBottom: '1px solid var(--border-color-light)',
-        },
-        modalButton: {
-            padding: '8px 15px',
-            borderRadius: '5px',
-            border: '1px solid var(--border-color-light)',
-            backgroundColor: 'var(--alice-blue)',
-            cursor: 'pointer',
-            whiteSpace: 'nowrap',
-        },
-        modalButtonSelected: {
-            backgroundColor: 'var(--forest-green)',
-            color: 'white',
-            borderColor: 'var(--forest-green)',
+        body: formData
+      });
+
+      const data = await response.json();
+      if (data.success) {
+        fetchCategoryImages(selectedCategory.IdCategoria);
+        alert(`${data.images.length} imagen(es) agregada(s) correctamente`);
+      }
+    } catch (error) {
+      console.error('Error agregando imágenes:', error);
+      alert('Error al agregar imágenes');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleDeleteImage = async (imageId) => {
+    if (!window.confirm('¿Estás seguro de que quieres eliminar esta imagen?')) return;
+
+    try {
+      setLoading(true);
+      const token = localStorage.getItem('token');
+      const response = await fetch(`http://localhost:5000/api/gallery/image/${imageId}`, {
+        method: 'DELETE',
+        headers: { 
+          'Authorization': `Bearer ${token}` 
         }
-    };
+      });
 
-    return (
-        <div style={styles.container} className="gallery-management-container">
-            <h2 style={styles.title}>Gestión de Galería</h2>
+      const data = await response.json();
+      if (data.success) {
+        fetchCategoryImages(selectedCategory.IdCategoria);
+        alert('Imagen eliminada correctamente');
+      }
+    } catch (error) {
+      console.error('Error eliminando imagen:', error);
+      alert('Error al eliminar imagen');
+    } finally {
+      setLoading(false);
+    }
+  };
 
-            <div style={styles.section}>
-                <h3 style={styles.subtitle}>Imágenes de Portada de Galería</h3>
-                <div style={styles.imageContainer}>
-                    {Object.keys(coverImages).map((sec, index) => (
-                        <div key={sec} style={styles.imageWrapper}>
-                            <p>{`Sec ${index + 1}`}</p>
-                            <img src={coverImages[sec]} alt={`Portada ${sec}`} style={styles.imagePreview} />
-                            <input
-                                type="file"
-                                accept="image/*"
-                                onChange={(e) => handleCoverImageChange(sec, e)}
-                                style={styles.fileInput}
-                            />
-                        </div>
-                    ))}
-                </div>
+  const totalPages = Math.ceil(categoryImages.length / IMAGES_PER_PAGE);
+  const startIndex = currentPage * IMAGES_PER_PAGE;
+  const endIndex = startIndex + IMAGES_PER_PAGE;
+  const currentImages = categoryImages.slice(startIndex, endIndex);
+
+  return (
+    <div style={{ padding: '20px' }}>
+      <h2 style={{ marginBottom: '20px', color: '#333' }}>Gestión de Galería</h2>
+      
+      <div style={{ 
+        display: 'grid', 
+        gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', 
+        gap: '20px',
+        marginTop: '20px'
+      }}>
+        {categories.map(category => (
+          <div key={category.IdCategoria} style={{
+            border: '1px solid #ddd',
+            borderRadius: '8px',
+            overflow: 'hidden',
+            backgroundColor: 'white',
+            boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
+            transition: 'transform 0.2s, box-shadow 0.2s'
+          }}>
+            <div style={{
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              padding: '15px',
+              borderBottom: '1px solid #eee',
+              backgroundColor: '#f8f9fa'
+            }}>
+              <h3 style={{ margin: 0, fontSize: '16px', fontWeight: '600' }}>
+                {categoryTexts[category.IdCategoria] || category.NombreCategoria}
+              </h3>
+              <label style={{
+                cursor: 'pointer',
+                padding: '8px',
+                borderRadius: '4px',
+                backgroundColor: '#e9ecef',
+                display: 'flex',
+                alignItems: 'center',
+                border: 'none',
+                transition: 'background-color 0.2s'
+              }} title="Editar portada">
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={(e) => handleCoverImageEdit(category.IdCategoria, e)}
+                  style={{ display: 'none' }}
+                />
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+                  <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+                </svg>
+              </label>
+            </div>
+            
+            <div 
+              style={{
+                position: 'relative',
+                height: '200px',
+                cursor: 'pointer',
+                overflow: 'hidden'
+              }}
+              onClick={() => handleCategoryClick(category)}
+            >
+              <img 
+                src={coverImages[category.IdCategoria]} 
+                alt={category.NombreCategoria}
+                style={{
+                  width: '100%',
+                  height: '100%',
+                  objectFit: 'cover',
+                  transition: 'transform 0.3s'
+                }}
+                onError={(e) => {
+                  e.target.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjZGRkIi8+PHRleHQgeD0iNTAlIiB5PSI1MCUiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC1zaXplPSIxNCIgZmlsbD0iIzk5OSIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZHk9Ii4zZW0iPkltYWdlbiBubyBkaXNwb25pYmxlPC90ZXh0Pjwvc3ZnPg==';
+                }}
+              />
+              <div style={{
+                position: 'absolute',
+                top: 0,
+                left: 0,
+                right: 0,
+                bottom: 0,
+                backgroundColor: 'rgba(0,0,0,0.6)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                color: 'white',
+                opacity: 0,
+                transition: 'opacity 0.3s',
+                fontSize: '16px',
+                fontWeight: 'bold'
+              }}
+              onMouseEnter={(e) => { e.currentTarget.style.opacity = '1'; }}
+              onMouseLeave={(e) => { e.currentTarget.style.opacity = '0'; }}
+              >
+                <span>Gestionar Imágenes</span>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* Modal para gestionar imágenes */}
+      {showModal && selectedCategory && (
+        <div style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          backgroundColor: 'rgba(0,0,0,0.8)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 1000
+        }} onClick={() => setShowModal(false)}>
+          <div style={{
+            backgroundColor: 'white',
+            borderRadius: '8px',
+            width: '90%',
+            maxWidth: '900px',
+            maxHeight: '90%',
+            overflow: 'hidden',
+            display: 'flex',
+            flexDirection: 'column'
+          }} onClick={(e) => e.stopPropagation()}>
+            
+            <div style={{
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              padding: '20px',
+              borderBottom: '1px solid #eee',
+              backgroundColor: '#f8f9fa'
+            }}>
+              <h3 style={{ margin: 0 }}>
+                Gestionar: {categoryTexts[selectedCategory.IdCategoria] || selectedCategory.NombreCategoria}
+              </h3>
+              <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+                <label style={{
+                  backgroundColor: '#007bff',
+                  color: 'white',
+                  padding: '10px 16px',
+                  borderRadius: '4px',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '8px',
+                  border: 'none',
+                  fontSize: '14px',
+                  fontWeight: '500'
+                }}>
+                  <input
+                    type="file"
+                    multiple
+                    accept="image/*"
+                    onChange={handleAddImages}
+                    style={{ display: 'none' }}
+                  />
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <circle cx="12" cy="12" r="10"/>
+                    <path d="M12 8v8M8 12h8"/>
+                  </svg>
+                  Agregar Imágenes
+                </label>
+                <button 
+                  style={{
+                    background: '#6c757d',
+                    color: 'white',
+                    border: 'none',
+                    borderRadius: '4px',
+                    width: '32px',
+                    height: '32px',
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center'
+                  }}
+                  onClick={() => setShowModal(false)}
+                >
+                  ✕
+                </button>
+              </div>
             </div>
 
-            <div style={styles.section}>
-                <h3 style={styles.subtitle}>Imágenes de Modal (Máx. 10 por sección)</h3>
-                <div style={styles.modalSelector}>
-                    {Object.keys(modalImages).map((sec, index) => (
-                        <button
-                            key={sec}
-                            style={{
-                                ...styles.modalButton,
-                                ...(selectedSection === sec ? styles.modalButtonSelected : {})
-                            }}
-                            onClick={() => setSelectedSection(sec)}
-                        >
-                            {`Modal ${index + 1}`}
-                        </button>
-                    ))}
-                </div>
+            {loading && (
+              <div style={{ 
+                padding: '40px', 
+                textAlign: 'center',
+                fontSize: '16px',
+                color: '#666'
+              }}>
+                Cargando...
+              </div>
+            )}
 
-                {selectedSection && (
-                    <div style={styles.imageContainer}>
-                        {modalImages[selectedSection].map((img, index) => (
-                            <div key={index} style={styles.imageWrapper}>
-                                <img src={img} alt={`Modal ${index + 1}`} style={styles.imagePreview} />
-                                <input
-                                    type="file"
-                                    accept="image/*"
-                                    onChange={(e) => handleModalImageChange(selectedSection, index, e)}
-                                    style={styles.fileInput}
-                                />
-                                <button
-                                    style={styles.removeButton}
-                                    onClick={() => handleRemoveModalImage(selectedSection, index)}
-                                >
-                                    Eliminar
-                                </button>
-                            </div>
-                        ))}
-                        {modalImages[selectedSection].length < 10 && (
-                            <button style={styles.addButton} onClick={() => handleAddModalImage(selectedSection)}>
-                                Agregar Imagen
-                            </button>
-                        )}
+            <div style={{ 
+              padding: '20px', 
+              flex: 1, 
+              overflow: 'auto' 
+            }}>
+              {currentImages.length > 0 ? (
+                <div style={{
+                  display: 'grid',
+                  gridTemplateColumns: 'repeat(auto-fill, minmax(150px, 1fr))',
+                  gap: '15px'
+                }}>
+                  {currentImages.map((image) => (
+                    <div key={image.IdImagen} style={{
+                      position: 'relative',
+                      aspectRatio: '1',
+                      border: '1px solid #ddd',
+                      borderRadius: '6px',
+                      overflow: 'hidden',
+                      backgroundColor: '#f8f9fa'
+                    }}>
+                      <img 
+                        src={`http://localhost:5000${image.RutaImagen}`} 
+                        alt={`Imagen ${image.IdImagen}`}
+                        style={{
+                          width: '100%',
+                          height: '100%',
+                          objectFit: 'cover'
+                        }}
+                        onError={(e) => {
+                          e.target.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTUwIiBoZWlnaHQ9IjE1MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjZjhmOWZhIi8+PHRleHQgeD0iNTAlIiB5PSI1MCUiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC1zaXplPSIxMiIgZmlsbD0iIzZjNzU3ZCIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZHk9Ii4zZW0iPkVycm9yPC90ZXh0Pjwvc3ZnPg==';
+                        }}
+                      />
+                      <button 
+                        style={{
+                          position: 'absolute',
+                          top: '5px',
+                          right: '5px',
+                          backgroundColor: 'rgba(220, 53, 69, 0.9)',
+                          color: 'white',
+                          border: 'none',
+                          borderRadius: '50%',
+                          width: '28px',
+                          height: '28px',
+                          cursor: 'pointer',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          fontSize: '12px'
+                        }}
+                        onClick={() => handleDeleteImage(image.IdImagen)}
+                        title="Eliminar imagen"
+                      >
+                        🗑️
+                      </button>
                     </div>
-                )}
+                  ))}
+                </div>
+              ) : (
+                <div style={{
+                  textAlign: 'center',
+                  padding: '40px',
+                  color: '#6c757d'
+                }}>
+                  <p>No hay imágenes en esta categoría</p>
+                  <p style={{ fontSize: '14px' }}>Haz clic en "Agregar Imágenes" para subir nuevas fotos</p>
+                </div>
+              )}
+
+              {totalPages > 1 && (
+                <div style={{
+                  display: 'flex',
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                  gap: '15px',
+                  marginTop: '25px',
+                  padding: '15px'
+                }}>
+                  <button 
+                    onClick={() => setCurrentPage(currentPage - 1)}
+                    disabled={currentPage === 0}
+                    style={{
+                      padding: '8px 16px',
+                      backgroundColor: currentPage === 0 ? '#e9ecef' : '#007bff',
+                      color: currentPage === 0 ? '#6c757d' : 'white',
+                      border: 'none',
+                      borderRadius: '4px',
+                      cursor: currentPage === 0 ? 'not-allowed' : 'pointer'
+                    }}
+                  >
+                    Anterior
+                  </button>
+                  <span style={{ 
+                    padding: '8px 16px',
+                    backgroundColor: '#f8f9fa',
+                    borderRadius: '4px',
+                    border: '1px solid #dee2e6'
+                  }}>
+                    Página {currentPage + 1} de {totalPages}
+                  </span>
+                  <button 
+                    onClick={() => setCurrentPage(currentPage + 1)}
+                    disabled={currentPage === totalPages - 1}
+                    style={{
+                      padding: '8px 16px',
+                      backgroundColor: currentPage === totalPages - 1 ? '#e9ecef' : '#007bff',
+                      color: currentPage === totalPages - 1 ? '#6c757d' : 'white',
+                      border: 'none',
+                      borderRadius: '4px',
+                      cursor: currentPage === totalPages - 1 ? 'not-allowed' : 'pointer'
+                    }}
+                  >
+                    Siguiente
+                  </button>
+                </div>
+              )}
             </div>
 
-            <button style={styles.button}>Guardar Cambios</button>
+            <div style={{
+              padding: '15px 20px',
+              borderTop: '1px solid #eee',
+              backgroundColor: '#f8f9fa',
+              textAlign: 'center',
+              color: '#6c757d'
+            }}>
+              <p style={{ margin: 0, fontSize: '14px' }}>
+                Total de imágenes: {categoryImages.length}
+              </p>
+            </div>
+          </div>
         </div>
-    );
+      )}
+    </div>
+  );
 };
 
 export default GalleryManagement;
