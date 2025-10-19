@@ -19,6 +19,7 @@ npm install react-phone-number-input react-hook-form
 npm install react-router-dom
 npm install @mui/material @mui/icons-material @emotion/react @emotion/styled react-chartjs-2 chart.js
 npm install jspdf-autotable --save
+npm install @stripe/stripe-js @stripe/react-stripe-js
 
 Descargas Node:
 npm install express cors mysql2 dotenv jsonwebtoken
@@ -26,3 +27,4 @@ npm install express cors dotenv jsonwebtoken mysql2 googleapis bcrypt
 npm install node-fetch@2
 npm install nodemailer
 npm install multer
+npm install stripe

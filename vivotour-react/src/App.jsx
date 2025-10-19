@@ -9,6 +9,9 @@ import PrivateRoute from './components/use/PrivateRoute.jsx';
 import { Perfil } from './pages/inicio/Perfil.jsx';
 import AdminDashboard from './pages/Admin/AdminDashboard.jsx';
 import CompleteProfile from './pages/inicio/CompleteProfile.jsx';
+import CheckoutPage from './pages/payment/CheckoutPage.jsx';
+import TestPayment from './pages/TestPayment.jsx';
+import ReservasDashboard from './pages/dashboard/ReservasDashboard.jsx';
 
 const App = () => {
   return (
@@ -24,6 +27,9 @@ const App = () => {
         <Route element={<PrivateRoute />}>
             <Route path="/Reserva" element={<Reserva />} />
             <Route path="/Perfil" element={<Perfil />}/>
+            <Route path="/checkout/:reservaId" element={<CheckoutPage />} />
+            <Route path="/test-payment" element={<TestPayment />} />
+            <Route path="/dashboard/reservas" element={<ReservasDashboard />} />
           </Route>
           <Route path='/Admin' element={<AdminDashboard />}/>
       </Routes>

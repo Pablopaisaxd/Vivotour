@@ -255,7 +255,7 @@ Total: $${summaryData.totals?.total || 0}
 
             console.log('Enviando reserva:', payload);
 
-            const res = await fetch('http://localhost:5000/reservas', {
+            const res = await fetch('http://localhost:5000/api/reservas', {
                 method: 'POST',
                 headers: { 
                     'Content-Type': 'application/json',
@@ -270,13 +270,14 @@ Total: $${summaryData.totals?.total || 0}
             const data = await res.json();
             if (!data.success) throw new Error(data.mensaje || 'No se pudo guardar la reserva');
             
-            // Mostrar opciones después de guardar exitosamente
-            const userChoice = confirm('Reserva guardada correctamente!\n\n¿Qué deseas hacer?\n\nOK: Ir al perfil para ver tus reservas\nCancelar: Volver al inicio');
+            // Opciones después de guardar exitosamente
+            const userChoice = confirm('¡Reserva creada exitosamente!\n\n¿Deseas proceder al pago?\n\nOK: Ir a la pasarela de pagos\nCancelar: Ver mis reservas');
             
             if (userChoice) {
-                navigate('/Perfil');
+                // Redirigir al checkout con el ID de la reserva
+                navigate(`/checkout/${data.reservaId}`);
             } else {
-                navigate('/');
+                navigate('/Perfil');
             }
         } catch (err) {
             alert(`Error al guardar la reserva: ${err.message}`);

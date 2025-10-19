@@ -10,8 +10,13 @@ import fs from "fs";
 import { fileURLToPath } from 'url';
 import db from "./db.js";
 import { google } from "googleapis"; // Google OAuth2
+import Stripe from 'stripe'; // Stripe para pagos
 
 dotenv.config();
+
+// Configuración de Stripe
+console.log('Configurando Stripe con clave:', process.env.STRIPE_SECRET_KEY ? 'Configurada ✓' : 'NO CONFIGURADA ❌');
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 
 const app = express();
 
@@ -20,8 +25,19 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 // CORS (permitir frontend definido en .env o localhost por defecto)
-const allowedOrigin = process.env.FRONTEND_URL || "http://localhost:5173";
-app.use(cors({ origin: allowedOrigin, credentials: true }));
+const allowedOrigins = [
+  process.env.FRONTEND_URL || "http://localhost:5173",
+  "http://localhost:5174", // Puerto alternativo de Vite
+  "http://localhost:3000"  // Puerto de desarrollo común
+];
+
+// Mantener compatibilidad con código existente
+const allowedOrigin = allowedOrigins[0];
+
+app.use(cors({ 
+  origin: allowedOrigins, 
+  credentials: true 
+}));
 app.use(express.json());
 
 // Servir archivos estáticos de la carpeta uploads
@@ -61,6 +77,22 @@ const upload = multer({
 });
 
 const JWT_SECRET = process.env.JWT_SECRET || "clave_super_secreta"; 
+
+// Middleware para autenticar token JWT
+const autenticarToken = (req, res, next) => {
+  try {
+    const auth = req.headers.authorization || "";
+    if (!auth.startsWith("Bearer ")) {
+      return res.status(401).json({ success: false, mensaje: "No autorizado" });
+    }
+    const token = auth.slice("Bearer ".length);
+    const payload = jwt.verify(token, JWT_SECRET);
+    req.user = payload;
+    next();
+  } catch (e) {
+    return res.status(401).json({ success: false, mensaje: "Token inválido" });
+  }
+}; 
 
 // Función helper para convertir avatar path a URL completa
 function getAvatarUrl(avatarPath) {
@@ -1150,6 +1182,38 @@ app.delete('/reservas/:id', requireAuth, async (req, res) => {
   }
 });
 
+// Obtener una reserva específica
+app.get('/api/reserva/:id', autenticarToken, async (req, res) => {
+  try {
+    const { id } = req.params;
+    const IdAccount = req.user.IdAccount;
+
+    const [rows] = await db.execute(`
+      SELECT * FROM reservas 
+      WHERE IdReserva = ? AND IdAccount = ?
+    `, [id, IdAccount]);
+
+    if (rows.length === 0) {
+      return res.status(404).json({ 
+        success: false, 
+        mensaje: 'Reserva no encontrada o no autorizada' 
+      });
+    }
+
+    res.json({
+      success: true,
+      reserva: rows[0]
+    });
+
+  } catch (error) {
+    console.error('Error obteniendo reserva:', error);
+    res.status(500).json({ 
+      success: false, 
+      mensaje: 'Error del servidor' 
+    });
+  }
+});
+
 // ===== GESTIÓN DE ALOJAMIENTOS =====
 
 // Obtener todos los alojamientos (público)
@@ -1850,20 +1914,6 @@ const galleryUpload = multer({
 });
 
 // Middleware para verificar admin
-const autenticarToken = (req, res, next) => {
-  try {
-    const auth = req.headers.authorization || "";
-    if (!auth.startsWith("Bearer ")) {
-      return res.status(401).json({ success: false, mensaje: "No autorizado" });
-    }
-    const token = auth.slice("Bearer ".length);
-    const payload = jwt.verify(token, JWT_SECRET);
-    req.user = payload;
-    next();
-  } catch (e) {
-    return res.status(401).json({ success: false, mensaje: "Token inválido" });
-  }
-};
 
 const verificarAdmin = (req, res, next) => {
   if (req.user.IdRol !== 1) {
@@ -1992,6 +2042,492 @@ app.put('/api/gallery/category/:categoryId/cover', autenticarToken, verificarAdm
   } catch (error) {
     console.error('Error actualizando portada:', error);
     res.status(500).json({ success: false, mensaje: 'Error actualizando portada' });
+  }
+});
+
+// ============================================
+// SISTEMA DE PAGOS CON STRIPE
+// ============================================
+
+// Función para crear datos iniciales de las tablas de pago
+const createPaymentInitialData = async () => {
+  try {
+    // Insertar tipos de pago
+    const paymentTypes = [
+      { id: 1, name: 'Tarjeta de Crédito' },
+      { id: 2, name: 'Tarjeta de Débito' },
+      { id: 3, name: 'PayPal' },
+      { id: 4, name: 'Transferencia Bancaria' }
+    ];
+
+    for (const type of paymentTypes) {
+      await db.query(`
+        INSERT IGNORE INTO tipopagos (IdTipoPago, NombreTipoPago) 
+        VALUES (?, ?)
+      `, [type.id, type.name]);
+    }
+
+    // Insertar estados de pago
+    const paymentStates = [
+      { id: 1, name: 'Pendiente', description: 'Pago en proceso de verificación' },
+      { id: 2, name: 'Completado', description: 'Pago procesado exitosamente' },
+      { id: 3, name: 'Fallido', description: 'Error en el procesamiento del pago' },
+      { id: 4, name: 'Cancelado', description: 'Pago cancelado por el usuario' },
+      { id: 5, name: 'Reembolsado', description: 'Pago devuelto al cliente' },
+      { id: 6, name: 'Rechazado', description: 'Pago rechazado por el banco' }
+    ];
+
+    for (const state of paymentStates) {
+      await db.query(`
+        INSERT IGNORE INTO estadopago (IdEstadoPago, Nombre, Descripcion) 
+        VALUES (?, ?, ?)
+      `, [state.id, state.name, state.description]);
+    }
+
+    console.log('Datos iniciales de pagos creados correctamente');
+  } catch (error) {
+    console.error('Error creando datos iniciales de pagos:', error);
+  }
+};
+
+// Ejecutar función de datos iniciales
+createPaymentInitialData();
+
+// Crear Payment Intent para Stripe
+app.post('/api/payment/create-intent', autenticarToken, async (req, res) => {
+  try {
+    const { reservaId, amount, currency = 'cop' } = req.body;
+    
+    if (!reservaId || !amount) {
+      return res.status(400).json({ 
+        success: false, 
+        mensaje: 'reservaId y amount son requeridos' 
+      });
+    }
+
+    // Verificar que la reserva pertenece al usuario autenticado
+    const [reservaResults] = await db.execute(
+      'SELECT * FROM reservas WHERE IdReserva = ? AND IdAccount = ?', 
+      [reservaId, req.user.IdAccount]
+    );
+
+    if (reservaResults.length === 0) {
+      return res.status(404).json({ 
+        success: false, 
+        mensaje: 'Reserva no encontrada o no autorizada' 
+      });
+    }
+
+    // MODO DE DESARROLLO: Simular PaymentIntent mientras configuramos Stripe
+    if (process.env.NODE_ENV === 'development' || !process.env.STRIPE_SECRET_KEY || process.env.STRIPE_SECRET_KEY.includes('sk_test_51QKT')) {
+      console.log('Modo desarrollo: Simulando PaymentIntent');
+      
+      // Crear un PaymentIntent simulado
+      const mockPaymentIntent = {
+        id: `pi_mock_${Date.now()}`,
+        client_secret: `pi_mock_${Date.now()}_secret_test123`,
+        amount: amount,
+        currency: currency,
+        status: 'requires_payment_method'
+      };
+
+      // Registrar pago en BD con estado pendiente
+      const [paymentResult] = await db.execute(`
+        INSERT INTO pagos (
+          IdTipoPago, IdAccount, IdReserva, IdEstadoPago, 
+          Monto, Moneda, ProveedorPago, ReferenciaPasarela, 
+          DescripcionPago, FechaPago
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())
+      `, [
+        1, // Tarjeta de crédito por defecto
+        req.user.IdAccount,
+        reservaId,
+        1, // Estado pendiente
+        amount,
+        currency,
+        'Stripe_Mock',
+        mockPaymentIntent.id,
+        `Pago simulado para reserva #${reservaId}`,
+      ]);
+
+      return res.json({
+        success: true,
+        clientSecret: mockPaymentIntent.client_secret,
+        paymentId: paymentResult.insertId,
+        paymentIntentId: mockPaymentIntent.id,
+        mockMode: true
+      });
+    }
+
+    // Crear Payment Intent en Stripe
+    // Para COP, el amount ya viene en pesos, necesitamos convertir a centavos
+    const stripeAmount = currency === 'cop' ? Math.round(amount) : Math.round(amount * 100);
+    console.log(`Creando PaymentIntent - Amount original: ${amount}, Amount para Stripe: ${stripeAmount}, Moneda: ${currency}`);
+    
+    const paymentIntent = await stripe.paymentIntents.create({
+      amount: stripeAmount,
+      currency: currency,
+      metadata: {
+        reservaId: reservaId.toString(),
+        userId: req.user.IdAccount.toString()
+      }
+    });
+
+    // Registrar pago en BD con estado pendiente
+    const [paymentResult] = await db.execute(`
+      INSERT INTO pagos (
+        IdTipoPago, IdAccount, IdReserva, IdEstadoPago, 
+        Monto, Moneda, ProveedorPago, ReferenciaPasarela, 
+        DescripcionPago, FechaPago
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())
+    `, [
+      1, // Tarjeta de crédito por defecto
+      req.user.IdAccount,
+      reservaId,
+      1, // Estado pendiente
+      amount,
+      currency,
+      'Stripe',
+      paymentIntent.id,
+      `Pago para reserva #${reservaId}`,
+    ]);
+
+    res.json({
+      success: true,
+      clientSecret: paymentIntent.client_secret,
+      paymentId: paymentResult.insertId,
+      paymentIntentId: paymentIntent.id
+    });
+
+  } catch (error) {
+    console.error('Error creando Payment Intent:', error);
+    console.error('Detalles del error:', {
+      message: error.message,
+      type: error.type,
+      code: error.code,
+      param: error.param,
+      decline_code: error.decline_code
+    });
+    res.status(500).json({ 
+      success: false, 
+      mensaje: 'Error creando intención de pago',
+      error: process.env.NODE_ENV === 'development' ? error.message : undefined
+    });
+  }
+});
+
+// Confirmar pago exitoso
+app.post('/api/payment/confirm', autenticarToken, async (req, res) => {
+  try {
+    const { paymentIntentId, paymentId } = req.body;
+
+    if (!paymentIntentId || !paymentId) {
+      return res.status(400).json({ 
+        success: false, 
+        mensaje: 'paymentIntentId y paymentId son requeridos' 
+      });
+    }
+
+    // MODO DE DESARROLLO: Simular confirmación de pago
+    if (process.env.NODE_ENV === 'development' || paymentIntentId.includes('pi_mock_')) {
+      console.log('Modo desarrollo: Simulando confirmación de pago');
+      
+      // Actualizar el estado del pago a exitoso
+      await db.execute(`
+        UPDATE pagos 
+        SET IdEstadoPago = ?, FechaPago = NOW() 
+        WHERE IdPago = ? AND IdAccount = ?
+      `, [2, paymentId, req.user.IdAccount]); // 2 = Completado
+
+      // Actualizar el estado de la reserva a confirmada
+      const [pagoResult] = await db.execute(`
+        SELECT IdReserva FROM pagos WHERE IdPago = ?
+      `, [paymentId]);
+
+      if (pagoResult.length > 0) {
+        await db.execute(`
+          UPDATE reservas 
+          SET EstadoReserva = 'Confirmada' 
+          WHERE IdReserva = ?
+        `, [pagoResult[0].IdReserva]);
+      }
+
+      return res.json({
+        success: true,
+        mensaje: 'Pago simulado confirmado exitosamente',
+        mockMode: true
+      });
+    }
+
+    // Verificar el estado del pago en Stripe
+    const paymentIntent = await stripe.paymentIntents.retrieve(paymentIntentId);
+
+    if (paymentIntent.status === 'succeeded') {
+      // Actualizar estado del pago en BD
+      await db.execute(`
+        UPDATE pagos 
+        SET IdEstadoPago = 2, FechaPago = NOW()
+        WHERE IdPago = ? AND IdAccount = ?
+      `, [paymentId, req.user.IdAccount]);
+
+      // Obtener información del pago para actualizar la reserva
+      const [paymentInfo] = await db.execute(`
+        SELECT IdReserva FROM pagos WHERE IdPago = ?
+      `, [paymentId]);
+
+      if (paymentInfo.length > 0) {
+        // Opcional: Actualizar estado de la reserva si tienes ese campo
+        // await db.execute(`
+        //   UPDATE reservas SET estado = 'confirmada' WHERE IdReserva = ?
+        // `, [paymentInfo[0].IdReserva]);
+      }
+
+      res.json({
+        success: true,
+        mensaje: 'Pago confirmado exitosamente',
+        paymentStatus: 'completed'
+      });
+    } else {
+      // Actualizar como fallido
+      await db.execute(`
+        UPDATE pagos 
+        SET IdEstadoPago = 3
+        WHERE IdPago = ? AND IdAccount = ?
+      `, [paymentId, req.user.IdAccount]);
+
+      res.json({
+        success: false,
+        mensaje: 'El pago no se completó',
+        paymentStatus: paymentIntent.status
+      });
+    }
+
+  } catch (error) {
+    console.error('Error confirmando pago:', error);
+    res.status(500).json({ 
+      success: false, 
+      mensaje: 'Error confirmando pago' 
+    });
+  }
+});
+
+// Obtener historial de pagos del usuario
+app.get('/api/payment/history', autenticarToken, async (req, res) => {
+  try {
+    const [payments] = await db.execute(`
+      SELECT 
+        p.IdPago,
+        p.Monto,
+        p.Moneda,
+        p.ProveedorPago,
+        p.DescripcionPago,
+        p.FechaPago,
+        tp.NombreTipoPago,
+        ep.Nombre as EstadoPago,
+        r.IdReserva,
+        r.FechaIngreso,
+        r.FechaSalida
+      FROM pagos p
+      LEFT JOIN tipopagos tp ON p.IdTipoPago = tp.IdTipoPago
+      LEFT JOIN estadopago ep ON p.IdEstadoPago = ep.IdEstadoPago
+      LEFT JOIN reservas r ON p.IdReserva = r.IdReserva
+      WHERE p.IdAccount = ?
+      ORDER BY p.FechaPago DESC
+    `, [req.user.IdAccount]);
+
+    res.json({
+      success: true,
+      payments: payments
+    });
+
+  } catch (error) {
+    console.error('Error obteniendo historial de pagos:', error);
+    res.status(500).json({ 
+      success: false, 
+      mensaje: 'Error obteniendo historial de pagos' 
+    });
+  }
+});
+
+// Webhook de Stripe para notificaciones automáticas
+app.post('/api/payment/webhook', express.raw({type: 'application/json'}), async (req, res) => {
+  const sig = req.headers['stripe-signature'];
+
+  try {
+    const event = stripe.webhooks.constructEvent(req.body, sig, process.env.STRIPE_WEBHOOK_SECRET);
+
+    switch (event.type) {
+      case 'payment_intent.succeeded':
+        const paymentIntent = event.data.object;
+        
+        // Actualizar pago en BD
+        await db.execute(`
+          UPDATE pagos 
+          SET IdEstadoPago = 2, FechaPago = NOW()
+          WHERE ReferenciaPasarela = ?
+        `, [paymentIntent.id]);
+
+        console.log('Pago exitoso confirmado vía webhook:', paymentIntent.id);
+        break;
+
+      case 'payment_intent.payment_failed':
+        const failedPayment = event.data.object;
+        
+        // Actualizar como fallido
+        await db.execute(`
+          UPDATE pagos 
+          SET IdEstadoPago = 3
+          WHERE ReferenciaPasarela = ?
+        `, [failedPayment.id]);
+
+        console.log('Pago fallido registrado vía webhook:', failedPayment.id);
+        break;
+
+      default:
+        console.log(`Evento no manejado: ${event.type}`);
+    }
+
+    res.json({received: true});
+
+  } catch (error) {
+    console.error('Error en webhook:', error);
+    res.status(400).send(`Webhook Error: ${error.message}`);
+  }
+});
+
+// Obtener detalles de un pago específico
+app.get('/api/payment/:paymentId', autenticarToken, async (req, res) => {
+  try {
+    const { paymentId } = req.params;
+
+    const [payment] = await db.execute(`
+      SELECT 
+        p.*,
+        tp.NombreTipoPago,
+        ep.Nombre as EstadoPago,
+        ep.Descripcion as DescripcionEstado,
+        r.IdReserva,
+        r.FechaIngreso,
+        r.FechaSalida,
+        a.nombre as NombreCliente
+      FROM pagos p
+      LEFT JOIN tipopagos tp ON p.IdTipoPago = tp.IdTipoPago
+      LEFT JOIN estadopago ep ON p.IdEstadoPago = ep.IdEstadoPago
+      LEFT JOIN reservas r ON p.IdReserva = r.IdReserva
+      LEFT JOIN accounts a ON p.IdAccount = a.IdAccount
+      WHERE p.IdPago = ? AND p.IdAccount = ?
+    `, [paymentId, req.user.IdAccount]);
+
+    if (payment.length === 0) {
+      return res.status(404).json({ 
+        success: false, 
+        mensaje: 'Pago no encontrado' 
+      });
+    }
+
+    res.json({
+      success: true,
+      payment: payment[0]
+    });
+
+  } catch (error) {
+    console.error('Error obteniendo detalles de pago:', error);
+    res.status(500).json({ 
+      success: false, 
+      mensaje: 'Error obteniendo detalles de pago' 
+    });
+  }
+});
+
+// Obtener detalles de una reserva específica
+app.get('/api/reserva/:reservaId', autenticarToken, async (req, res) => {
+  try {
+    const { reservaId } = req.params;
+
+    const [reserva] = await db.execute(`
+      SELECT 
+        r.*,
+        a.nombre as NombreCliente,
+        a.email as EmailCliente
+      FROM reservas r
+      LEFT JOIN accounts a ON r.IdAccount = a.IdAccount
+      WHERE r.IdReserva = ? AND r.IdAccount = ?
+    `, [reservaId, req.user.IdAccount]);
+
+    if (reserva.length === 0) {
+      return res.status(404).json({ 
+        success: false, 
+        mensaje: 'Reserva no encontrada o no autorizada' 
+      });
+    }
+
+    res.json({
+      success: true,
+      reserva: reserva[0]
+    });
+
+  } catch (error) {
+    console.error('Error obteniendo detalles de reserva:', error);
+    res.status(500).json({ 
+      success: false, 
+      mensaje: 'Error obteniendo detalles de reserva' 
+    });
+  }
+});
+
+// Endpoint de prueba para verificar autenticación
+app.get('/api/test-auth', autenticarToken, async (req, res) => {
+  res.json({
+    success: true,
+    message: 'Autenticación exitosa',
+    user: {
+      IdAccount: req.user.IdAccount,
+      nombre: req.user.nombre,
+      email: req.user.email,
+      IdRol: req.user.IdRol
+    }
+  });
+});
+
+// Crear nueva reserva (endpoint alternativo con autenticarToken)
+app.post('/api/reservas', autenticarToken, async (req, res) => {
+  try {
+    const { IdAlojamiento, FechaIngreso, FechaSalida, InformacionReserva } = req.body;
+    
+    if (!IdAlojamiento || !FechaIngreso || !FechaSalida) {
+      return res.status(400).json({ 
+        success: false, 
+        mensaje: 'IdAlojamiento, FechaIngreso y FechaSalida son requeridos' 
+      });
+    }
+
+    const query = `
+      INSERT INTO reservas (IdAlojamiento, IdCliente, IdAccount, FechaReserva, FechaIngreso, FechaSalida, InformacionReserva)
+      VALUES (?, ?, ?, NOW(), ?, ?, ?)
+    `;
+    
+    const [result] = await db.execute(query, [
+      IdAlojamiento,
+      req.user.IdAccount, // IdCliente (usando el mismo ID del usuario)
+      req.user.IdAccount, // IdAccount
+      FechaIngreso,
+      FechaSalida,
+      InformacionReserva || null
+    ]);
+
+    res.json({
+      success: true,
+      mensaje: 'Reserva creada exitosamente',
+      reservaId: result.insertId
+    });
+
+  } catch (error) {
+    console.error('Error creando reserva:', error);
+    res.status(500).json({ 
+      success: false, 
+      mensaje: 'Error creando reserva',
+      error: error.message 
+    });
   }
 });
 
