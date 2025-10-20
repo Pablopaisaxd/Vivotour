@@ -2531,6 +2531,158 @@ app.post('/api/reservas', autenticarToken, async (req, res) => {
   }
 });
 
+// ===== ENDPOINTS PARA GESTIÓN DE USUARIOS (ADMIN) =====
+
+// Obtener todos los usuarios con paginación y búsqueda
+app.get('/admin/usuarios', requireAuth, async (req, res) => {
+  try {
+    console.log('[ADMIN/USUARIOS] Query params:', req.query);
+    console.log('[ADMIN/USUARIOS] Usuario:', req.user.email, 'IdRol:', req.user.IdRol);
+    
+    // Verificar que sea admin
+    if (req.user.IdRol !== 1) {
+      console.log('[ADMIN/USUARIOS] Acceso denegado - rol requerido: 1, rol actual:', req.user.IdRol);
+      return res.status(403).json({ success: false, mensaje: 'Acceso denegado. Solo administradores.' });
+    }
+
+    // Obtener página del query (por defecto página 1)
+    const page = parseInt(req.query.page) || 1;
+    const itemsPerPage = 10;
+    const offset = (page - 1) * itemsPerPage;
+    const searchTerm = req.query.search || '';
+
+    console.log('[ADMIN/USUARIOS] Parámetros: page=' + page + ', search="' + searchTerm + '"');
+
+    // Construir la cláusula WHERE si hay búsqueda
+    let whereClause = '';
+    let countParams = [];
+    let usuariosParams = [];
+    
+    if (searchTerm) {
+      whereClause = `WHERE nombre LIKE ? OR email LIKE ? OR celular LIKE ? OR numeroDocumento LIKE ?`;
+      const searchPattern = `%${searchTerm}%`;
+      countParams = [searchPattern, searchPattern, searchPattern, searchPattern];
+      usuariosParams = [searchPattern, searchPattern, searchPattern, searchPattern];
+    }
+
+    // Obtener el total de usuarios (con filtro si existe)
+    const countQuery = `SELECT COUNT(*) as total FROM accounts ${whereClause}`;
+    console.log('[ADMIN/USUARIOS] Count query:', countQuery);
+    console.log('[ADMIN/USUARIOS] Count params:', countParams);
+    
+    const [countResult] = await db.query(countQuery, countParams);
+    const total = countResult[0].total;
+    const totalPages = Math.ceil(total / itemsPerPage);
+
+    console.log('[ADMIN/USUARIOS] Total encontrados:', total, 'Páginas totales:', totalPages);
+
+    // Obtener usuarios con paginación y búsqueda
+    const usuariosQuery = `
+      SELECT 
+        IdAccount as id, 
+        nombre as name, 
+        email, 
+        celular as phone, 
+        tipoDocumento as docType, 
+        numeroDocumento as docNumber,
+        IdRol,
+        avatar
+      FROM accounts 
+      ${whereClause}
+      ORDER BY IdAccount DESC
+      LIMIT ? OFFSET ?
+    `;
+    
+    console.log('[ADMIN/USUARIOS] Usuarios query:', usuariosQuery);
+    
+    // Agregar los parámetros de paginación
+    usuariosParams.push(itemsPerPage, offset);
+    console.log('[ADMIN/USUARIOS] Usuarios params:', usuariosParams);
+    
+    const [usuarios] = await db.query(usuariosQuery, usuariosParams);
+
+    console.log('[ADMIN/USUARIOS] Usuarios obtenidos:', usuarios.length);
+
+    res.json({ 
+      success: true, 
+      usuarios,
+      pagination: {
+        page,
+        itemsPerPage,
+        total,
+        totalPages,
+        search: searchTerm
+      }
+    });
+  } catch (e) {
+    console.error('[ADMIN/USUARIOS] Error obteniendo usuarios:', e);
+    res.status(500).json({ success: false, mensaje: 'Error del servidor', error: e.message });
+  }
+});
+
+// Actualizar usuario (editar)
+app.put('/admin/usuarios/:id', requireAuth, async (req, res) => {
+  try {
+    // Verificar que sea admin
+    if (req.user.IdRol !== 1) {
+      return res.status(403).json({ success: false, mensaje: 'Acceso denegado. Solo administradores.' });
+    }
+
+    const userId = req.params.id;
+    const { name, email, phone, docType, docNumber } = req.body;
+
+    // Validaciones
+    if (!name || !email || !phone || !docType || !docNumber) {
+      return res.status(400).json({ success: false, mensaje: 'Todos los campos son requeridos' });
+    }
+
+    // Actualizar usuario
+    const [result] = await db.query(`
+      UPDATE accounts 
+      SET nombre = ?, email = ?, celular = ?, tipoDocumento = ?, numeroDocumento = ? 
+      WHERE IdAccount = ?
+    `, [name, email, phone, docType, docNumber, userId]);
+
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ success: false, mensaje: 'Usuario no encontrado' });
+    }
+
+    res.json({ success: true, mensaje: 'Usuario actualizado correctamente' });
+  } catch (e) {
+    console.error('Error actualizando usuario:', e);
+    res.status(500).json({ success: false, mensaje: 'Error del servidor' });
+  }
+});
+
+// Eliminar usuario
+app.delete('/admin/usuarios/:id', requireAuth, async (req, res) => {
+  try {
+    // Verificar que sea admin
+    if (req.user.IdRol !== 1) {
+      return res.status(403).json({ success: false, mensaje: 'Acceso denegado. Solo administradores.' });
+    }
+
+    const userId = req.params.id;
+
+    // No permitir eliminar al mismo admin
+    if (parseInt(userId) === req.user.IdAccount) {
+      return res.status(400).json({ success: false, mensaje: 'No puedes eliminar tu propia cuenta' });
+    }
+
+    // Eliminar usuario
+    const [result] = await db.query('DELETE FROM accounts WHERE IdAccount = ?', [userId]);
+
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ success: false, mensaje: 'Usuario no encontrado' });
+    }
+
+    res.json({ success: true, mensaje: 'Usuario eliminado correctamente' });
+  } catch (e) {
+    console.error('Error eliminando usuario:', e);
+    res.status(500).json({ success: false, mensaje: 'Error del servidor' });
+  }
+});
+
 app.listen(5000, () => {
   console.log(" Servidor corriendo en http://localhost:5000");
 });
