@@ -1,66 +1,100 @@
-import React, { useState } from 'react';
-
-const ACTIVITIES = [
-    { name: 'Caminata a la cascada', tooltip: 'Disfruta de una hermosa caminata junto a la cascada.' },
-    { name: 'Caminata Puente Amarillo', tooltip: 'Explora el Puente Amarillo con vistas espectaculares.' },
-    { name: 'Avistamiento de aves', tooltip: 'Observa aves exóticas en su hábitat natural.' },
-    { name: 'Zona de motocross', tooltip: 'Zona para los amantes del motocross y la aventura.' },
-    { name: 'Día de sol', tooltip: 'Relájate y disfruta del sol en áreas designadas.' },
-    { name: 'Charco', tooltip: 'Zona natural para refrescarse y divertirse.' },
-    { name: 'Cabalgatas', tooltip: 'Paseos a caballo por senderos naturales.' }
-];
-
-const MEALS = ['Desayuno', 'Almuerzo', 'Cena'];
+import React, { useState, useEffect } from 'react';
+import { apiConfig } from '../../../config/apiConfig';
 
 const ReservationManagement = () => {
-    const [reservations, setReservations] = useState([
-        {
-            id: 1,
-            user: 'Juan Pérez',
-            email: 'juan.perez@example.com',
-            dateS: '2024-08-10',
-            dateE: '2024-08-12',
-            adults: 2,
-            children: 1,
-            accommodation: 'Cabañas',
-            activities: ['Caminata a la cascada', 'Día de sol'],
-            meals: ['Desayuno', 'Almuerzo', 'Cena'],
-            status: 'pending'
-        },
-        {
-            id: 2,
-            user: 'María García',
-            email: 'maria.garcia@example.com',
-            dateS: '2024-09-01',
-            dateE: '2024-09-05',
-            adults: 4,
-            children: 0,
-            accommodation: 'Zona de camping',
-            activities: ['Avistamiento de aves', 'Cabalgatas'],
-            meals: ['Almuerzo', 'Cena'],
-            status: 'confirmed'
-        },
-        {
-            id: 3,
-            user: 'Carlos Ruiz',
-            email: 'carlos.ruiz@example.com',
-            dateS: '2024-09-15',
-            dateE: '2024-09-17',
-            adults: 3,
-            children: 2,
-            accommodation: 'Cabañas',
-            activities: ['Charco'],
-            meals: ['Desayuno', 'Almuerzo'],
-            status: 'pending'
-        }
-    ]);
+    const [reservations, setReservations] = useState([]);
+    const [filteredReservations, setFilteredReservations] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState('');
+    
+    // Filtros de fecha
+    const [filterStartDate, setFilterStartDate] = useState('');
+    const [filterEndDate, setFilterEndDate] = useState('');
 
-    const handleStatusChange = (id, newStatus) => {
-        setReservations(prevReservations =>
-            prevReservations.map(res =>
-                res.id === id ? { ...res, status: newStatus } : res
-            )
-        );
+    // Cargar reservas al montar el componente
+    useEffect(() => {
+        fetchReservations();
+    }, []);
+
+    // Aplicar filtros cuando cambian las fechas
+    useEffect(() => {
+        applyFilters();
+    }, [reservations, filterStartDate, filterEndDate]);
+
+    const fetchReservations = async () => {
+        try {
+            setLoading(true);
+            setError('');
+            const token = localStorage.getItem('token');
+            
+            if (!token) {
+                setError('No se encontró token de autenticación');
+                setLoading(false);
+                return;
+            }
+
+            // Obtener todas las reservas del backend
+            const response = await fetch(`${apiConfig.baseUrl}/api/admin/reservas`, {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                }
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                setError(`Error ${response.status}: ${errorData.mensaje || 'Error al obtener reservas'}`);
+                setLoading(false);
+                return;
+            }
+
+            const data = await response.json();
+
+            if (data.success && Array.isArray(data.reservas)) {
+                // Mapear datos del backend al formato del componente
+                const formattedReservations = data.reservas.map(res => ({
+                    id: res.IdReserva,
+                    user: res.NombreUsuario || 'N/A',
+                    email: res.EmailUsuario || 'N/A',
+                    dateS: res.FechaIngreso,
+                    dateE: res.FechaSalida,
+                    adults: res.CantidadAdultos || 0,
+                    children: res.CantidadNinos || 0,
+                    accommodation: res.TipoAlojamiento || 'No especificado',
+                    status: res.Monto > 0 ? 'confirmed' : 'pending',
+                    informacion: res.InformacionReserva || '',
+                    monto: res.Monto || 0
+                }));
+                setReservations(formattedReservations);
+            } else {
+                setError(data.mensaje || 'Error al obtener reservas');
+            }
+        } catch (err) {
+            console.error('Error:', err);
+            setError('Error de conexión con el servidor: ' + err.message);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const applyFilters = () => {
+        let filtered = [...reservations];
+
+        if (filterStartDate) {
+            filtered = filtered.filter(res => new Date(res.dateS) >= new Date(filterStartDate));
+        }
+
+        if (filterEndDate) {
+            filtered = filtered.filter(res => new Date(res.dateE) <= new Date(filterEndDate));
+        }
+
+        setFilteredReservations(filtered);
+    };
+
+    const clearFilters = () => {
+        setFilterStartDate('');
+        setFilterEndDate('');
     };
 
     const styles = {
@@ -79,6 +113,71 @@ const ReservationManagement = () => {
             color: 'var(--rich-black)',
             marginBottom: '15px',
             fontWeight: '600',
+        },
+        filterSection: {
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+            gap: '15px',
+            padding: '15px',
+            backgroundColor: '#f8f9fa',
+            borderRadius: '8px',
+            border: '1px solid var(--border-color-light)',
+        },
+        filterGroup: {
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '5px',
+        },
+        filterLabel: {
+            fontSize: '0.9rem',
+            fontWeight: '600',
+            color: 'var(--rich-black)',
+        },
+        filterInput: {
+            padding: '8px 12px',
+            border: '1px solid var(--border-color-light)',
+            borderRadius: '5px',
+            fontSize: '0.95rem',
+        },
+        filterButtons: {
+            display: 'flex',
+            gap: '10px',
+            alignItems: 'flex-end',
+        },
+        filterButton: {
+            padding: '8px 16px',
+            backgroundColor: '#2c5530',
+            color: 'white',
+            border: 'none',
+            borderRadius: '5px',
+            cursor: 'pointer',
+            fontWeight: 'bold',
+            fontSize: '0.9rem',
+        },
+        clearButton: {
+            padding: '8px 16px',
+            backgroundColor: '#6c757d',
+            color: 'white',
+            border: 'none',
+            borderRadius: '5px',
+            cursor: 'pointer',
+            fontWeight: 'bold',
+            fontSize: '0.9rem',
+        },
+        errorMessage: {
+            padding: '12px',
+            backgroundColor: '#f8d7da',
+            color: '#721c24',
+            borderRadius: '5px',
+            border: '1px solid #f5c2c7',
+        },
+        loadingMessage: {
+            padding: '12px',
+            backgroundColor: '#d1ecf1',
+            color: '#0c5460',
+            borderRadius: '5px',
+            border: '1px solid #bee5eb',
+            textAlign: 'center',
         },
         section: {
             marginBottom: '20px',
@@ -110,24 +209,11 @@ const ReservationManagement = () => {
             color: 'var(--rich-black)',
             fontSize: '0.95rem',
         },
-        statusButtons: {
-            marginTop: '10px',
-            display: 'flex',
-            gap: '10px',
-        },
-        statusButton: {
-            padding: '8px 12px',
-            borderRadius: '5px',
-            border: 'none',
-            cursor: 'pointer',
-            fontWeight: 'bold',
-            color: 'white',
-        },
-        pendingButton: {
-            backgroundColor: '#ffc107',
-        },
-        confirmedButton: {
-            backgroundColor: '#28a745',
+        noData: {
+            textAlign: 'center',
+            padding: '20px',
+            color: '#6c757d',
+            fontSize: '1rem',
         },
     };
 
@@ -135,35 +221,67 @@ const ReservationManagement = () => {
         <div style={styles.container} className="reservation-management-container">
             <h2 style={styles.title}>Gestión de Reservas</h2>
 
-            <div style={styles.section}>
-                <h3 style={styles.subtitle}>Reservas Recientes</h3>
-                <div style={styles.reservationList}>
-                    {reservations.map(res => (
-                        <div key={res.id} style={styles.reservationItem}>
-                            <p style={styles.reservationDetail}><strong>Usuario:</strong> {res.user} ({res.email})</p>
-                            <p style={styles.reservationDetail}><strong>Fechas:</strong> {res.dateS} - {res.dateE}</p>
-                            <p style={styles.reservationDetail}><strong>Personas:</strong> {res.adults} adultos, {res.children} niños</p>
-                            <p style={styles.reservationDetail}><strong>Alojamiento:</strong> {res.accommodation}</p>
-                            <p style={styles.reservationDetail}><strong>Actividades:</strong> {Array.isArray(res.activities) ? res.activities.join(', ') : res.activities}</p>
-                            <p style={styles.reservationDetail}><strong>Comidas:</strong> {Array.isArray(res.meals) ? res.meals.join(', ') : res.meals}</p>
-                            <p style={styles.reservationDetail}><strong>Estado:</strong> {res.status === 'pending' ? 'Pendiente' : 'Confirmado'}</p>
-                            <div style={styles.statusButtons}>
-                                <button
-                                    style={{ ...styles.statusButton, ...styles.pendingButton }}
-                                    onClick={() => handleStatusChange(res.id, 'pending')}
-                                >
-                                    Pendiente
-                                </button>
-                                <button
-                                    style={{ ...styles.statusButton, ...styles.confirmedButton }}
-                                    onClick={() => handleStatusChange(res.id, 'confirmed')}
-                                >
-                                    Confirmado
-                                </button>
-                            </div>
-                        </div>
-                    ))}
+            {error && <div style={styles.errorMessage}>{error}</div>}
+            {loading && <div style={styles.loadingMessage}>Cargando reservas...</div>}
+
+            {/* Filtro de fechas */}
+            {!loading && (
+                <div style={styles.filterSection}>
+                    <div style={styles.filterGroup}>
+                        <label style={styles.filterLabel}>Desde:</label>
+                        <input
+                            type="date"
+                            style={styles.filterInput}
+                            value={filterStartDate}
+                            onChange={(e) => setFilterStartDate(e.target.value)}
+                        />
+                    </div>
+                    <div style={styles.filterGroup}>
+                        <label style={styles.filterLabel}>Hasta:</label>
+                        <input
+                            type="date"
+                            style={styles.filterInput}
+                            value={filterEndDate}
+                            onChange={(e) => setFilterEndDate(e.target.value)}
+                        />
+                    </div>
+                    <div style={styles.filterButtons}>
+                        <button
+                            style={styles.clearButton}
+                            onClick={clearFilters}
+                        >
+                            Limpiar Filtros
+                        </button>
+                    </div>
                 </div>
+            )}
+
+            {/* Lista de reservas */}
+            <div style={styles.section}>
+                <h3 style={styles.subtitle}>
+                    Reservas ({filteredReservations.length})
+                </h3>
+                {filteredReservations.length === 0 ? (
+                    <div style={styles.noData}>
+                        {reservations.length === 0 ? 'No hay reservas disponibles' : 'No hay reservas que coincidan con el filtro'}
+                    </div>
+                ) : (
+                    <div style={styles.reservationList}>
+                        {filteredReservations.map(res => (
+                            <div key={res.id} style={styles.reservationItem}>
+                                <p style={styles.reservationDetail}><strong>Usuario:</strong> {res.user} ({res.email})</p>
+                                <p style={styles.reservationDetail}><strong>Fechas:</strong> {new Date(res.dateS).toLocaleDateString()} - {new Date(res.dateE).toLocaleDateString()}</p>
+                                <p style={styles.reservationDetail}><strong>Alojamiento:</strong> {res.accommodation}</p>
+                                {res.informacion && (
+                                    <p style={styles.reservationDetail}><strong>Información:</strong> {res.informacion}</p>
+                                )}
+                                {res.monto > 0 && (
+                                    <p style={styles.reservationDetail}><strong>Monto:</strong> ${res.monto.toLocaleString()} COP</p>
+                                )}
+                            </div>
+                        ))}
+                    </div>
+                )}
             </div>
         </div>
     );

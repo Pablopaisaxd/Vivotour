@@ -250,6 +250,8 @@ Total: $${summaryData.totals?.total || 0}
                 IdAlojamiento: 1, // Por ahora usamos el primer alojamiento, más adelante se puede hacer dinámico
                 FechaIngreso: summaryData.dateS,
                 FechaSalida: summaryData.dateE,
+                CantidadAdultos: summaryData.adults,
+                CantidadNinos: summaryData.children,
                 InformacionReserva: informacionReserva
             };
 
