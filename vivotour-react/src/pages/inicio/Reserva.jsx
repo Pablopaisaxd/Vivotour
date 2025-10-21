@@ -222,7 +222,6 @@ const Reserva = () => {
         // Mientras el backend esté deshabilitado, solo generar PDF y cerrar
         if (!SAVE_ENABLED) {
             await handleGeneratePDF();
-            alert('Guardado deshabilitado temporalmente. Se generó el PDF.');
             setSummaryData(null);
             return;
         }
@@ -272,15 +271,8 @@ Total: $${summaryData.totals?.total || 0}
             const data = await res.json();
             if (!data.success) throw new Error(data.mensaje || 'No se pudo guardar la reserva');
             
-            // Opciones después de guardar exitosamente
-            const userChoice = confirm('¡Reserva creada exitosamente!\n\n¿Deseas proceder al pago?\n\nOK: Ir a la pasarela de pagos\nCancelar: Ver mis reservas');
-            
-            if (userChoice) {
-                // Redirigir al checkout con el ID de la reserva
-                navigate(`/checkout/${data.reservaId}`);
-            } else {
-                navigate('/Perfil');
-            }
+            // Redirigir directamente al checkout con el ID de la reserva
+            navigate(`/checkout/${data.reservaId}`);
         } catch (err) {
             alert(`Error al guardar la reserva: ${err.message}`);
         } finally {

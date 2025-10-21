@@ -15,7 +15,7 @@ import Stripe from 'stripe'; // Stripe para pagos
 dotenv.config();
 
 // Configuración de Stripe
-console.log('Configurando Stripe con clave:', process.env.STRIPE_SECRET_KEY ? 'Configurada ✓' : 'NO CONFIGURADA ❌');
+// Stripe configuration initialized
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 
 const app = express();
@@ -428,7 +428,6 @@ app.get('/auth/google/config-check', (req, res) => {
         UNIQUE KEY uniq_token (token)
       ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
     `);
-    console.log("Tabla password_resets lista");
   } catch (e) {
     console.error("Error creando tabla password_resets:", e);
   }
@@ -450,7 +449,6 @@ app.get('/auth/google/config-check', (req, res) => {
       (2, 'Cliente'),
       (3, 'Empleado');
     `);
-    console.log("Tabla roles lista");
 
     // Tabla de alojamientos
     await db.query(`
@@ -468,7 +466,6 @@ app.get('/auth/google/config-check', (req, res) => {
         INDEX (IdEmpleado)
       ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
     `);
-    console.log("Tabla alojamientos lista");
 
     // Tabla de reservas actualizada
     await db.query(`
@@ -490,23 +487,18 @@ app.get('/auth/google/config-check', (req, res) => {
       ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
     `);
     
-    // Agregar columnas si no existen (para migración)
+    // Asegurar que las columnas CantidadAdultos y CantidadNinos existen
     try {
-      await db.query(`
-        ALTER TABLE reservas ADD COLUMN IF NOT EXISTS CantidadAdultos INT DEFAULT 0
-      `);
-    } catch (e) {
-      // Ignorar si la columna ya existe
+      await db.query(`ALTER TABLE reservas ADD COLUMN CantidadAdultos INT DEFAULT 0`);
+    } catch (err) {
+      // Column already exists, silently continue
     }
     
     try {
-      await db.query(`
-        ALTER TABLE reservas ADD COLUMN IF NOT EXISTS CantidadNinos INT DEFAULT 0
-      `);
-    } catch (e) {
-      // Ignorar si la columna ya existe
+      await db.query(`ALTER TABLE reservas ADD COLUMN CantidadNinos INT DEFAULT 0`);
+    } catch (err) {
+      // Column already exists, silently continue
     }
-    console.log("Tabla reservas actualizada lista");
 
   } catch (e) {
     console.error("Error creando tablas del sistema:", e);
@@ -524,7 +516,6 @@ app.get('/auth/google/config-check', (req, res) => {
         INDEX (email)
       ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
     `);
-    console.log("Tabla reservas_old (backup) lista");
   } catch (e) {
     console.error("Error creando tabla reservas_old:", e);
   }
@@ -534,10 +525,9 @@ app.get('/auth/google/config-check', (req, res) => {
     const [cols] = await db.query("SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME='opiniones' AND COLUMN_NAME='email'");
     if (!cols || cols.length === 0) {
       await db.query("ALTER TABLE opiniones ADD COLUMN email VARCHAR(255) NULL AFTER nombre");
-      console.log("Columna email agregada a opiniones");
     }
   } catch (e) {
-    console.warn("No se pudo asegurar columna email en opiniones (puede existir ya):", e.code || e.message);
+    // Column may already exist, silently continue
   }
 
   // Asegurar columna IdAccount en opiniones
@@ -545,10 +535,9 @@ app.get('/auth/google/config-check', (req, res) => {
     const [cols] = await db.query("SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME='opiniones' AND COLUMN_NAME='IdAccount'");
     if (!cols || cols.length === 0) {
       await db.query("ALTER TABLE opiniones ADD COLUMN IdAccount INT NULL AFTER email");
-      console.log("Columna IdAccount agregada a opiniones");
     }
   } catch (e) {
-    console.warn("No se pudo asegurar columna IdAccount en opiniones:", e.code || e.message);
+    // Column may already exist, silently continue
   }
 
   // Asegurar columna IdRol en accounts
@@ -556,10 +545,9 @@ app.get('/auth/google/config-check', (req, res) => {
     const [cols] = await db.query("SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME='accounts' AND COLUMN_NAME='IdRol'");
     if (!cols || cols.length === 0) {
       await db.query("ALTER TABLE accounts ADD COLUMN IdRol INT NULL AFTER email");
-      console.log("Columna IdRol agregada a accounts");
     }
   } catch (e) {
-    console.warn("No se pudo asegurar columna IdRol en accounts:", e.code || e.message);
+    // Column may already exist, silently continue
   }
 
   // Asegurar columna avatar en accounts
@@ -567,10 +555,9 @@ app.get('/auth/google/config-check', (req, res) => {
     const [avatarCols] = await db.query("SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME='accounts' AND COLUMN_NAME='avatar'");
     if (!avatarCols || avatarCols.length === 0) {
       await db.query("ALTER TABLE accounts ADD COLUMN avatar VARCHAR(500) NULL AFTER IdRol");
-      console.log("Columna avatar agregada a accounts");
     }
   } catch (e) {
-    console.warn("No se pudo asegurar columna avatar en accounts:", e.code || e.message);
+    // Column may already exist, silently continue
   }
 })();
 
@@ -603,10 +590,10 @@ async function sendResetMail(toEmail, resetLink) {
       const msg = String(e && e.message ? e.message : e);
       const isAuthError = e && (e.code === 'EAUTH' || /Invalid login|Username and Password not accepted/i.test(msg));
       if (!isAuthError) throw e; // si es otro error, no hacemos fallback
-      console.warn('Fallo SMTP real (auth). Usando Ethereal para pruebas...');
+      // SMTP auth failed, falling back to test account
     }
   } else {
-    console.warn('SMTP no configurado completamente. Usando Ethereal para pruebas.');
+    // SMTP not fully configured, using test account
   }
 
   // Intento 2 (fallback): Ethereal (solo pruebas)
@@ -619,7 +606,6 @@ async function sendResetMail(toEmail, resetLink) {
   });
   const info = await testTransporter.sendMail(mailOptions);
   const preview = nodemailer.getTestMessageUrl(info);
-  if (preview) console.log('Vista previa del correo (Ethereal):', preview);
   return info;
 }
 
@@ -695,8 +681,6 @@ app.post("/registro", async (req, res) => {
   try {
     const { nombre, email, password, celular, numeroDocumento, tipoDocumento } = req.body;
 
-    console.log(" Datos recibidos:", req.body);
-
     // Asignar rol automáticamente basado en el email
     const IdRol = asignarRolPorEmail(email);
 
@@ -742,8 +726,6 @@ app.post("/login", async (req, res) => {
   const { email, password } = req.body;
 
   try {
-    console.log('[LOGIN] Intento de login para:', email);
-
     // JOIN con roles para obtener información completa del usuario incluyendo avatar
     const [rows] = await db.query(`
       SELECT a.IdAccount, a.nombre, a.email, a.celular, a.numeroDocumento, a.tipoDocumento, a.password, a.IdRol, a.avatar, r.NombreRol 
@@ -753,20 +735,12 @@ app.post("/login", async (req, res) => {
     `, [email]);
 
     if (rows.length === 0) {
-      console.log('[LOGIN] Usuario no encontrado:', email);
       return res.status(401).json({ success: false, mensaje: "Usuario no encontrado" });
     }
 
     const user = rows[0];
-    console.log('[LOGIN] Usuario encontrado:', {
-      IdAccount: user.IdAccount,
-      nombre: user.nombre,
-      email: user.email,
-      avatar: user.avatar
-    });
 
     if (user.password !== password) { // temporal, sin encriptar
-      console.log('[LOGIN] Contraseña incorrecta para:', email);
       return res.status(401).json({ success: false, mensaje: "Contraseña incorrecta" });
     }
 
@@ -793,8 +767,6 @@ app.post("/login", async (req, res) => {
       rol: nombreRol,
       avatar: getAvatarUrl(user.avatar)
     }, JWT_SECRET, { expiresIn: "3h" });
-
-    console.log('[LOGIN] Token generado con avatar:', getAvatarUrl(user.avatar));
 
     res.json({ 
       success: true, 
@@ -858,13 +830,10 @@ app.post("/Login", async (req, res) => {
     try {
       await db.query('SELECT 1');
     } catch (dbError) {
-      console.log('DB no disponible, usando usuarios de prueba');
       useDatabase = false;
     }
 
     if (useDatabase) {
-      console.log('[LOGIN-CAPS] Usando base de datos para:', email);
-
       // Usar base de datos si está disponible
       const [rows] = await db.query(`
         SELECT a.IdAccount, a.nombre, a.email, a.celular, a.numeroDocumento, a.tipoDocumento, a.password, a.IdRol, a.avatar, r.NombreRol 
@@ -878,12 +847,6 @@ app.post("/Login", async (req, res) => {
       }
 
       const user = rows[0];
-      console.log('[LOGIN-CAPS] Usuario encontrado:', {
-        IdAccount: user.IdAccount,
-        nombre: user.nombre,
-        email: user.email,
-        avatar: user.avatar
-      });
 
       if (user.password !== password) {
         return res.status(401).json({ success: false, mensaje: "Contraseña incorrecta" });
@@ -911,8 +874,6 @@ app.post("/Login", async (req, res) => {
         rol: nombreRol,
         avatar: getAvatarUrl(user.avatar)
       }, JWT_SECRET, { expiresIn: "3h" });
-
-      console.log('[LOGIN-CAPS] Token generado con avatar:', getAvatarUrl(user.avatar));
 
       return res.json({ 
         success: true, 
@@ -1312,8 +1273,6 @@ app.post('/alojamientos', requireAuth, async (req, res) => {
 app.post('/reservas', requireAuth, async (req, res) => {
   try {
     const IdAccount = req.user.IdAccount;
-    console.log('Datos del usuario autenticado:', req.user);
-    console.log('IdAccount recibido:', IdAccount);
 
     if (!IdAccount) {
       return res.status(400).json({ 
@@ -1330,8 +1289,6 @@ app.post('/reservas', requireAuth, async (req, res) => {
       CantidadNinos,
       InformacionReserva 
     } = req.body;
-
-    console.log('Datos de la reserva recibidos:', req.body);
 
     // Validaciones
     if (!IdAlojamiento || !FechaIngreso || !FechaSalida) {
@@ -1361,16 +1318,6 @@ app.post('/reservas', requireAuth, async (req, res) => {
       return res.status(404).json({ success: false, mensaje: 'Usuario no encontrado' });
     }
 
-    console.log('Creando reserva con datos:', {
-      IdAlojamiento,
-      IdAccount,
-      FechaIngreso,
-      FechaSalida,
-      CantidadAdultos,
-      CantidadNinos,
-      InformacionReserva
-    });
-
     // Crear la reserva
     const [resultado] = await db.query(`
       INSERT INTO reservas (
@@ -1378,18 +1325,16 @@ app.post('/reservas', requireAuth, async (req, res) => {
       ) VALUES (?, ?, CURDATE(), ?, ?, ?, ?, ?)
     `, [IdAlojamiento, IdAccount, FechaIngreso, FechaSalida, CantidadAdultos || 0, CantidadNinos || 0, InformacionReserva || null]);
 
-    console.log('Reserva creada exitosamente:', resultado.insertId);
-
     res.json({
       success: true,
       mensaje: 'Reserva creada correctamente',
       IdReserva: resultado.insertId
     });
   } catch (e) {
-    console.error('Error detallado creando reserva:', e);
+    console.error('Error creando reserva:', e);
     res.status(500).json({ 
       success: false, 
-      mensaje: 'Error del servidor: ' + e.message 
+      mensaje: 'Error del servidor' 
     });
   }
 });
@@ -1562,11 +1507,6 @@ app.post("/opinion", async (req, res) => {
 // Obtener estadísticas diarias de reservas
 app.get('/admin/daily-stats', requireAuth, async (req, res) => {
   try {
-    // Debug: Verificar qué contiene el token
-    console.log('Token payload:', req.user);
-    console.log('IdRol del usuario:', req.user.IdRol);
-    console.log('Email del usuario:', req.user.email);
-    
     // Verificar que sea admin
     if (req.user.IdRol !== 1) {
       return res.status(403).json({ 
@@ -1592,8 +1532,6 @@ app.get('/admin/daily-stats', requireAuth, async (req, res) => {
       ORDER BY fecha ASC
     `);
 
-    console.log('Daily stats query result:', dailyStats);
-    
     res.json({ success: true, data: dailyStats });
   } catch (error) {
     console.error('Error obteniendo estadísticas diarias:', error);
@@ -1604,9 +1542,6 @@ app.get('/admin/daily-stats', requireAuth, async (req, res) => {
 // Obtener estadísticas totales
 app.get('/admin/total-stats', requireAuth, async (req, res) => {
   try {
-    // Debug: Verificar qué contiene el token
-    console.log('Total-stats - Token payload:', req.user);
-    
     // Verificar que sea admin
     if (req.user.IdRol !== 1) {
       return res.status(403).json({ 
@@ -1639,9 +1574,6 @@ app.get('/admin/total-stats', requireAuth, async (req, res) => {
 // Obtener estadísticas de planes preferidos
 app.get('/admin/preferred-plans', requireAuth, async (req, res) => {
   try {
-    // Debug: Verificar qué contiene el token
-    console.log('Preferred-plans - Token payload:', req.user);
-    
     // Verificar que sea admin
     if (req.user.IdRol !== 1) {
       return res.status(403).json({ 
@@ -1687,11 +1619,8 @@ app.put('/usuario/update', requireAuth, async (req, res) => {
   try {
     const { nombre, email } = req.body;
     const userId = req.user.IdAccount || req.user.id || req.user.IdCliente;
-    console.log('[UPDATE USUARIO] Datos recibidos:', { userId, nombre, email });
-    console.log('[UPDATE USUARIO] Usuario completo:', req.user);
     
     if (!userId) {
-      console.log('[UPDATE USUARIO] Usuario no identificado');
       return res.status(400).json({ success: false, mensaje: 'Usuario no identificado' });
     }
 
@@ -1700,19 +1629,16 @@ app.put('/usuario/update', requireAuth, async (req, res) => {
     try {
       await db.query('SELECT 1');
     } catch (dbError) {
-      console.log('[UPDATE USUARIO] DB no disponible, usando datos del token');
       useDatabase = false;
     }
 
     if (useDatabase) {
       // Usar base de datos si está disponible
       if (nombre) {
-        const [result] = await db.query('UPDATE accounts SET nombre = ? WHERE IdAccount = ?', [nombre, userId]);
-        console.log('[UPDATE USUARIO] Resultado nombre:', result);
+        await db.query('UPDATE accounts SET nombre = ? WHERE IdAccount = ?', [nombre, userId]);
       }
       if (email) {
-        const [result] = await db.query('UPDATE accounts SET email = ? WHERE IdAccount = ?', [email, userId]);
-        console.log('[UPDATE USUARIO] Resultado email:', result);
+        await db.query('UPDATE accounts SET email = ? WHERE IdAccount = ?', [email, userId]);
       }
       
       const [[updatedUser]] = await db.query(`
@@ -1721,8 +1647,6 @@ app.put('/usuario/update', requireAuth, async (req, res) => {
         LEFT JOIN roles r ON a.IdRol = r.IdRol
         WHERE a.IdAccount = ?
       `, [userId]);
-      
-      console.log('[UPDATE USUARIO] Usuario actualizado desde DB:', updatedUser);
       
       // Generar nuevo token JWT con información actualizada
       const newToken = jwt.sign({ 
@@ -1762,11 +1686,10 @@ app.put('/usuario/update', requireAuth, async (req, res) => {
         rol: updatedUser.rol
       }, JWT_SECRET, { expiresIn: "3h" });
       
-      console.log('[UPDATE USUARIO] Usuario actualizado desde token:', updatedUser);
       return res.json({ success: true, usuario: updatedUser, token: newToken });
     }
   } catch (e) {
-    console.error('[UPDATE USUARIO] Error actualizando usuario:', e);
+    console.error('Error actualizando usuario:', e);
     return res.status(500).json({ success: false, mensaje: 'Error actualizando usuario' });
   }
 });
@@ -1781,9 +1704,6 @@ app.post("/upload-avatar", requireAuth, upload.single('avatar'), async (req, res
     const userId = req.user.IdAccount || req.user.id;
     const avatarUrl = `/uploads/avatars/${req.file.filename}`;
 
-    console.log('[UPLOAD AVATAR] Usuario ID:', userId);
-    console.log('[UPLOAD AVATAR] Archivo:', req.file.filename);
-
     // Buscar avatar anterior para eliminarlo
     const [userResult] = await db.query("SELECT avatar FROM accounts WHERE IdAccount = ?", [userId]);
     
@@ -1792,9 +1712,8 @@ app.post("/upload-avatar", requireAuth, upload.single('avatar'), async (req, res
       if (fs.existsSync(oldAvatarPath)) {
         try {
           fs.unlinkSync(oldAvatarPath);
-          console.log('[UPLOAD AVATAR] Avatar anterior eliminado:', oldAvatarPath);
         } catch (e) {
-          console.warn('[UPLOAD AVATAR] No se pudo eliminar avatar anterior:', e.message);
+          // Failed to delete old avatar file
         }
       }
     }
@@ -1880,7 +1799,18 @@ const createGalleryCategories = async () => {
       ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
     `);
 
-    // Insertar categorías predefinidas
+    // Crear tabla galeria para guardar rutas de imágenes actuales
+    await db.query(`
+      CREATE TABLE IF NOT EXISTS galeria (
+        IdGaleria INT AUTO_INCREMENT PRIMARY KEY,
+        RutaImagen VARCHAR(500) NOT NULL,
+        IdCategoria INT NOT NULL,
+        NombreArchivo VARCHAR(255),
+        createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (IdCategoria) REFERENCES CategoriaImagen(IdCategoria) ON DELETE CASCADE,
+        INDEX (IdCategoria)
+      ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+    `);    // Insertar categorías predefinidas
     const categories = [
       { id: 1, name: 'Fauna' },
       { id: 2, name: 'Flora' },
@@ -1897,8 +1827,6 @@ const createGalleryCategories = async () => {
         VALUES (?, ?)
       `, [cat.id, cat.name]);
     }
-
-    console.log('Tablas y categorías de galería creadas correctamente');
   } catch (error) {
     console.error('Error creando estructura de galería:', error);
   }
@@ -1957,16 +1885,84 @@ app.get('/api/gallery/categories', autenticarToken, verificarAdmin, async (req, 
   }
 });
 
-// Obtener imágenes por categoría
-app.get('/api/gallery/images/:categoryId', autenticarToken, verificarAdmin, async (req, res) => {
+// Endpoint para inicializar la galería (escanear carpetas y llenar tabla)
+app.post('/api/gallery/init', autenticarToken, verificarAdmin, async (req, res) => {
   try {
-    const { categoryId } = req.params;
-    const query = 'SELECT * FROM imagenes WHERE IdCategoria = ? ORDER BY IdImagen';
-    const [results] = await db.execute(query, [categoryId]);
-    res.json({ success: true, images: results });
+    const folderToCategoryMap = {
+      'fauna': 1,
+      'flora': 2,
+      'rio': 3,
+      'cabañas': 4,
+      'puentes': 5,
+      'cabalgatas': 6,
+      'experiencias': 7
+    };
+
+    const assetsImgsPath = path.join(__dirname, '../vivotour-react/src/assets/imgs');
+    let totalAdded = 0;
+
+    // Para cada carpeta
+    for (const [folderName, categoryId] of Object.entries(folderToCategoryMap)) {
+      const folderPath = path.join(assetsImgsPath, folderName);
+      
+      if (!fs.existsSync(folderPath)) {
+        console.warn(`Carpeta no encontrada: ${folderName}`);
+        continue;
+      }
+
+      if (folderName === 'cabañas') {
+        // Para cabañas que tiene subcarpetas
+        const subFolders = fs.readdirSync(folderPath);
+        
+        for (const subFolder of subFolders) {
+          const subPath = path.join(folderPath, subFolder);
+          
+          if (!fs.statSync(subPath).isDirectory()) continue;
+          
+          const files = fs.readdirSync(subPath);
+          
+          for (const file of files) {
+            if (!/\.(jpg|jpeg|png|JPG|JPEG|PNG)$/.test(file)) continue;
+            
+            const relativePath = `/src/assets/imgs/cabañas/${subFolder}/${file}`;
+            
+            try {
+              await db.execute(
+                'INSERT IGNORE INTO galeria (RutaImagen, IdCategoria, NombreArchivo) VALUES (?, ?, ?)',
+                [relativePath, categoryId, file]
+              );
+              totalAdded++;
+            } catch (err) {
+              console.warn(`Error insertando ${file}:`, err.message);
+            }
+          }
+        }
+      } else {
+        // Para otras carpetas
+        const files = fs.readdirSync(folderPath);
+        
+        for (const file of files) {
+          if (!/\.(jpg|jpeg|png|JPG|JPEG|PNG)$/.test(file)) continue;
+          
+          const relativePath = `/src/assets/imgs/${folderName}/${file}`;
+          
+          try {
+            await db.execute(
+              'INSERT IGNORE INTO galeria (RutaImagen, IdCategoria, NombreArchivo) VALUES (?, ?, ?)',
+              [relativePath, categoryId, file]
+            );
+            totalAdded++;
+          } catch (err) {
+            console.warn(`Error insertando ${file}:`, err.message);
+          }
+        }
+      }
+    }
+
+    res.json({ success: true, mensaje: `Se agregaron ${totalAdded} imágenes a la galería` });
   } catch (error) {
-    console.error('Error obteniendo imágenes:', error);
-    res.status(500).json({ success: false, mensaje: 'Error obteniendo imágenes' });
+    console.error('Error inicializando galería:', error);
+    res.status(500).json({ success: false, mensaje: 'Error inicializando galería' });
   }
 });
 
@@ -1984,20 +1980,75 @@ app.post('/api/gallery/upload/:categoryId', autenticarToken, verificarAdmin, gal
     
     for (const file of files) {
       const rutaImagen = `/uploads/gallery/${file.filename}`;
-      const query = 'INSERT INTO imagenes (RutaImagen, IdCategoria) VALUES (?, ?)';
-      const [result] = await db.execute(query, [rutaImagen, categoryId]);
-      
-      insertedImages.push({
-        IdImagen: result.insertId,
-        RutaImagen: rutaImagen,
-        IdCategoria: categoryId
-      });
+      try {
+        const query = 'INSERT INTO galeria (RutaImagen, IdCategoria, NombreArchivo) VALUES (?, ?, ?)';
+        const [result] = await db.execute(query, [rutaImagen, categoryId, file.originalname]);
+        
+        insertedImages.push({
+          IdGaleria: result.insertId,
+          RutaImagen: rutaImagen,
+          IdCategoria: categoryId,
+          NombreArchivo: file.originalname
+        });
+      } catch (err) {
+        // Error al insertar, continuar con el siguiente archivo
+      }
     }
 
-    res.json({ success: true, images: insertedImages });
+    if (insertedImages.length === 0) {
+      return res.status(500).json({ success: false, mensaje: 'No se pudieron procesar las imágenes' });
+    }
+
+    res.json({ success: true, images: insertedImages, mensaje: `${insertedImages.length} imagen(es) subida(s) correctamente` });
   } catch (error) {
-    console.error('Error subiendo imágenes:', error);
-    res.status(500).json({ success: false, mensaje: 'Error subiendo imágenes' });
+    console.error('❌ Error subiendo imágenes:', error);
+    res.status(500).json({ success: false, mensaje: 'Error subiendo imágenes: ' + error.message });
+  }
+});
+
+// Obtener imágenes por categoría (PÚBLICO - sin autenticación)
+app.get('/api/gallery/public/:categoryId', async (req, res) => {
+  try {
+    const { categoryId } = req.params;
+    
+    // Obtener imágenes subidas de la tabla galeria
+    const queryGaleria = 'SELECT IdGaleria as IdImagen, RutaImagen, IdCategoria, NombreArchivo FROM galeria WHERE IdCategoria = ? ORDER BY IdGaleria';
+    const [galeriaResults] = await db.execute(queryGaleria, [categoryId]);
+    
+    // Obtener imágenes de assets de la tabla imagenes
+    const queryImagenes = 'SELECT IdImagen, RutaImagen, IdCategoria FROM imagenes WHERE IdCategoria = ? ORDER BY IdImagen';
+    const [imagenesResults] = await db.execute(queryImagenes, [categoryId]);
+    
+    // Combinar ambos resultados (primero imágenes subidas, luego assets)
+    const combinedResults = [...galeriaResults, ...imagenesResults];
+    
+    res.json({ success: true, images: combinedResults });
+  } catch (error) {
+    console.error('Error obteniendo imágenes públicas:', error);
+    res.status(500).json({ success: false, mensaje: 'Error obteniendo imágenes' });
+  }
+});
+
+// Obtener imágenes por categoría (desde tabla galeria)
+app.get('/api/gallery/images/:categoryId', autenticarToken, verificarAdmin, async (req, res) => {
+  try {
+    const { categoryId } = req.params;
+    
+    // Obtener imágenes subidas de la tabla galeria
+    const queryGaleria = 'SELECT IdGaleria as IdImagen, RutaImagen, IdCategoria, NombreArchivo FROM galeria WHERE IdCategoria = ? ORDER BY IdGaleria';
+    const [galeriaResults] = await db.execute(queryGaleria, [categoryId]);
+    
+    // Obtener imágenes de assets de la tabla imagenes
+    const queryImagenes = 'SELECT IdImagen, RutaImagen, IdCategoria FROM imagenes WHERE IdCategoria = ? ORDER BY IdImagen';
+    const [imagenesResults] = await db.execute(queryImagenes, [categoryId]);
+    
+    // Combinar ambos resultados (primero imágenes subidas, luego assets)
+    const combinedResults = [...galeriaResults, ...imagenesResults];
+    
+    res.json({ success: true, images: combinedResults });
+  } catch (error) {
+    console.error('Error obteniendo imágenes:', error);
+    res.status(500).json({ success: false, mensaje: 'Error obteniendo imágenes' });
   }
 });
 
@@ -2007,32 +2058,32 @@ app.delete('/api/gallery/image/:imageId', autenticarToken, verificarAdmin, async
     const { imageId } = req.params;
     
     // Obtener información de la imagen antes de eliminar
-    const selectQuery = 'SELECT * FROM imagenes WHERE IdImagen = ?';
-    const [images] = await db.execute(selectQuery, [imageId]);
+    let imagen = null;
+    let isFromGaleria = false;
     
-    if (images.length === 0) {
-      return res.status(404).json({ success: false, mensaje: 'Imagen no encontrada' });
-    }
-
-    const imagen = images[0];
+    // Intentar obtener de tabla galeria primero
+    const [galeriaImages] = await db.execute('SELECT * FROM galeria WHERE IdGaleria = ?', [imageId]);
     
-    // Eliminar de base de datos
-    const deleteQuery = 'DELETE FROM imagenes WHERE IdImagen = ?';
-    await db.execute(deleteQuery, [imageId]);
-
-    // Intentar eliminar archivo físico solo si está en uploads (no assets)
-    if (imagen.RutaImagen.includes('/uploads/')) {
-      const filePath = path.join(__dirname, imagen.RutaImagen.replace(/^\//, ''));
-      try {
-        if (fs.existsSync(filePath)) {
-          fs.unlinkSync(filePath);
-        }
-      } catch (e) {
-        console.warn('No se pudo eliminar archivo físico:', e.message);
+    if (galeriaImages.length > 0) {
+      imagen = galeriaImages[0];
+      isFromGaleria = true;
+    } else {
+      // Si no está en galeria, intentar en imagenes
+      const [imagenes] = await db.execute('SELECT * FROM imagenes WHERE IdImagen = ?', [imageId]);
+      if (imagenes.length === 0) {
+        return res.status(404).json({ success: false, mensaje: 'Imagen no encontrada' });
       }
+      imagen = imagenes[0];
+    }
+    
+    // Eliminar solo del registro de base de datos (no eliminar archivos)
+    if (isFromGaleria) {
+      await db.execute('DELETE FROM galeria WHERE IdGaleria = ?', [imageId]);
+    } else {
+      await db.execute('DELETE FROM imagenes WHERE IdImagen = ?', [imageId]);
     }
 
-    res.json({ success: true, mensaje: 'Imagen eliminada correctamente' });
+    res.json({ success: true, mensaje: 'Imagen eliminada del registro correctamente' });
   } catch (error) {
     console.error('Error eliminando imagen:', error);
     res.status(500).json({ success: false, mensaje: 'Error eliminando imagen' });
@@ -2106,8 +2157,6 @@ const createPaymentInitialData = async () => {
         VALUES (?, ?, ?)
       `, [state.id, state.name, state.description]);
     }
-
-    console.log('Datos iniciales de pagos creados correctamente');
   } catch (error) {
     console.error('Error creando datos iniciales de pagos:', error);
   }
@@ -2143,8 +2192,6 @@ app.post('/api/payment/create-intent', autenticarToken, async (req, res) => {
 
     // MODO DE DESARROLLO: Simular PaymentIntent mientras configuramos Stripe
     if (process.env.NODE_ENV === 'development' || !process.env.STRIPE_SECRET_KEY || process.env.STRIPE_SECRET_KEY.includes('sk_test_51QKT')) {
-      console.log('Modo desarrollo: Simulando PaymentIntent');
-      
       // Crear un PaymentIntent simulado
       const mockPaymentIntent = {
         id: `pi_mock_${Date.now()}`,
@@ -2185,7 +2232,6 @@ app.post('/api/payment/create-intent', autenticarToken, async (req, res) => {
     // Crear Payment Intent en Stripe
     // Para COP, el amount ya viene en pesos, necesitamos convertir a centavos
     const stripeAmount = currency === 'cop' ? Math.round(amount) : Math.round(amount * 100);
-    console.log(`Creando PaymentIntent - Amount original: ${amount}, Amount para Stripe: ${stripeAmount}, Moneda: ${currency}`);
     
     const paymentIntent = await stripe.paymentIntents.create({
       amount: stripeAmount,
@@ -2253,8 +2299,6 @@ app.post('/api/payment/confirm', autenticarToken, async (req, res) => {
 
     // MODO DE DESARROLLO: Simular confirmación de pago
     if (process.env.NODE_ENV === 'development' || paymentIntentId.includes('pi_mock_')) {
-      console.log('Modo desarrollo: Simulando confirmación de pago');
-      
       // Actualizar el estado del pago a exitoso
       await db.execute(`
         UPDATE pagos 
@@ -2390,7 +2434,6 @@ app.post('/api/payment/webhook', express.raw({type: 'application/json'}), async 
           WHERE ReferenciaPasarela = ?
         `, [paymentIntent.id]);
 
-        console.log('Pago exitoso confirmado vía webhook:', paymentIntent.id);
         break;
 
       case 'payment_intent.payment_failed':
@@ -2403,11 +2446,10 @@ app.post('/api/payment/webhook', express.raw({type: 'application/json'}), async 
           WHERE ReferenciaPasarela = ?
         `, [failedPayment.id]);
 
-        console.log('Pago fallido registrado vía webhook:', failedPayment.id);
         break;
 
       default:
-        console.log(`Evento no manejado: ${event.type}`);
+        // Event type not handled
     }
 
     res.json({received: true});
@@ -2559,12 +2601,9 @@ app.post('/api/reservas', autenticarToken, async (req, res) => {
 // Obtener todos los usuarios con paginación y búsqueda
 app.get('/admin/usuarios', requireAuth, async (req, res) => {
   try {
-    console.log('[ADMIN/USUARIOS] Query params:', req.query);
-    console.log('[ADMIN/USUARIOS] Usuario:', req.user.email, 'IdRol:', req.user.IdRol);
     
     // Verificar que sea admin
     if (req.user.IdRol !== 1) {
-      console.log('[ADMIN/USUARIOS] Acceso denegado - rol requerido: 1, rol actual:', req.user.IdRol);
       return res.status(403).json({ success: false, mensaje: 'Acceso denegado. Solo administradores.' });
     }
 
@@ -2573,8 +2612,6 @@ app.get('/admin/usuarios', requireAuth, async (req, res) => {
     const itemsPerPage = 10;
     const offset = (page - 1) * itemsPerPage;
     const searchTerm = req.query.search || '';
-
-    console.log('[ADMIN/USUARIOS] Parámetros: page=' + page + ', search="' + searchTerm + '"');
 
     // Construir la cláusula WHERE si hay búsqueda
     let whereClause = '';
@@ -2590,14 +2627,9 @@ app.get('/admin/usuarios', requireAuth, async (req, res) => {
 
     // Obtener el total de usuarios (con filtro si existe)
     const countQuery = `SELECT COUNT(*) as total FROM accounts ${whereClause}`;
-    console.log('[ADMIN/USUARIOS] Count query:', countQuery);
-    console.log('[ADMIN/USUARIOS] Count params:', countParams);
-    
     const [countResult] = await db.query(countQuery, countParams);
     const total = countResult[0].total;
     const totalPages = Math.ceil(total / itemsPerPage);
-
-    console.log('[ADMIN/USUARIOS] Total encontrados:', total, 'Páginas totales:', totalPages);
 
     // Obtener usuarios con paginación y búsqueda
     const usuariosQuery = `
@@ -2616,15 +2648,10 @@ app.get('/admin/usuarios', requireAuth, async (req, res) => {
       LIMIT ? OFFSET ?
     `;
     
-    console.log('[ADMIN/USUARIOS] Usuarios query:', usuariosQuery);
-    
     // Agregar los parámetros de paginación
     usuariosParams.push(itemsPerPage, offset);
-    console.log('[ADMIN/USUARIOS] Usuarios params:', usuariosParams);
     
     const [usuarios] = await db.query(usuariosQuery, usuariosParams);
-
-    console.log('[ADMIN/USUARIOS] Usuarios obtenidos:', usuarios.length);
 
     res.json({ 
       success: true, 
@@ -2727,8 +2754,8 @@ app.get('/api/admin/reservas', autenticarToken, async (req, res) => {
         r.FechaIngreso,
         r.FechaSalida,
         r.FechaReserva,
-        r.CantidadAdultos,
-        r.CantidadNinos,
+        COALESCE(r.CantidadAdultos, 0) as CantidadAdultos,
+        COALESCE(r.CantidadNinos, 0) as CantidadNinos,
         r.InformacionReserva,
         a.nombre as NombreUsuario,
         a.email as EmailUsuario,
@@ -2742,44 +2769,13 @@ app.get('/api/admin/reservas', autenticarToken, async (req, res) => {
       ORDER BY r.FechaIngreso DESC
     `);
 
-    // Mapear datos al formato esperado por el frontend
-    const reservasFormateadas = reservas.map(r => {
-      // Intentar extraer adultos y niños del InformacionReserva si no están en las columnas
-      let cantidadAdultos = r.CantidadAdultos || 0;
-      let cantidadNinos = r.CantidadNinos || 0;
-      
-      // Si son 0, intentar extraer del texto de InformacionReserva
-      if ((cantidadAdultos === 0 || cantidadNinos === 0) && r.InformacionReserva) {
-        const adultoMatch = r.InformacionReserva.match(/Adultos:\s*(\d+)/);
-        const ninosMatch = r.InformacionReserva.match(/Niños:\s*(\d+)/);
-        if (adultoMatch) cantidadAdultos = parseInt(adultoMatch[1]) || 0;
-        if (ninosMatch) cantidadNinos = parseInt(ninosMatch[1]) || 0;
-      }
-      
-      return {
-        IdReserva: r.IdReserva,
-        IdAccount: r.IdAccount,
-        FechaIngreso: r.FechaIngreso,
-        FechaSalida: r.FechaSalida,
-        FechaReserva: r.FechaReserva,
-        CantidadAdultos: cantidadAdultos,
-        CantidadNinos: cantidadNinos,
-        InformacionReserva: r.InformacionReserva,
-        NombreUsuario: r.NombreUsuario,
-        EmailUsuario: r.EmailUsuario,
-        TipoAlojamiento: r.TipoAlojamiento || 'No especificado',
-        Capacidad: r.Capacidad,
-        Monto: r.Monto || 0
-      };
-    });
-
     res.json({
       success: true,
-      reservas: reservasFormateadas || []
+      reservas: reservas || []
     });
-  } catch (e) {
-    console.error('Error obteniendo reservas admin:', e);
-    res.status(500).json({ success: false, mensaje: 'Error del servidor: ' + e.message });
+
+  } catch (error) {
+    res.status(500).json({ success: false, mensaje: 'Error del servidor' });
   }
 });
 

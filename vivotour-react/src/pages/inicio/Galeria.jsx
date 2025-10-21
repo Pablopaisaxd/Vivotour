@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import './style/Galeria.css';
+import apiConfig from '../../config/apiConfig';
 
 import imgG1 from '../../assets/Fondos/Fauna.png';
 import imgG2 from '../../assets/Fondos/Vegetacion.jpg';
@@ -101,10 +102,72 @@ const Modal = ({ imagenes, onClose }) => {
 const Galeria = () => {
   const [modalOpen, setModalOpen] = useState(false);
   const [imagenesModal, setImagenesModal] = useState(null);
+  const [imagenesDB, setImagenesDB] = useState({});
+  const [loading, setLoading] = useState(true);
+
+  // Mapping de categorías a IDs
+  const categoryIds = {
+    sec1: 1, // Fauna
+    sec2: 2, // Flora
+    sec3: 3, // Río
+    sec4: 4, // Cabañas
+    sec5: 5, // Puentes
+    sec6: 6, // Cabalgatas
+    sec7: 7  // Experiencias
+  };
+
+  useEffect(() => {
+    // Cargar imágenes de la base de datos al iniciar
+    cargarImagenesDB();
+  }, []);
+
+  const cargarImagenesDB = async () => {
+    try {
+      const imagenesDescargadas = {};
+
+      // Descargar imágenes de cada categoría usando endpoint público
+      for (const [sec, categoryId] of Object.entries(categoryIds)) {
+        try {
+          const url = `${apiConfig.baseUrl}/api/gallery/public/${categoryId}`;
+          const response = await fetch(url);
+
+          if (response.ok) {
+            const data = await response.json();
+            if (data.success && data.images) {
+              imagenesDescargadas[sec] = data.images.map(img => {
+                if (img.RutaImagen.startsWith('/uploads/')) {
+                  return `${apiConfig.baseUrl}${img.RutaImagen}`;
+                }
+                return img.RutaImagen;
+              });
+            }
+          }
+        } catch (error) {
+          console.log(`Info: No se cargaron imágenes para categoría ${categoryId}`);
+        }
+      }
+
+      setImagenesDB(imagenesDescargadas);
+    } catch (error) {
+      console.error('Error cargando imágenes de la BD:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const obtenerImagenesCombinadas = (sec) => {
+    // Combinar imágenes de assets + imágenes de BD
+    const imagenesAssets = imagenesPorSeccion[sec] || [];
+    const imagenesSubidas = imagenesDB[sec] || [];
+    return [...imagenesAssets, ...imagenesSubidas];
+  };
 
   const abrirModal = (sec) => {
-    setImagenesModal(imagenesPorSeccion[sec]);
-    setModalOpen(true);
+    const imagenes = obtenerImagenesCombinadas(sec);
+    if (imagenes.length > 0) {
+      setImagenesModal(imagenes);
+      setModalOpen(true);
+    }
   };
 
   const cerrarModal = () => {

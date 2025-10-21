@@ -1,4 +1,5 @@
 ﻿import React, { useState, useEffect } from 'react';
+import apiConfig from '../../../config/apiConfig';
 
 const GalleryManagement = () => {
   const [categories, setCategories] = useState([]);
@@ -8,6 +9,7 @@ const GalleryManagement = () => {
   const [currentPage, setCurrentPage] = useState(0);
   const [loading, setLoading] = useState(false);
   const [coverImages, setCoverImages] = useState({});
+  const [error, setError] = useState(null);
 
   const IMAGES_PER_PAGE = 10;
 
@@ -33,16 +35,85 @@ const GalleryManagement = () => {
 
   useEffect(() => {
     fetchCategories();
+    // Inicializar galería automáticamente al cargar
+    initializeGalleryOnLoad();
   }, []);
+
+  useEffect(() => {
+    // Gallery images updated
+  }, [categoryImages]);
+
+  const initializeGalleryOnLoad = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      const response = await fetch(`${apiConfig.baseUrl}/api/gallery/init`, {
+        method: 'POST',
+        headers: { 
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+      
+      if (response.ok) {
+        const data = await response.json();
+        // Gallery initialized automatically
+      }
+    } catch (error) {
+      // Gallery already initialized
+    }
+  };
+
+  const initializeGallery = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      const token = localStorage.getItem('token');
+      
+      const response = await fetch(`${apiConfig.baseUrl}/api/gallery/init`, {
+        method: 'POST',
+        headers: { 
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+      
+      if (!response.ok) {
+        throw new Error(`HTTP Error: ${response.status}`);
+      }
+      
+      const data = await response.json();
+      
+      if (data.success) {
+        alert(data.mensaje);
+        // Recargar imágenes de la categoría seleccionada si existe
+        if (selectedCategory) {
+          await fetchCategoryImages(selectedCategory.IdCategoria);
+        }
+      }
+    } catch (error) {
+      console.error('❌ Error inicializando galería:', error);
+      setError(`Error: ${error.message}`);
+      alert('Error al inicializar la galería');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const fetchCategories = async () => {
     try {
+      setError(null);
       const token = localStorage.getItem('token');
-      const response = await fetch('http://localhost:5000/api/gallery/categories', {
+      
+      const response = await fetch(apiConfig.endpoints.galleryCategories, {
         headers: { 
           'Authorization': `Bearer ${token}` 
         }
       });
+      
+      if (!response.ok) {
+        throw new Error(`HTTP Error: ${response.status}`);
+      }
+      
       const data = await response.json();
       
       if (data.success) {
@@ -53,28 +124,42 @@ const GalleryManagement = () => {
           covers[cat.IdCategoria] = defaultCoverImages[cat.IdCategoria] || '/src/assets/Fondos/default.jpg';
         });
         setCoverImages(covers);
+      } else {
+        setError('No se pudieron cargar las categorías');
       }
     } catch (error) {
-      console.error('Error obteniendo categorías:', error);
+      // Error fetching categories
+      setError(`Error: ${error.message}`);
     }
   };
 
   const fetchCategoryImages = async (categoryId) => {
     try {
       setLoading(true);
+      setError(null);
       const token = localStorage.getItem('token');
-      const response = await fetch(`http://localhost:5000/api/gallery/images/${categoryId}`, {
+      const url = apiConfig.endpoints.galleryImages(categoryId);
+      
+      const response = await fetch(url, {
         headers: { 
           'Authorization': `Bearer ${token}` 
         }
       });
+      
+      if (!response.ok) {
+        throw new Error(`HTTP Error: ${response.status}`);
+      }
+      
       const data = await response.json();
       
       if (data.success) {
         setCategoryImages(data.images);
+      } else {
+        setError('No se pudieron cargar las imágenes');
       }
     } catch (error) {
-      console.error('Error obteniendo imágenes:', error);
+      // Error fetching images
+      setError(`Error: ${error.message}`);
     } finally {
       setLoading(false);
     }
@@ -86,11 +171,13 @@ const GalleryManagement = () => {
     if (!file) return;
 
     try {
+      setLoading(true);
+      setError(null);
       const token = localStorage.getItem('token');
       const formData = new FormData();
       formData.append('coverImage', file);
 
-      const response = await fetch(`http://localhost:5000/api/gallery/category/${categoryId}/cover`, {
+      const response = await fetch(apiConfig.endpoints.galleryCoverUpdate(categoryId), {
         method: 'PUT',
         headers: { 
           'Authorization': `Bearer ${token}` 
@@ -98,17 +185,24 @@ const GalleryManagement = () => {
         body: formData
       });
 
+      if (!response.ok) {
+        throw new Error(`HTTP Error: ${response.status}`);
+      }
+
       const data = await response.json();
       if (data.success) {
         setCoverImages(prev => ({
           ...prev,
-          [categoryId]: `http://localhost:5000${data.coverImage.RutaImagen}`
+          [categoryId]: `${apiConfig.baseUrl}${data.coverImage.RutaImagen}`
         }));
         alert('Portada actualizada correctamente');
       }
     } catch (error) {
-      console.error('Error actualizando portada:', error);
+      console.error('❌ Error actualizando portada:', error);
+      setError(`Error: ${error.message}`);
       alert('Error al actualizar la portada');
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -120,19 +214,32 @@ const GalleryManagement = () => {
   };
 
   const handleAddImages = async (event) => {
-    const files = Array.from(event.target.files);
-    if (files.length === 0) return;
+    const files = Array.from(event.target.files || []);
+    if (files.length === 0) {
+      console.warn('❌ No se seleccionaron archivos');
+      return;
+    }
+
+    if (!selectedCategory) {
+      console.error('❌ No hay categoría seleccionada');
+      alert('Por favor selecciona una categoría primero');
+      return;
+    }
 
     try {
       setLoading(true);
+      setError(null);
       const token = localStorage.getItem('token');
       const formData = new FormData();
+      const categoryId = selectedCategory.IdCategoria;
       
       files.forEach(file => {
         formData.append('images', file);
       });
 
-      const response = await fetch(`http://localhost:5000/api/gallery/upload/${selectedCategory.IdCategoria}`, {
+      const url = apiConfig.endpoints.galleryUpload(categoryId);
+
+      const response = await fetch(url, {
         method: 'POST',
         headers: { 
           'Authorization': `Bearer ${token}` 
@@ -140,14 +247,26 @@ const GalleryManagement = () => {
         body: formData
       });
 
+      if (!response.ok) {
+        const errorData = await response.text();
+        console.error('Error response:', errorData);
+        throw new Error(`HTTP Error: ${response.status}`);
+      }
+
       const data = await response.json();
+
       if (data.success) {
-        fetchCategoryImages(selectedCategory.IdCategoria);
-        alert(`${data.images.length} imagen(es) agregada(s) correctamente`);
+        await fetchCategoryImages(categoryId);
+        // Limpiar el input
+        event.target.value = '';
+      } else {
+        setError(data.mensaje || 'Error desconocido');
+        alert('Error: ' + (data.mensaje || 'Error desconocido'));
       }
     } catch (error) {
-      console.error('Error agregando imágenes:', error);
-      alert('Error al agregar imágenes');
+      // Error adding images
+      setError(`Error: ${error.message}`);
+      alert('Error al agregar imágenes: ' + error.message);
     } finally {
       setLoading(false);
     }
@@ -158,22 +277,26 @@ const GalleryManagement = () => {
 
     try {
       setLoading(true);
+      setError(null);
       const token = localStorage.getItem('token');
-      const response = await fetch(`http://localhost:5000/api/gallery/image/${imageId}`, {
+      const response = await fetch(apiConfig.endpoints.galleryDeleteImage(imageId), {
         method: 'DELETE',
         headers: { 
           'Authorization': `Bearer ${token}` 
         }
       });
 
+      if (!response.ok) {
+        throw new Error(`HTTP Error: ${response.status}`);
+      }
+
       const data = await response.json();
       if (data.success) {
-        fetchCategoryImages(selectedCategory.IdCategoria);
-        alert('Imagen eliminada correctamente');
+        await fetchCategoryImages(selectedCategory.IdCategoria);
       }
     } catch (error) {
-      console.error('Error eliminando imagen:', error);
-      alert('Error al eliminar imagen');
+      console.error('❌ Error eliminando imagen:', error);
+      setError(`Error: ${error.message}`);
     } finally {
       setLoading(false);
     }
@@ -186,44 +309,81 @@ const GalleryManagement = () => {
 
   return (
     <div style={{ padding: '20px' }}>
-      <h2 style={{ marginBottom: '20px', color: '#333' }}>Gestión de Galería</h2>
-      
+      <div style={{
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        marginBottom: '20px'
+      }}>
+        <h2 style={{ margin: 0, color: '#333' }}>Gestión de Galería</h2>
+      </div>
+      {error && (
+        <div style={{
+          backgroundColor: '#f8d7da',
+          color: '#721c24',
+          padding: '12px 20px',
+          borderRadius: '4px',
+          marginBottom: '20px',
+          border: '1px solid #f5c6cb'
+        }}>
+          ⚠️ {error}
+        </div>
+      )}
       <div style={{ 
         display: 'grid', 
+        /* Use responsive auto-fill so the grid stretches across available width */
         gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', 
-        gap: '20px',
-        marginTop: '20px'
+        gap: '30px',
+        marginTop: '20px',
+        margin: '20px 0',
+        padding: '0 20px',
+        width: '100%'
       }}>
         {categories.map(category => (
           <div key={category.IdCategoria} style={{
-            border: '1px solid #ddd',
-            borderRadius: '8px',
+            border: '2px solid #4bac35',
+            borderRadius: '12px',
             overflow: 'hidden',
             backgroundColor: 'white',
-            boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
-            transition: 'transform 0.2s, box-shadow 0.2s'
-          }}>
+            boxShadow: '0 4px 12px rgba(75,172,53,0.15)',
+            transition: 'transform 0.3s, box-shadow 0.3s',
+            cursor: 'pointer'
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.transform = 'translateY(-5px)';
+            e.currentTarget.style.boxShadow = '0 6px 20px rgba(75,172,53,0.25)';
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.transform = 'translateY(0)';
+            e.currentTarget.style.boxShadow = '0 4px 12px rgba(75,172,53,0.15)';
+          }}
+          >
             <div style={{
               display: 'flex',
               justifyContent: 'space-between',
               alignItems: 'center',
               padding: '15px',
-              borderBottom: '1px solid #eee',
+              borderBottom: '2px solid #4bac35',
               backgroundColor: '#f8f9fa'
             }}>
-              <h3 style={{ margin: 0, fontSize: '16px', fontWeight: '600' }}>
+              <h3 style={{ margin: 0, fontSize: '16px', fontWeight: '600', color: '#4bac35' }}>
                 {categoryTexts[category.IdCategoria] || category.NombreCategoria}
               </h3>
               <label style={{
                 cursor: 'pointer',
                 padding: '8px',
-                borderRadius: '4px',
-                backgroundColor: '#e9ecef',
+                borderRadius: '6px',
+                backgroundColor: '#4bac35',
+                color: 'white',
                 display: 'flex',
                 alignItems: 'center',
                 border: 'none',
-                transition: 'background-color 0.2s'
-              }} title="Editar portada">
+                transition: 'all 0.2s',
+                boxShadow: '0 2px 6px rgba(75,172,53,0.2)'
+              }}
+              onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#3d9129'}
+              onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#4bac35'}
+              title="Editar portada">
                 <input
                   type="file"
                   accept="image/*"
@@ -240,7 +400,9 @@ const GalleryManagement = () => {
             <div 
               style={{
                 position: 'relative',
-                height: '200px',
+                width: '100%',
+                /* Make cover image container a horizontal rectangle instead of a square */
+                paddingBottom: '60%',
                 cursor: 'pointer',
                 overflow: 'hidden'
               }}
@@ -250,6 +412,9 @@ const GalleryManagement = () => {
                 src={coverImages[category.IdCategoria]} 
                 alt={category.NombreCategoria}
                 style={{
+                  position: 'absolute',
+                  top: 0,
+                  left: 0,
                   width: '100%',
                   height: '100%',
                   objectFit: 'cover',
@@ -265,7 +430,7 @@ const GalleryManagement = () => {
                 left: 0,
                 right: 0,
                 bottom: 0,
-                backgroundColor: 'rgba(0,0,0,0.6)',
+                backgroundColor: 'rgba(75,172,53,0.8)',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
@@ -327,26 +492,29 @@ const GalleryManagement = () => {
                   color: 'white',
                   padding: '10px 16px',
                   borderRadius: '4px',
-                  cursor: 'pointer',
+                  cursor: loading ? 'not-allowed' : 'pointer',
                   display: 'flex',
                   alignItems: 'center',
                   gap: '8px',
                   border: 'none',
                   fontSize: '14px',
-                  fontWeight: '500'
+                  fontWeight: '500',
+                  opacity: loading ? 0.6 : 1
                 }}>
                   <input
+                    id={`file-input-${selectedCategory.IdCategoria}`}
                     type="file"
                     multiple
                     accept="image/*"
                     onChange={handleAddImages}
+                    disabled={loading}
                     style={{ display: 'none' }}
                   />
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                     <circle cx="12" cy="12" r="10"/>
                     <path d="M12 8v8M8 12h8"/>
                   </svg>
-                  Agregar Imágenes
+                  {loading ? 'Subiendo...' : 'Agregar Imágenes'}
                 </label>
                 <button 
                   style={{
@@ -390,24 +558,55 @@ const GalleryManagement = () => {
                   gridTemplateColumns: 'repeat(auto-fill, minmax(150px, 1fr))',
                   gap: '15px'
                 }}>
-                  {currentImages.map((image) => (
-                    <div key={image.IdImagen} style={{
+                  {currentImages.map((image) => {
+                    // Obtener ID de la imagen (puede ser IdGaleria o IdImagen dependiendo de la tabla)
+                    const imageId = image.IdGaleria || image.IdImagen;
+                    
+                    // Construir la URL según el tipo de imagen
+                    let imageUrl = image.RutaImagen;
+                    
+                    // Si es una ruta de assets (comienza con /src/assets)
+                    if (imageUrl.startsWith('/src/assets/')) {
+                      // Importar dinámicamente desde assets
+                      try {
+                        // Convertir ruta: /src/assets/imgs/fauna/mono.jpg -> fauna/mono.jpg
+                        const pathParts = imageUrl.replace('/src/assets/imgs/', '').split('/');
+                        
+                        // Usar import.meta.glob para cargar la imagen
+                        const allImgs = import.meta.glob('../../assets/imgs/**/*.{jpg,jpeg,png,JPG,JPEG,PNG}', { eager: true });
+                        const matchedKey = Object.keys(allImgs).find(key => key.includes(pathParts[pathParts.length - 1]));
+                        
+                        if (matchedKey) {
+                          imageUrl = allImgs[matchedKey].default;
+                        }
+                      } catch (e) {
+                        // Error loading asset image
+                      }
+                    } else if (imageUrl.startsWith('/uploads/')) {
+                      // Si es una imagen subida, usar URL completa del servidor
+                      imageUrl = `${apiConfig.baseUrl}${imageUrl}`;
+                    }
+                    
+                    return (
+                    <div key={imageId} style={{
                       position: 'relative',
-                      aspectRatio: '1',
+                      /* Make modal image tiles rectangular (wider) using 16:9 aspect ratio */
+                      aspectRatio: '16/9',
                       border: '1px solid #ddd',
                       borderRadius: '6px',
                       overflow: 'hidden',
                       backgroundColor: '#f8f9fa'
                     }}>
                       <img 
-                        src={`http://localhost:5000${image.RutaImagen}`} 
-                        alt={`Imagen ${image.IdImagen}`}
+                        src={imageUrl} 
+                        alt={`Imagen ${imageId}`}
                         style={{
                           width: '100%',
                           height: '100%',
                           objectFit: 'cover'
                         }}
                         onError={(e) => {
+                          console.warn('❌ Error loading image:', image.RutaImagen, '| Final URL:', imageUrl);
                           e.target.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTUwIiBoZWlnaHQ9IjE1MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjZjhmOWZhIi8+PHRleHQgeD0iNTAlIiB5PSI1MCUiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC1zaXplPSIxMiIgZmlsbD0iIzZjNzU3ZCIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZHk9Ii4zZW0iPkVycm9yPC90ZXh0Pjwvc3ZnPg==';
                         }}
                       />
@@ -428,13 +627,14 @@ const GalleryManagement = () => {
                           justifyContent: 'center',
                           fontSize: '12px'
                         }}
-                        onClick={() => handleDeleteImage(image.IdImagen)}
+                        onClick={() => handleDeleteImage(imageId)}
                         title="Eliminar imagen"
                       >
                         🗑️
                       </button>
                     </div>
-                  ))}
+                    );
+                  })}
                 </div>
               ) : (
                 <div style={{
