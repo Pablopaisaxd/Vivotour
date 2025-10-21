@@ -60,6 +60,7 @@ export const Perfil = () => {
     const doc = new jsPDF();
     const pageWidth = doc.internal.pageSize.width;
     const pageHeight = doc.internal.pageSize.height;
+    let yPos = 40; // Inicializar yPos después del header
     
     // Colores del tema
     const colorPrimario = [75, 172, 53]; // Verde VivoTour

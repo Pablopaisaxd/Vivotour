@@ -27,6 +27,7 @@ const CheckoutPage = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [paymentCompleted, setPaymentCompleted] = useState(false);
+  const [redirectCountdown, setRedirectCountdown] = useState(3);
 
   useEffect(() => {
     if (reservaId && user) {
@@ -91,16 +92,25 @@ const CheckoutPage = () => {
   const handlePaymentSuccess = (paymentIntent) => {
     console.log('Pago exitoso:', paymentIntent);
     setPaymentCompleted(true);
+    setRedirectCountdown(3);
     
-    // Redirigir después de 3 segundos
-    setTimeout(() => {
-      navigate('/dashboard/reservas', { 
-        state: { 
-          message: 'Pago completado exitosamente',
-          reservaId: reservaId 
+    // Iniciar countdown para redirección
+    const countdown = setInterval(() => {
+      setRedirectCountdown((prev) => {
+        if (prev <= 1) {
+          clearInterval(countdown);
+          // Redirigir a perfil
+          navigate('/Perfil', { 
+            state: { 
+              message: 'Pago completado exitosamente',
+              reservaId: reservaId 
+            }
+          });
+          return 0;
         }
+        return prev - 1;
       });
-    }, 3000);
+    }, 1000);
   };
 
   const handlePaymentError = (error) => {
@@ -113,7 +123,8 @@ const CheckoutPage = () => {
     container: {
       minHeight: '100vh',
       backgroundColor: '#f5f7fa',
-      padding: '20px'
+      padding: '20px',
+      position: 'relative'
     },
     checkoutWrapper: {
       maxWidth: '1200px',
@@ -248,7 +259,11 @@ const CheckoutPage = () => {
       padding: '40px',
       textAlign: 'center',
       maxWidth: '400px',
-      margin: '50px auto',
+      margin: 'auto',
+      position: 'absolute',
+      top: '50%',
+      left: '50%',
+      transform: 'translate(-50%, -50%)',
       boxShadow: '0 4px 6px rgba(0,0,0,0.1)'
     },
     successIcon: {
@@ -339,7 +354,7 @@ const CheckoutPage = () => {
           <p>Tu reserva ha sido confirmada exitosamente.</p>
           <p>Reserva #{reservaId}</p>
           <p style={{ fontSize: '14px', color: '#666' }}>
-            Serás redirigido en unos segundos...
+            Serás redirigido en {redirectCountdown} segundo{redirectCountdown !== 1 ? 's' : ''}...
           </p>
         </div>
       </div>
