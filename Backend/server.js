@@ -479,6 +479,8 @@ app.get('/auth/google/config-check', (req, res) => {
         FechaReserva DATE,
         FechaIngreso DATE,
         FechaSalida DATE,
+        CantidadAdultos INT DEFAULT 0,
+        CantidadNinos INT DEFAULT 0,
         InformacionReserva TEXT,
         IdAccount INT,
         createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -487,6 +489,23 @@ app.get('/auth/google/config-check', (req, res) => {
         FOREIGN KEY (IdAccount) REFERENCES accounts(IdAccount) ON DELETE RESTRICT ON UPDATE RESTRICT
       ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
     `);
+    
+    // Agregar columnas si no existen (para migración)
+    try {
+      await db.query(`
+        ALTER TABLE reservas ADD COLUMN IF NOT EXISTS CantidadAdultos INT DEFAULT 0
+      `);
+    } catch (e) {
+      // Ignorar si la columna ya existe
+    }
+    
+    try {
+      await db.query(`
+        ALTER TABLE reservas ADD COLUMN IF NOT EXISTS CantidadNinos INT DEFAULT 0
+      `);
+    } catch (e) {
+      // Ignorar si la columna ya existe
+    }
     console.log("Tabla reservas actualizada lista");
 
   } catch (e) {
@@ -1306,7 +1325,9 @@ app.post('/reservas', requireAuth, async (req, res) => {
     const { 
       IdAlojamiento, 
       FechaIngreso, 
-      FechaSalida, 
+      FechaSalida,
+      CantidadAdultos,
+      CantidadNinos,
       InformacionReserva 
     } = req.body;
 
@@ -1345,15 +1366,17 @@ app.post('/reservas', requireAuth, async (req, res) => {
       IdAccount,
       FechaIngreso,
       FechaSalida,
+      CantidadAdultos,
+      CantidadNinos,
       InformacionReserva
     });
 
     // Crear la reserva
     const [resultado] = await db.query(`
       INSERT INTO reservas (
-        IdAlojamiento, IdAccount, FechaReserva, FechaIngreso, FechaSalida, InformacionReserva
-      ) VALUES (?, ?, CURDATE(), ?, ?, ?)
-    `, [IdAlojamiento, IdAccount, FechaIngreso, FechaSalida, InformacionReserva || null]);
+        IdAlojamiento, IdAccount, FechaReserva, FechaIngreso, FechaSalida, CantidadAdultos, CantidadNinos, InformacionReserva
+      ) VALUES (?, ?, CURDATE(), ?, ?, ?, ?, ?)
+    `, [IdAlojamiento, IdAccount, FechaIngreso, FechaSalida, CantidadAdultos || 0, CantidadNinos || 0, InformacionReserva || null]);
 
     console.log('Reserva creada exitosamente:', resultado.insertId);
 
@@ -2680,6 +2703,149 @@ app.delete('/admin/usuarios/:id', requireAuth, async (req, res) => {
   } catch (e) {
     console.error('Error eliminando usuario:', e);
     res.status(500).json({ success: false, mensaje: 'Error del servidor' });
+  }
+});
+
+// Obtener todas las reservas (para admin)
+app.get('/api/admin/reservas', autenticarToken, async (req, res) => {
+  try {
+    // Verificar que el usuario sea admin (IdRol = 1)
+    const [userResult] = await db.execute(
+      'SELECT IdRol FROM accounts WHERE IdAccount = ?',
+      [req.user.IdAccount]
+    );
+
+    if (!userResult.length || userResult[0].IdRol !== 1) {
+      return res.status(403).json({ success: false, mensaje: 'Acceso denegado - No es administrador' });
+    }
+
+    // Obtener todas las reservas con información del usuario y alojamiento
+    const [reservas] = await db.query(`
+      SELECT 
+        r.IdReserva,
+        r.IdAccount,
+        r.FechaIngreso,
+        r.FechaSalida,
+        r.FechaReserva,
+        r.CantidadAdultos,
+        r.CantidadNinos,
+        r.InformacionReserva,
+        a.nombre as NombreUsuario,
+        a.email as EmailUsuario,
+        alo.Descripcion as TipoAlojamiento,
+        alo.Capacidad,
+        p.Monto
+      FROM reservas r
+      INNER JOIN accounts a ON r.IdAccount = a.IdAccount
+      LEFT JOIN alojamientos alo ON r.IdAlojamiento = alo.IdAlojamiento
+      LEFT JOIN pagos p ON r.IdReserva = p.IdReserva AND p.IdEstadoPago = 2
+      ORDER BY r.FechaIngreso DESC
+    `);
+
+    // Mapear datos al formato esperado por el frontend
+    const reservasFormateadas = reservas.map(r => {
+      // Intentar extraer adultos y niños del InformacionReserva si no están en las columnas
+      let cantidadAdultos = r.CantidadAdultos || 0;
+      let cantidadNinos = r.CantidadNinos || 0;
+      
+      // Si son 0, intentar extraer del texto de InformacionReserva
+      if ((cantidadAdultos === 0 || cantidadNinos === 0) && r.InformacionReserva) {
+        const adultoMatch = r.InformacionReserva.match(/Adultos:\s*(\d+)/);
+        const ninosMatch = r.InformacionReserva.match(/Niños:\s*(\d+)/);
+        if (adultoMatch) cantidadAdultos = parseInt(adultoMatch[1]) || 0;
+        if (ninosMatch) cantidadNinos = parseInt(ninosMatch[1]) || 0;
+      }
+      
+      return {
+        IdReserva: r.IdReserva,
+        IdAccount: r.IdAccount,
+        FechaIngreso: r.FechaIngreso,
+        FechaSalida: r.FechaSalida,
+        FechaReserva: r.FechaReserva,
+        CantidadAdultos: cantidadAdultos,
+        CantidadNinos: cantidadNinos,
+        InformacionReserva: r.InformacionReserva,
+        NombreUsuario: r.NombreUsuario,
+        EmailUsuario: r.EmailUsuario,
+        TipoAlojamiento: r.TipoAlojamiento || 'No especificado',
+        Capacidad: r.Capacidad,
+        Monto: r.Monto || 0
+      };
+    });
+
+    res.json({
+      success: true,
+      reservas: reservasFormateadas || []
+    });
+  } catch (e) {
+    console.error('Error obteniendo reservas admin:', e);
+    res.status(500).json({ success: false, mensaje: 'Error del servidor: ' + e.message });
+  }
+});
+
+// Actualizar estado de reserva (para admin)
+// Nota: Como la tabla no tiene una columna de estado, simplemente confirmamos el pago
+app.put('/api/admin/reserva/:id/status', autenticarToken, async (req, res) => {
+  try {
+    const { estado } = req.body;
+    const reservaId = req.params.id;
+
+    if (!estado) {
+      return res.status(400).json({ success: false, mensaje: 'Estado requerido' });
+    }
+
+    // Verificar que el usuario sea admin (IdRol = 1)
+    const [userResult] = await db.execute(
+      'SELECT IdRol FROM accounts WHERE IdAccount = ?',
+      [req.user.IdAccount]
+    );
+
+    if (!userResult.length || userResult[0].IdRol !== 1) {
+      return res.status(403).json({ success: false, mensaje: 'Acceso denegado - No es administrador' });
+    }
+
+    // Verificar que la reserva existe
+    const [reservaCheck] = await db.execute(
+      'SELECT IdReserva FROM reservas WHERE IdReserva = ?',
+      [reservaId]
+    );
+
+    if (!reservaCheck.length) {
+      return res.status(404).json({ success: false, mensaje: 'Reserva no encontrada' });
+    }
+
+    // Si es "confirmed", creamos un pago simulado confirmado
+    if (estado === 'Confirmada') {
+      // Verificar si ya existe un pago
+      const [pagoExistente] = await db.execute(
+        'SELECT IdPago FROM pagos WHERE IdReserva = ?',
+        [reservaId]
+      );
+
+      if (pagoExistente.length === 0) {
+        // Crear un pago confirmado
+        await db.execute(`
+          INSERT INTO pagos (IdTipoPago, IdAccount, IdReserva, IdEstadoPago, Monto, Moneda, ProveedorPago, ReferenciaPasarela, DescripcionPago, FechaPago)
+          SELECT 1, r.IdAccount, r.IdReserva, 2, 0, 'cop', 'Admin', CONCAT('admin_', r.IdReserva), CONCAT('Confirmado por admin para reserva #', r.IdReserva), NOW()
+          FROM reservas r
+          WHERE r.IdReserva = ?
+        `, [reservaId]);
+      } else {
+        // Actualizar pago existente a confirmado
+        await db.execute(
+          'UPDATE pagos SET IdEstadoPago = 2, FechaPago = NOW() WHERE IdReserva = ?',
+          [reservaId]
+        );
+      }
+    }
+
+    res.json({
+      success: true,
+      mensaje: 'Reserva actualizada correctamente'
+    });
+  } catch (e) {
+    console.error('Error actualizando reserva:', e);
+    res.status(500).json({ success: false, mensaje: 'Error del servidor: ' + e.message });
   }
 });
 
