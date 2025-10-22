@@ -167,6 +167,8 @@ const UserManagement = () => {
             boxShadow: '0 5px 15px var(--shadow-light)',
             gridColumn: '1 / -1',
             display: 'flex',
+            width: '100%', 
+            height: '100vh',
             flexDirection: 'column',
             gap: '20px',
         },

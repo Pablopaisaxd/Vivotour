@@ -1,0 +1,53 @@
+/* Configuración base para prevenir scroll duplicado */
+html, body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+}
+
+#root {
+  height: 100vh;
+  overflow: hidden;
+}
+
+/* Contenedores principales con scroll vertical independiente */
+.user-management-container,
+.reservation-management-container,
+.gallery-management-container,
+.comments-management-container {
+  height: 100%;
+  overflow-y: auto;
+  padding: 1rem;
+}
+
+/* Soporte para tablas responsivas */
+.table-container {
+  overflow-x: auto;
+  max-width: 100%;
+}
+
+/* Altura máxima para modales evitando desbordamiento */
+.modal-content {
+  max-height: 80vh;
+  overflow-y: auto;
+}
+
+/* Personalización del scrollbar para mejor UX */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--main-background);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--border-color-light);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--text-color-secondary);
+}

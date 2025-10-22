@@ -232,7 +232,7 @@ const HomePageSettings = () => {
     const ph = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjE0MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjZjBmMGYwIi8+PHRleHQgeD0iNTAlIiB5PSI1MCUiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC1zaXplPSIxNCIgZmlsbD0iI2NjYyIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZHk9Ii4zZW0iPkltYWdlbjwvdGV4dD48L3N2Zz4=';
 
     return (
-        <div style={{ padding: '30px', backgroundColor: 'var(--card-background)', gridColumn: '1 / -1', display: 'flex', flexDirection: 'column', alignItems: 'center', width: '100%', boxSizing: 'border-box' }}>
+        <div style={{ padding: '30px', backgroundColor: 'var(--card-background)', gridColumn: '1 / -1', display: 'flex', flexDirection: 'column', alignItems: 'center', width: '100%', height: '100vh' , boxSizing: 'border-box' }}>
             <h2 style={{ fontSize: '2rem', marginBottom: '30px', textAlign: 'center', color: 'var(--rich-black)', fontWeight: '600' }}>Configuración de Página de Inicio</h2>
             {error && <div style={{ backgroundColor: '#f8d7da', color: '#721c24', padding: '12px 20px', marginBottom: '20px', borderRadius: '4px', textAlign: 'center', border: '1px solid #f5c6cb', width: '100%', maxWidth: '600px' }}>Error: {error}</div>}
             {success && <div style={{ backgroundColor: '#d4edda', color: '#155724', padding: '12px 20px', marginBottom: '20px', borderRadius: '4px', textAlign: 'center', border: '1px solid #c3e6cb', width: '100%', maxWidth: '600px' }}>Cambios guardados exitosamente</div>}
