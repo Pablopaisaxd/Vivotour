@@ -11,6 +11,18 @@ html, body {
   overflow: hidden;
 }
 
+/* Permitir scroll en la página de reserva */
+.reserva-page {
+  overflow-y: auto;
+  height: auto;
+  min-height: 100vh;
+}
+
+.reserva-wrapper {
+  overflow-y: visible;
+  flex: 1;
+}
+
 /* Contenedores principales con scroll vertical independiente */
 .user-management-container,
 .reservation-management-container,
