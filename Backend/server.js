@@ -2845,6 +2845,160 @@ app.put('/api/admin/reserva/:id/status', autenticarToken, async (req, res) => {
   }
 });
 
+// Configurar multer para imágenes de homepage
+const homepageImageStorage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    const uploadPath = path.join(__dirname, 'uploads', 'homepage');
+    if (!fs.existsSync(uploadPath)) {
+      fs.mkdirSync(uploadPath, { recursive: true });
+    }
+    cb(null, uploadPath);
+  },
+  filename: (req, file, cb) => {
+    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+    cb(null, 'homepage-' + uniqueSuffix + path.extname(file.originalname));
+  }
+});
+
+const homepageUpload = multer({
+  storage: homepageImageStorage,
+  limits: { fileSize: 10 * 1024 * 1024 }, // 10MB max
+  fileFilter: (req, file, cb) => {
+    const allowedMimes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+    if (allowedMimes.includes(file.mimetype)) {
+      cb(null, true);
+    } else {
+      cb(new Error('Tipo de archivo no permitido'));
+    }
+  }
+});
+
+// GET - Obtener imágenes de homepage
+app.get('/api/homepage-images', requireAuth, async (req, res) => {
+  try {
+    // Verificar que sea admin
+    const userId = req.userId;
+    const [user] = await db.execute(
+      'SELECT Rol FROM accounts WHERE IdAccount = ?',
+      [userId]
+    );
+
+    if (!user.length || user[0].Rol !== 'Administrador') {
+      return res.status(403).json({ success: false, mensaje: 'Acceso denegado' });
+    }
+
+    // Obtener imágenes de la base de datos
+    const [images] = await db.execute(`
+      SELECT * FROM homepage_images ORDER BY tipo ASC, posicion ASC
+    `);
+
+    // Agrupar por tipo
+    const presentationImages = images
+      .filter(img => img.tipo === 'presentation')
+      .sort((a, b) => a.posicion - b.posicion)
+      .map(img => `${process.env.BACKEND_URL || 'http://localhost:5000'}${img.ruta}`);
+
+    const opinionImages = images
+      .filter(img => img.tipo === 'opinion')
+      .sort((a, b) => a.posicion - b.posicion)
+      .map(img => `${process.env.BACKEND_URL || 'http://localhost:5000'}${img.ruta}`);
+
+    res.json({
+      success: true,
+      presentationImages,
+      opinionImages
+    });
+  } catch (error) {
+    console.error('Error obteniendo imágenes de homepage:', error);
+    res.status(500).json({ success: false, mensaje: 'Error del servidor' });
+  }
+});
+
+// POST - Guardar/actualizar imágenes de homepage
+app.post('/api/homepage-images', requireAuth, homepageUpload.array('presentationImages', 3), async (req, res) => {
+  try {
+    // Verificar que sea admin
+    const userId = req.userId;
+    const [user] = await db.execute(
+      'SELECT Rol FROM accounts WHERE IdAccount = ?',
+      [userId]
+    );
+
+    if (!user.length || user[0].Rol !== 'Administrador') {
+      return res.status(403).json({ success: false, mensaje: 'Acceso denegado' });
+    }
+
+    // Procesar archivos subidos
+    if (!req.files || req.files.length === 0) {
+      return res.status(400).json({ success: false, mensaje: 'No se subieron archivos' });
+    }
+
+    // Limpiar imágenes antiguas
+    await db.execute('DELETE FROM homepage_images');
+
+    // Guardar nuevas imágenes
+    let posicion = 1;
+    for (const file of req.files) {
+      const rutaImagen = `/uploads/homepage/${file.filename}`;
+      await db.execute(
+        'INSERT INTO homepage_images (tipo, posicion, ruta) VALUES (?, ?, ?)',
+        ['presentation', posicion, rutaImagen]
+      );
+      posicion++;
+    }
+
+    res.json({
+      success: true,
+      mensaje: 'Imágenes guardadas correctamente'
+    });
+  } catch (error) {
+    console.error('Error guardando imágenes de homepage:', error);
+    res.status(500).json({ success: false, mensaje: 'Error del servidor: ' + error.message });
+  }
+});
+
+// POST - Guardar/actualizar imágenes de opinión (manejo separado)
+app.post('/api/homepage-images/opinion', requireAuth, homepageUpload.array('opinionImages', 3), async (req, res) => {
+  try {
+    // Verificar que sea admin
+    const userId = req.userId;
+    const [user] = await db.execute(
+      'SELECT Rol FROM accounts WHERE IdAccount = ?',
+      [userId]
+    );
+
+    if (!user.length || user[0].Rol !== 'Administrador') {
+      return res.status(403).json({ success: false, mensaje: 'Acceso denegado' });
+    }
+
+    if (!req.files || req.files.length === 0) {
+      return res.status(400).json({ success: false, mensaje: 'No se subieron archivos' });
+    }
+
+    // Eliminar imágenes de opinión antiguas
+    await db.execute('DELETE FROM homepage_images WHERE tipo = ?', ['opinion']);
+
+    // Guardar nuevas imágenes de opinión
+    let posicion = 1;
+    for (const file of req.files) {
+      const rutaImagen = `/uploads/homepage/${file.filename}`;
+      await db.execute(
+        'INSERT INTO homepage_images (tipo, posicion, ruta) VALUES (?, ?, ?)',
+        ['opinion', posicion, rutaImagen]
+      );
+      posicion++;
+    }
+
+    res.json({
+      success: true,
+      mensaje: 'Imágenes de opinión guardadas correctamente'
+    });
+  } catch (error) {
+    console.error('Error guardando imágenes de opinión:', error);
+    res.status(500).json({ success: false, mensaje: 'Error del servidor: ' + error.message });
+  }
+});
+
 app.listen(5000, () => {
   console.log(" Servidor corriendo en http://localhost:5000");
 });

@@ -42,6 +42,9 @@
   padding: 1em;
   background-color: var(--main-background);
   border-radius: 8px 8px 0 0;
+  width: 100%;
+  max-width: 100%;
+  overflow-x: auto;
 }
 
 .header-second{
@@ -487,6 +490,20 @@ html { scroll-behavior: smooth; }
   margin: 0;
   padding: 15px;
   box-sizing: border-box;
+}
+
+/* Full width gallery management */
+.gallery-management-full {
+  width: 100% !important;
+  max-width: 100% !important;
+}
+
+.content:has(.gallery-management-full) {
+  display: block !important;
+  grid-template: none !important;
+  padding: 0 !important;
+  width: 100%;
+  max-width: 100%;
 }
 
 @media (max-width: 768px) {

@@ -2,6 +2,7 @@ import React, { useEffect, useState, useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import { AuthContext } from "../../AuthContext";
 import "./style/Opinion.css";
+import apiConfig from "../../config/apiConfig";
 
 import imgs1 from "../../assets/Fondos/columpio delante.jpg";
 import imgs2 from "../../assets/Fondos/turista acostado en hamaca.jpg";
@@ -17,6 +18,7 @@ const Opinion = () => {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const { isAuthenticated, user } = useContext(AuthContext);
   const navigate = useNavigate();
+  const [images, setImages] = useState([imgs1, imgs2, imgs3, imgs4, imgs5]);
 
   const [showModal, setShowModal] = useState(false);
   const [showAllModal, setShowAllModal] = useState(false);
@@ -28,8 +30,28 @@ const Opinion = () => {
   const [allOpinions, setAllOpinions] = useState([]); 
   const [currentPage, setCurrentPage] = useState(0); 
 
-  const images = [imgs1, imgs2, imgs3, imgs4, imgs5];
   const opinionsPerPage = 3;
+
+  // Cargar imágenes de opinión del servidor
+  useEffect(() => {
+    const fetchOpinionImages = async () => {
+      try {
+        const response = await fetch(`${apiConfig.baseUrl}/api/homepage-images`);
+        if (response.ok) {
+          const data = await response.json();
+          if (data.opinionImages && data.opinionImages.length > 0) {
+            setImages(data.opinionImages);
+          }
+        }
+      } catch (error) {
+        console.error('Error loading opinion images:', error);
+        // Usar imágenes por defecto si falla
+        setImages([imgs1, imgs2, imgs3, imgs4, imgs5]);
+      }
+    };
+    
+    fetchOpinionImages();
+  }, []);
 
   useEffect(() => {
     const interval = setInterval(() => {

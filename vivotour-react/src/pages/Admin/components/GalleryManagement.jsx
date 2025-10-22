@@ -308,7 +308,7 @@ const GalleryManagement = () => {
   const currentImages = categoryImages.slice(startIndex, endIndex);
 
   return (
-    <div style={{ padding: '20px' }}>
+    <div className="gallery-management-full" style={{ padding: '20px', width: '100%', maxWidth: 'none', boxSizing: 'border-box' }}>
       <div style={{
         display: 'flex',
         justifyContent: 'space-between',
@@ -331,13 +331,14 @@ const GalleryManagement = () => {
       )}
       <div style={{ 
         display: 'grid', 
-        /* Use responsive auto-fill so the grid stretches across available width */
-        gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', 
+        /* Show exactly 2 cards per row */
+        gridTemplateColumns: 'repeat(2, 1fr)', 
         gap: '30px',
         marginTop: '20px',
         margin: '20px 0',
-        padding: '0 20px',
-        width: '100%'
+        padding: '0',
+        width: '100%',
+        boxSizing: 'border-box'
       }}>
         {categories.map(category => (
           <div key={category.IdCategoria} style={{

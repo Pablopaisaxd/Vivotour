@@ -4,6 +4,7 @@ import './style/Presentacion.css';
 import img1 from '../../assets/Fondos/Río.jpg';
 import img2 from '../../assets/Fondos/Fondo5.jpg';
 import img3 from '../../assets/Fondos/Entrada.jpg';
+import apiConfig from '../../config/apiConfig';
 
 import icon1 from '../../assets/icons/swimming.png';
 import icon2 from '../../assets/icons/campfire.png';
@@ -43,9 +44,29 @@ const Presentacion = ({ cambiarvista }) => {
   const [modalDirection, setModalDirection] = useState('');
   const [isModalTransitioning, setIsModalTransitioning] = useState(false);
   const [isFirstOpen, setIsFirstOpen] = useState(true);
+  const [images, setImages] = useState([img1, img2, img3]);
   const location = useLocation();
 
-  const images = [img1, img2, img3];
+  // Cargar imágenes de presentación del servidor
+  useEffect(() => {
+    const fetchPresentationImages = async () => {
+      try {
+        const response = await fetch(`${apiConfig.baseUrl}/api/homepage-images`);
+        if (response.ok) {
+          const data = await response.json();
+          if (data.presentationImages && data.presentationImages.length > 0) {
+            setImages(data.presentationImages);
+          }
+        }
+      } catch (error) {
+        console.error('Error loading presentation images:', error);
+        // Usar imágenes por defecto si falla
+        setImages([img1, img2, img3]);
+      }
+    };
+    
+    fetchPresentationImages();
+  }, []);
 
   // Carrusel automático
   useEffect(() => {
