@@ -101,6 +101,41 @@ function getAvatarUrl(avatarPath) {
   return `http://localhost:5000${avatarPath}`;
 }
 
+// Función para resolver planId (numérico o slug) al ID real de la BD
+async function resolvePlanId(planId) {
+  if (!planId) return null;
+  
+  // Mapeo de slugs conocidos a nombres
+  const slugMap = {
+    'ventana-rio': 'Plan Amanecer Ventana del Río Melcocho',
+    'cabana-fenix': 'Cabaña Fénix (pareja)',
+    'cabana-aventureros': 'Cabaña de los Aventureros',
+    'dia-de-sol': 'Día de sol en el Río Melcocho'
+  };
+  
+  // Intentar parsear como número primero
+  const planIdNum = parseInt(planId, 10);
+  
+  if (!isNaN(planIdNum) && planIdNum > 0) {
+    // Es un ID numérico válido, verificar que existe
+    const [plans] = await db.execute('SELECT id FROM plans WHERE id = ?', [planIdNum]);
+    if (plans.length > 0) {
+      return planIdNum;
+    }
+  } else {
+    // Es un slug de string
+    const planName = slugMap[planId.toLowerCase()];
+    if (planName) {
+      const [plans] = await db.execute('SELECT id FROM plans WHERE name = ?', [planName]);
+      if (plans.length > 0) {
+        return plans[0].id;
+      }
+    }
+  }
+  
+  return null;
+}
+
 // Función para asignar rol automáticamente basado en el email
 function asignarRolPorEmail(email) {
   const emailLower = email.toLowerCase();
@@ -3059,8 +3094,453 @@ app.post('/api/homepage-images/opinion', requireAuth, homepageUpload.array('opin
   }
 });
 
+// ======================= PLANES =======================
+
+// Configuración de multer para imágenes de planes
+const storageePlans = multer.diskStorage({
+  destination: (req, file, cb) => {
+    const uploadPath = path.join(__dirname, 'uploads', 'plans');
+    if (!fs.existsSync(uploadPath)) {
+      fs.mkdirSync(uploadPath, { recursive: true });
+    }
+    cb(null, uploadPath);
+  },
+  filename: (req, file, cb) => {
+    const timestamp = Date.now();
+    const ext = path.extname(file.originalname);
+    const name = path.basename(file.originalname, ext);
+    cb(null, `${name}_${timestamp}${ext}`);
+  }
+});
+
+const uploadPlans = multer({
+  storage: storageePlans,
+  limits: {
+    fileSize: 10 * 1024 * 1024, // 10MB máximo
+  },
+  fileFilter: (req, file, cb) => {
+    if (file.mimetype.startsWith('image/')) {
+      cb(null, true);
+    } else {
+      cb(new Error('Solo se permiten archivos de imagen'), false);
+    }
+  }
+});
+
+// GET /api/plans - Obtener todos los planes
+app.get('/api/plans', requireAuth, async (req, res) => {
+  try {
+    const [plans] = await db.execute('SELECT * FROM plans ORDER BY id ASC');
+    res.json({ success: true, plans });
+  } catch (error) {
+    console.error('Error obteniendo planes:', error);
+    res.status(500).json({ success: false, mensaje: 'Error del servidor: ' + error.message });
+  }
+});
+
+// GET /api/plans/:planId - Obtener un plan específico
+app.get('/api/plans/:planId', requireAuth, async (req, res) => {
+  try {
+    const { planId } = req.params;
+    const actualPlanId = await resolvePlanId(planId);
+    
+    if (!actualPlanId) {
+      return res.status(404).json({ success: false, mensaje: 'Plan no encontrado' });
+    }
+    
+    const [plans] = await db.execute('SELECT * FROM plans WHERE id = ?', [actualPlanId]);
+    
+    if (plans.length === 0) {
+      return res.status(404).json({ success: false, mensaje: 'Plan no encontrado' });
+    }
+    
+    res.json({ success: true, plan: plans[0] });
+  } catch (error) {
+    console.error('Error obteniendo plan:', error);
+    res.status(500).json({ success: false, mensaje: 'Error del servidor: ' + error.message });
+  }
+});
+
+// POST /api/plans - Crear un nuevo plan
+app.post('/api/plans', requireAuth, async (req, res) => {
+  try {
+    // Verificar que sea admin
+    if (req.user.IdRol !== 1) {
+      return res.status(403).json({ success: false, mensaje: 'Acceso denegado. Solo administradores.' });
+    }
+
+    const { name, description, price, duration, maxPersons } = req.body;
+
+    // Validar campos
+    if (!name) {
+      return res.status(400).json({ success: false, mensaje: 'El nombre es requerido' });
+    }
+    if (!description) {
+      return res.status(400).json({ success: false, mensaje: 'La descripción es requerida' });
+    }
+    if (price === undefined || price === null || price === '') {
+      return res.status(400).json({ success: false, mensaje: 'El precio es requerido' });
+    }
+    if (duration === undefined || duration === null) {
+      return res.status(400).json({ success: false, mensaje: 'La duración es requerida' });
+    }
+    if (!maxPersons) {
+      return res.status(400).json({ success: false, mensaje: 'La capacidad es requerida' });
+    }
+
+    let result;
+    try {
+      [result] = await db.execute(
+        'INSERT INTO plans (name, description, price, duration, maxPersons) VALUES (?, ?, ?, ?, ?)',
+        [name, description, price, duration, maxPersons]
+      );
+    } catch (dbError) {
+      console.error('Error creando plan:', dbError.message);
+      throw dbError;
+    }
+
+    const responseData = {
+      success: true, 
+      mensaje: 'Plan creado exitosamente',
+      planId: result.insertId 
+    };
+    
+    res.json(responseData);
+  } catch (error) {
+    console.error('Error creando plan:', error.message);
+    res.status(500).json({ success: false, mensaje: 'Error del servidor: ' + error.message });
+  }
+});
+
+// PUT /api/plans/:planId - Actualizar un plan
+app.put('/api/plans/:planId', requireAuth, async (req, res) => {
+  try {
+    if (req.user.IdRol !== 1) {
+      return res.status(403).json({ success: false, mensaje: 'Acceso denegado. Solo administradores.' });
+    }
+
+    const { planId } = req.params;
+    const { name, description, price, duration, maxPersons } = req.body;
+
+    const [result] = await db.execute(
+      'UPDATE plans SET name = ?, description = ?, price = ?, duration = ?, maxPersons = ? WHERE id = ?',
+      [name, description, price, duration, maxPersons, planId]
+    );
+
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ success: false, mensaje: 'Plan no encontrado' });
+    }
+
+    res.json({ success: true, mensaje: 'Plan actualizado exitosamente' });
+  } catch (error) {
+    console.error('Error actualizando plan:', error);
+    res.status(500).json({ success: false, mensaje: 'Error del servidor: ' + error.message });
+  }
+});
+
+// DELETE /api/plans/:planId - Eliminar un plan
+app.delete('/api/plans/:planId', requireAuth, async (req, res) => {
+  try {
+    if (req.user.IdRol !== 1) {
+      return res.status(403).json({ success: false, mensaje: 'Acceso denegado. Solo administradores.' });
+    }
+
+    const { planId } = req.params;
+    const actualPlanId = await resolvePlanId(planId);
+    
+    if (!actualPlanId) {
+      return res.status(404).json({ success: false, mensaje: 'Plan no encontrado' });
+    }
+
+    // Primero eliminar todas las imágenes del plan
+    const plansDir = path.join(__dirname, 'uploads', 'plans');
+    const [images] = await db.execute(
+      'SELECT filename FROM plan_images WHERE plan_id = ?',
+      [actualPlanId]
+    );
+
+    for (const img of images) {
+      const filePath = path.join(plansDir, img.filename);
+      if (fs.existsSync(filePath)) {
+        fs.unlinkSync(filePath);
+      }
+    }
+
+    // Eliminar registros de imágenes de la BD
+    await db.execute('DELETE FROM plan_images WHERE plan_id = ?', [actualPlanId]);
+    await db.execute('DELETE FROM plan_images_legacy WHERE plan_id = ?', [actualPlanId]);
+
+    // Eliminar el plan
+    const [result] = await db.execute('DELETE FROM plans WHERE id = ?', [actualPlanId]);
+
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ success: false, mensaje: 'Plan no encontrado' });
+    }
+
+    res.json({ success: true, mensaje: 'Plan eliminado exitosamente' });
+  } catch (error) {
+    console.error('Error eliminando plan:', error);
+    res.status(500).json({ success: false, mensaje: 'Error del servidor: ' + error.message });
+  }
+});
+
+// POST /api/plans/:planId/images - Subir una imagen para un plan
+app.post('/api/plans/:planId/images', requireAuth, uploadPlans.single('image'), async (req, res) => {
+  try {
+    if (req.user.IdRol !== 1) {
+      return res.status(403).json({ success: false, mensaje: 'Acceso denegado. Solo administradores.' });
+    }
+
+    if (!req.file) {
+      return res.status(400).json({ success: false, mensaje: 'No se envió ningún archivo' });
+    }
+
+    const { planId } = req.params;
+
+    // Resolver el planId usando la función auxiliar
+    const actualPlanId = await resolvePlanId(planId);
+
+    if (!actualPlanId) {
+      return res.status(404).json({ success: false, mensaje: 'Plan no encontrado en la BD' });
+    }
+
+    const filename = req.file.filename;
+    const imageUrl = `/uploads/plans/${filename}`;
+
+    // Insertar en la BD
+    const [insertResult] = await db.execute(
+      'INSERT INTO plan_images (plan_id, image_url, filename) VALUES (?, ?, ?)',
+      [actualPlanId, imageUrl, filename]
+    );
+
+    res.json({ 
+      success: true, 
+      mensaje: 'Imagen subida exitosamente',
+      imageUrl,
+      filename,
+      imageId: insertResult.insertId
+    });
+    
+  } catch (error) {
+    console.error('❌ Error subiendo imagen:', error.message);
+    console.error('Stack:', error.stack);
+    
+    // Eliminar el archivo si hubo error
+    if (req.file) {
+      const fs = require('fs');
+      fs.unlink(req.file.path, (err) => {
+        if (err) console.error('Error eliminando archivo temporal:', err);
+      });
+    }
+
+    res.status(500).json({ success: false, mensaje: 'Error del servidor: ' + error.message });
+  }
+});
+
+// GET /api/plans/:planId/images - Obtener imágenes de un plan (nuevas + legacy)
+app.get('/api/plans/:planId/images', requireAuth, async (req, res) => {
+  try {
+    const { planId } = req.params;
+    const actualPlanId = await resolvePlanId(planId);
+    
+    if (!actualPlanId) {
+      return res.status(404).json({ success: false, images: [] });
+    }
+
+    // Obtener imágenes nuevas - ORDENAR POR ID (más confiable que created_at)
+    const [newImages] = await db.execute(
+      'SELECT image_url as url, filename, false as isLegacy FROM plan_images WHERE plan_id = ? ORDER BY id ASC',
+      [actualPlanId]
+    );
+
+    // Obtener imágenes legacy - ORDENAR POR ID
+    const [legacyImages] = await db.execute(
+      'SELECT image_url as url, null as filename, true as isLegacy FROM plan_images_legacy WHERE plan_id = ? ORDER BY id ASC',
+      [actualPlanId]
+    );
+
+    // Combinar: primero nuevas, luego legacy
+    const allImages = [...newImages, ...legacyImages];
+
+    res.json({ success: true, images: allImages });
+  } catch (error) {
+    console.error('Error obteniendo imágenes:', error);
+    res.status(500).json({ success: false, mensaje: 'Error del servidor: ' + error.message });
+  }
+});
+
+// GET /api/plans/:planId/images-with-legacy - Obtener imágenes con legacy (alias para compatibilidad frontend)
+app.get('/api/plans/:planId/images-with-legacy', requireAuth, async (req, res) => {
+  try {
+    const { planId } = req.params;
+    const actualPlanId = await resolvePlanId(planId);
+    
+    if (!actualPlanId) {
+      return res.status(404).json({ success: false, mensaje: 'Plan no encontrado' });
+    }
+
+    // Obtener imágenes nuevas - ORDENAR POR ID (más confiable que created_at)
+    const [newImages] = await db.execute(
+      'SELECT image_url as url, filename, false as isLegacy FROM plan_images WHERE plan_id = ? ORDER BY id ASC',
+      [actualPlanId]
+    );
+
+    // Si hay imágenes nuevas, retornar SOLO esas (sin las legacy)
+    if (newImages.length > 0) {
+      return res.json({ success: true, images: newImages });
+    }
+
+    // Si NO hay imágenes nuevas, retornar las legacy
+    const [legacyImages] = await db.execute(
+      'SELECT image_url as url, null as filename, true as isLegacy FROM plan_images_legacy WHERE plan_id = ? ORDER BY id ASC',
+      [actualPlanId]
+    );
+
+    res.json({ success: true, images: legacyImages });
+  } catch (error) {
+    console.error('Error obteniendo imágenes con legacy:', error);
+    res.status(500).json({ success: false, mensaje: 'Error del servidor: ' + error.message });
+  }
+});
+
+// DELETE /api/plans/:planId/images/:filename - Eliminar una imagen
+app.delete('/api/plans/:planId/images/:filename', requireAuth, async (req, res) => {
+  try {
+    if (req.user.IdRol !== 1) {
+      return res.status(403).json({ success: false, mensaje: 'Acceso denegado. Solo administradores.' });
+    }
+
+    const { planId, filename } = req.params;
+    const actualPlanId = await resolvePlanId(planId);
+    
+    if (!actualPlanId) {
+      return res.status(404).json({ success: false, mensaje: 'Plan no encontrado' });
+    }
+
+    // Obtener la ruta del archivo
+    const [images] = await db.execute(
+      'SELECT * FROM plan_images WHERE plan_id = ? AND filename = ?',
+      [actualPlanId, filename]
+    );
+
+    if (images.length === 0) {
+      return res.status(404).json({ success: false, mensaje: 'Imagen no encontrada' });
+    }
+
+    // Eliminar archivo del disco
+    const filePath = path.join(__dirname, 'uploads', 'plans', filename);
+    if (fs.existsSync(filePath)) {
+      fs.unlinkSync(filePath);
+    }
+
+    // Eliminar de la BD
+    await db.execute(
+      'DELETE FROM plan_images WHERE plan_id = ? AND filename = ?',
+      [planId, filename]
+    );
+
+    res.json({ success: true, mensaje: 'Imagen eliminada exitosamente' });
+  } catch (error) {
+    console.error('Error eliminando imagen:', error);
+    res.status(500).json({ success: false, mensaje: 'Error del servidor: ' + error.message });
+  }
+});
+
+// ==================== SERVICIOS EXTRA ====================
+
+// GET /api/extra-services - Obtener todos los servicios extra
+app.get('/api/extra-services', requireAuth, async (req, res) => {
+  try {
+    const [services] = await db.execute('SELECT * FROM extra_services ORDER BY category ASC, name ASC');
+    
+    res.json({ success: true, services });
+  } catch (error) {
+    console.error('Error obteniendo servicios extra:', error);
+    res.status(500).json({ success: false, mensaje: 'Error del servidor: ' + error.message });
+  }
+});
+
+// POST /api/extra-services - Crear un nuevo servicio extra
+app.post('/api/extra-services', requireAuth, async (req, res) => {
+  try {
+    if (req.user.IdRol !== 1) {
+      return res.status(403).json({ success: false, mensaje: 'Acceso denegado. Solo administradores.' });
+    }
+
+    const { name, description, price, category } = req.body;
+
+    if (!name || !price) {
+      return res.status(400).json({ success: false, mensaje: 'Nombre y precio son requeridos' });
+    }
+
+    const [result] = await db.execute(
+      'INSERT INTO extra_services (name, description, price, category) VALUES (?, ?, ?, ?)',
+      [name, description || null, price, category || null]
+    );
+
+    res.json({ 
+      success: true, 
+      mensaje: 'Servicio creado exitosamente',
+      serviceId: result.insertId
+    });
+  } catch (error) {
+    console.error('Error creando servicio extra:', error);
+    res.status(500).json({ success: false, mensaje: 'Error del servidor: ' + error.message });
+  }
+});
+
+// PUT /api/extra-services/:serviceId - Actualizar un servicio extra
+app.put('/api/extra-services/:serviceId', requireAuth, async (req, res) => {
+  try {
+    if (req.user.IdRol !== 1) {
+      return res.status(403).json({ success: false, mensaje: 'Acceso denegado. Solo administradores.' });
+    }
+
+    const { serviceId } = req.params;
+    const { name, description, price, category } = req.body;
+
+    if (!name || !price) {
+      return res.status(400).json({ success: false, mensaje: 'Nombre y precio son requeridos' });
+    }
+
+    const [result] = await db.execute(
+      'UPDATE extra_services SET name = ?, description = ?, price = ?, category = ? WHERE id = ?',
+      [name, description || null, price, category || null, serviceId]
+    );
+
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ success: false, mensaje: 'Servicio no encontrado' });
+    }
+
+    res.json({ success: true, mensaje: 'Servicio actualizado exitosamente' });
+  } catch (error) {
+    console.error('Error actualizando servicio extra:', error);
+    res.status(500).json({ success: false, mensaje: 'Error del servidor: ' + error.message });
+  }
+});
+
+// DELETE /api/extra-services/:serviceId - Eliminar un servicio extra
+app.delete('/api/extra-services/:serviceId', requireAuth, async (req, res) => {
+  try {
+    if (req.user.IdRol !== 1) {
+      return res.status(403).json({ success: false, mensaje: 'Acceso denegado. Solo administradores.' });
+    }
+
+    const { serviceId } = req.params;
+
+    const [result] = await db.execute('DELETE FROM extra_services WHERE id = ?', [serviceId]);
+
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ success: false, mensaje: 'Servicio no encontrado' });
+    }
+
+    res.json({ success: true, mensaje: 'Servicio eliminado exitosamente' });
+  } catch (error) {
+    console.error('Error eliminando servicio extra:', error);
+    res.status(500).json({ success: false, mensaje: 'Error del servidor: ' + error.message });
+  }
+});
+
 app.listen(5000, () => {
   console.log(" Servidor corriendo en http://localhost:5000");
 });
-
-

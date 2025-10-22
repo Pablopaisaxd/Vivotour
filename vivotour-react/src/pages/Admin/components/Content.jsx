@@ -9,6 +9,8 @@ import GalleryManagement from './GalleryManagement';
 import ReservationManagement from './ReservationManagement';
 import AvailabilityManagement from './AvailabilityManagement';
 import UserManagement from './UserManagement';
+import PlansManagement from './PlansManagement';
+import ExtraServicesManagement from './ExtraServicesManagement';
 import { AdminContext } from '../AdminContext';
 
 function Content() {
@@ -37,6 +39,10 @@ function Content() {
                 return <AvailabilityManagement />;
             case 'userManagement':
                 return <UserManagement />;
+            case 'plansManagement':
+                return <PlansManagement />;
+            case 'extraServicesManagement':
+                return <ExtraServicesManagement />;
             default:
                 return (
                     <>

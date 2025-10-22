@@ -11,6 +11,8 @@ import PhotoLibraryIcon from '@mui/icons-material/PhotoLibrary';
 import EventAvailableIcon from '@mui/icons-material/EventAvailable';
 import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
 import PeopleIcon from '@mui/icons-material/People';
+import LocalActivityIcon from '@mui/icons-material/LocalActivity';
+import RoomServiceIcon from '@mui/icons-material/RoomService';
 import { ListItemButton } from "@mui/material";
 import { AdminContext } from '../AdminContext';
 import { AuthContext } from '../../../AuthContext';
@@ -195,6 +197,54 @@ export default function Menu({ onNavigate }) {
             <PeopleIcon color="primary" />
           </ListItemIcon>
           <ListItemText primary="Gestión de Usuarios" />
+        </ListItemButton>
+
+        <Divider variant="middle" />
+
+        <ListItemButton
+          onClick={() => { setActiveComponent('plansManagement'); onNavigate && onNavigate(); }}
+          sx={{
+            pl: 4,
+            "&:hover": { color: theme.palette.primary.main },
+            "& .MuiListItemText-primary": {
+              fontWeight: "bold",
+              fontSize: 16,
+              color: theme.palette.secondary.main,
+              "&:hover": {
+                animation: "color 0.2s ease-in-out",
+                color: theme.palette.primary.main,
+              },
+            },
+          }}
+        >
+          <ListItemIcon>
+            <LocalActivityIcon color="primary" />
+          </ListItemIcon>
+          <ListItemText primary="Gestión de Planes" />
+        </ListItemButton>
+
+        <Divider variant="middle" />
+
+        <ListItemButton
+          onClick={() => { setActiveComponent('extraServicesManagement'); onNavigate && onNavigate(); }}
+          sx={{
+            pl: 4,
+            "&:hover": { color: theme.palette.primary.main },
+            "& .MuiListItemText-primary": {
+              fontWeight: "bold",
+              fontSize: 16,
+              color: theme.palette.secondary.main,
+              "&:hover": {
+                animation: "color 0.2s ease-in-out",
+                color: theme.palette.primary.main,
+              },
+            },
+          }}
+        >
+          <ListItemIcon>
+            <RoomServiceIcon color="primary" />
+          </ListItemIcon>
+          <ListItemText primary="Servicios Extra" />
         </ListItemButton>
 
         <Divider />

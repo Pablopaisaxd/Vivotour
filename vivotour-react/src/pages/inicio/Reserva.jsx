@@ -1,4 +1,4 @@
-import React, { useState, useContext, useMemo } from 'react';
+import React, { useState, useContext, useMemo, useEffect } from 'react';
 import './style/Reserva.css';
 import Nav from './Navbar';
 import Footer from '../../components/use/Footer';
@@ -9,6 +9,7 @@ import imgR1 from '../../assets/Fondos/Cabaña estandar.jpg';
 import imgR2 from '../../assets/Fondos/refcamping.jpg';
 import logoVivoTour from "../../assets/Logos/new vivo contorno2.png";
 import { AuthContext } from '../../AuthContext';
+import apiConfig from '../../config/apiConfig';
 // Carga de imágenes para los modales (carruseles)
 const imgsRio = Object.values(import.meta.glob('../../assets/imgs/rio/*.{jpg,jpeg,png}', { eager: true, as: 'url' }));
 const imgsCabanaFenix = Object.values(import.meta.glob('../../assets/imgs/cabañas/Cabaña_fenix/*.{jpg,jpeg,png}', { eager: true, as: 'url' }));
@@ -112,25 +113,194 @@ const Reserva = () => {
     const [modalPlan, setModalPlan] = useState(null);
     const [carouselIndex, setCarouselIndex] = useState(0);
     const [addonsState, setAddonsState] = useState({}); // { [key]: boolean }
+    const [extraServices, setExtraServices] = useState([]); // Servicios extra desde BD
 
-    // Selecciona imagen de portada específica por plan
+    // Cargar servicios extra desde la API
+    useEffect(() => {
+        const loadExtraServices = async () => {
+            try {
+                const token = localStorage.getItem('token');
+                if (!token) {
+                    console.warn('No token available for loading extra services');
+                    return;
+                }
+
+                const response = await fetch(`${apiConfig.baseUrl}/api/extra-services`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data.services && Array.isArray(data.services)) {
+                        setExtraServices(data.services);
+                    }
+                }
+            } catch (err) {
+                console.error('Error loading extra services:', err);
+            }
+        };
+
+        loadExtraServices();
+    }, []);
+
+    // Cargar planes con imágenes desde el servidor
+    const loadPlansWithImages = async () => {
+        try {
+            const token = localStorage.getItem('token');
+            if (!token) {
+                console.warn('No token available for loading plans');
+                return null;
+            }
+
+            const response = await fetch(`${apiConfig.baseUrl}/api/plans`, {
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                }
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                if (data.plans && Array.isArray(data.plans)) {
+                    // Mapear y cargar imágenes para cada plan
+                    const plansWithImages = await Promise.all(
+                        data.plans.map(async (plan) => {
+                            try {
+                                // Mapear ID numérico a ID string para encontrar plan por defecto
+                                const stringId = plan.id === 1 ? 'ventana-rio' : 
+                                                plan.id === 2 ? 'cabana-fenix' : 
+                                                plan.id === 3 ? 'cabana-aventureros' : 
+                                                plan.id === 4 ? 'dia-de-sol' : null;
+                                
+                                // Obtener las imágenes antiguas por defecto del plan
+                                const planDefecto = stringId ? PLANS.find(p => p.id === stringId) : null;
+                                const imagenesAntiguas = planDefecto?.images || [];
+
+                                // Intentar cargar imágenes legacy primero del nuevo endpoint
+                                let images = [...imagenesAntiguas]; // Comenzar con las antiguas
+                                
+                                try {
+                                    const legacyResponse = await fetch(`${apiConfig.baseUrl}/api/plans/${plan.id}/images-with-legacy`, {
+                                        headers: {
+                                            'Authorization': `Bearer ${token}`,
+                                        }
+                                    });
+                                    
+                                    if (legacyResponse.ok) {
+                                        const legacyData = await legacyResponse.json();
+                                        if (legacyData.images && Array.isArray(legacyData.images)) {
+                                            console.log(`Plan ${plan.id}: Received ${legacyData.images.length} images from server`);
+                                            // Convertir imágenes legacy y nuevas
+                                            images = legacyData.images.map(img => {
+                                                // Si es una URL de assets, devolverla tal cual para que el frontend la resuelva
+                                                if (img.url && img.url.startsWith('/src/assets/imgs')) {
+                                                    return img.url.replace('/src', '');
+                                                }
+                                                // Si es una URL del servidor, agregar la URL base
+                                                if (img.url && img.url.startsWith('/uploads')) {
+                                                    return `${apiConfig.baseUrl}${img.url}`;
+                                                }
+                                                return img.url || img.filename;
+                                            });
+                                            console.log(`Plan ${plan.id}: Processed images:`, images);
+                                        } else {
+                                            // Si el servidor retorna array vacío, usar imágenes antiguas como fallback
+                                            console.log(`Plan ${plan.id}: No images from server, using defaults`);
+                                            images = imagenesAntiguas;
+                                        }
+                                    } else {
+                                        // Si falla la llamada, usar imágenes antiguas
+                                        console.warn(`Plan ${plan.id}: Failed to fetch images, using defaults`);
+                                        images = imagenesAntiguas;
+                                    }
+                                } catch (legacyErr) {
+                                    console.warn('Error fetching images, using defaults:', legacyErr);
+                                    // Si falla el endpoint, usar las antiguas por defecto
+                                    images = imagenesAntiguas;
+                                }
+                                
+                                return {
+                                    id: plan.id,
+                                    title: plan.name,
+                                    description: plan.description,
+                                    price: plan.price,
+                                    duration: plan.duration,
+                                    maxPersons: plan.maxPersons,
+                                    priceType: 'perPerson', // Por defecto
+                                    capacity: {
+                                        min: 1,
+                                        max: plan.maxPersons || 6
+                                    },
+                                    fixedNights: plan.duration || 1,
+                                    images: images.length > 0 ? images : [],
+                                    addons: [] // Los addons se definirán localmente por ahora
+                                };
+                            } catch (err) {
+                                console.error('Error loading images for plan:', plan.id, err);
+                                return null;
+                            }
+                        })
+                    );
+                    return plansWithImages.filter(p => p !== null);
+                }
+            }
+        } catch (err) {
+            console.error('Error loading plans:', err);
+        }
+        return null;
+    };
+
+    // Usar planes del servidor si están disponibles, si no usar los por defecto
+    const [serverPlans, setServerPlans] = useState(PLANS); // Iniciar con PLANS
+    useEffect(() => {
+        const loadPlans = async () => {
+            // Cargar planes del servidor con sus imágenes
+            const plans = await loadPlansWithImages();
+            // Si no hay planes del servidor, usar los por defecto
+            const plansToUse = (plans && plans.length > 0) ? plans : PLANS;
+            
+            // Agregar los addons que se definen localmente
+            const plansWithAddons = plansToUse.map(p => {
+                const addonsMap = {
+                    'ventana-rio': [
+                        { key: 'muleExit', label: 'Mula de salida', pricePerPerson: 30000 },
+                        { key: 'campingExtra', label: 'Camping extra', pricePerPerson: 25000 },
+                        { key: 'breakfastExtra', label: 'Desayuno extra', pricePerPerson: 12000 },
+                    ],
+                    'cabana-fenix': [
+                        { key: 'campingExtra', label: 'Camping extra', pricePerPerson: 25000 },
+                        { key: 'breakfastExtra', label: 'Desayuno extra', pricePerPerson: 12000 },
+                    ],
+                    'cabana-aventureros': [
+                        { key: 'campingExtra', label: 'Camping extra', pricePerPerson: 25000 },
+                        { key: 'breakfastExtra', label: 'Desayuno extra', pricePerPerson: 12000 },
+                    ],
+                    'dia-de-sol': [
+                        { key: 'campingExtra', label: 'Camping extra', pricePerPerson: 25000 },
+                        { key: 'breakfastExtra', label: 'Desayuno extra', pricePerPerson: 12000 },
+                    ]
+                };
+                // Usar stringId si existe (planes del servidor), sino usar plan.id (planes locales)
+                const planKey = p.stringId || p.id;
+                return {
+                    ...p,
+                    addons: addonsMap[planKey] || (p.addons && p.addons.length > 0 ? p.addons : [])
+                };
+            });
+            setServerPlans(plansWithAddons);
+        };
+        loadPlans();
+    }, []);
+
+    // Usar los planes del servidor (que siempre está inicializado)
+    const plansToUse = serverPlans;
+    
     const getCoverImage = (plan) => {
         if (!plan?.images?.length) return imgR1;
-        // Reglas por id de plan
-        if (plan.id === 'cabana-fenix') {
-            // Buscar una imagen que contenga 'fenix' o 'IMG-202' como más representativa
-            const fenix = plan.images.find(u => /portada_fenix/i.test(u));
-            return fenix || plan.images[0];
-        }
-        if (plan.id === 'cabana-aventureros') {
-            const avent = plan.images.find(u => /aventureros18/i.test(u));
-            return avent || plan.images[0];
-        }
-        if (plan.id === 'ventana-rio') {
-            // Usa una imagen con 'rio' si existe
-            const rio = plan.images.find(u => /rio|río|melcocho/i.test(u));
-            return rio || plan.images[0];
-        }
+        // Devolver la primera imagen del plan como portada
         return plan.images[0];
     };
 
@@ -181,6 +351,8 @@ const Reserva = () => {
         // Addons (detalle)
         let addonsTotal = 0;
         const addonsDetailed = [];
+        
+        // Addons del plan
         selectedPlan.addons?.forEach(a => {
             if (addonsState[a.key]) {
                 const unit = a.pricePerPerson;
@@ -188,6 +360,17 @@ const Reserva = () => {
                 const addonCost = unit * persons;
                 addonsTotal += addonCost;
                 addonsDetailed.push({ label: a.label, unit, persons, total: addonCost });
+            }
+        });
+
+        // Servicios extras desde BD
+        extraServices.forEach(service => {
+            if (addonsState[`extra-${service.id}`]) {
+                const unit = service.price;
+                const persons = 1; // Los servicios extras se cobran como unidad
+                const addonCost = unit;
+                addonsTotal += addonCost;
+                addonsDetailed.push({ label: service.name, unit, persons, total: addonCost });
             }
         });
 
@@ -494,7 +677,7 @@ Total: $${summaryData.totals?.total || 0}
                         <div className="reserva-section">
                             <h3 className="reserva-title">Elige tu plan</h3>
                             <div className="reserva-options plans-grid">
-                                {PLANS.map((p) => (
+                                {plansToUse.map((p) => (
                                     <div key={p.id} className={`reserva-card ${selectedPlan?.id === p.id ? 'selected' : ''}`}>
                                         <img src={getCoverImage(p)} alt={p.title} />
                                         <h4>{p.title}</h4>
@@ -513,9 +696,39 @@ Total: $${summaryData.totals?.total || 0}
 
                         <hr />
 
+                        {/* Sección de Extras - Mostrar siempre, no solo cuando hay plan seleccionado */}
+                        <div className="reserva-section">
+                            <h3 className="reserva-title">Extras opcionales</h3>
+                            <div className="reserva-meal-options">
+                                {extraServices.length > 0 ? (
+                                    extraServices.map(service => (
+                                        <div
+                                            key={service.id}
+                                            className={`reserva-meal-option ${addonsState[`extra-${service.id}`] ? 'selected' : ''}`}
+                                            onClick={() => setAddonsState({...addonsState, [`extra-${service.id}`]: !addonsState[`extra-${service.id}`]})}
+                                            role="button"
+                                            tabIndex={0}
+                                            onKeyPress={(e) => e.key === 'Enter' && setAddonsState({...addonsState, [`extra-${service.id}`]: !addonsState[`extra-${service.id}`]})}
+                                            title={service.description}
+                                        >
+                                            <div>
+                                                <strong>{service.name}</strong>
+                                                {service.category && <span style={{marginLeft: '10px', fontSize: '12px', color: '#666'}}>({service.category})</span>}
+                                            </div>
+                                            {formatCOP(service.price)}
+                                        </div>
+                                    ))
+                                ) : (
+                                    <p style={{color: '#999'}}>No hay extras disponibles en este momento</p>
+                                )}
+                            </div>
+                        </div>
+
+                        <hr />
+
                         {selectedPlan && (
                             <div className="reserva-section">
-                                <h3 className="reserva-title">Extras opcionales</h3>
+                                <h3 className="reserva-title">Extras incluidos en el plan</h3>
                                 <div className="reserva-meal-options">
                                     {selectedPlan.addons?.map(a => (
                                         <div
