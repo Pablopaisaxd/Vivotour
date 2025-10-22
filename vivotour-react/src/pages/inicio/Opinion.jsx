@@ -32,6 +32,34 @@ const Opinion = () => {
 
   const opinionsPerPage = 3;
 
+  // Mapeo de rutas de /assets/ a imports locales
+  const assetMap = {
+    '/assets/Fondos/columpio delante.jpg': imgs1,
+    '/assets/Fondos/turista acostado en hamaca.jpg': imgs2,
+    '/assets/Fondos/turistas en rio 2.jpg': imgs3,
+  };
+
+  // Resolver URLs de imágenes - pueden ser rutas del frontend o URLs del servidor
+  const resolveImageUrl = (imgUrl) => {
+    if (!imgUrl) return null;
+    
+    // Si está en el mapeo de assets, usar el import local
+    if (assetMap[imgUrl]) {
+      return assetMap[imgUrl];
+    }
+    
+    if (imgUrl.startsWith('http')) {
+      return imgUrl;
+    }
+    
+    if (imgUrl.startsWith('/uploads/')) {
+      return `${apiConfig.baseUrl}${imgUrl}`;
+    }
+    
+    // Retornar como está (probablemente es /assets/...)
+    return imgUrl;
+  };
+
   // Cargar imágenes de opinión del servidor
   useEffect(() => {
     const fetchOpinionImages = async () => {
@@ -40,7 +68,8 @@ const Opinion = () => {
         if (response.ok) {
           const data = await response.json();
           if (data.opinionImages && data.opinionImages.length > 0) {
-            setImages(data.opinionImages);
+            const resolvedImages = data.opinionImages.map(resolveImageUrl);
+            setImages(resolvedImages);
           }
         }
       } catch (error) {

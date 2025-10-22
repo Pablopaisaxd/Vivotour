@@ -11,8 +11,8 @@ function SocialMediaTraffic() {
   useEffect(() => {
     // Datos simulados más realistas para una empresa turística pequeña
     setSocialData({
-      facebook: { name: 'Facebook', followers: 145, url: 'https://www.facebook.com/ventanadelmelcocho' },
-      instagram: { name: 'Instagram', followers: 89, url: 'https://www.instagram.com/ventanadelmelcocho/' }
+      facebook: { name: 'Facebook', followers: 848, url: 'https://www.facebook.com/ventanadelmelcocho' },
+      instagram: { name: 'Instagram', followers: 909, url: 'https://www.instagram.com/ventanadelmelcocho/' }
     });
   }, []);
 

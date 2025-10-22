@@ -47,6 +47,36 @@ const Presentacion = ({ cambiarvista }) => {
   const [images, setImages] = useState([img1, img2, img3]);
   const location = useLocation();
 
+  // Mapeo de rutas de /assets/ a imports locales
+  const assetMap = {
+    '/assets/Fondos/Río.jpg': img1,
+    '/assets/Fondos/Fondo5.jpg': img2,
+    '/assets/Fondos/Entrada.jpg': img3,
+  };
+
+  // Resolver URLs de imágenes - pueden ser rutas del frontend o URLs del servidor
+  const resolveImageUrl = (imgUrl) => {
+    if (!imgUrl) return null;
+    
+    // Si está en el mapeo de assets, usar el import local
+    if (assetMap[imgUrl]) {
+      return assetMap[imgUrl];
+    }
+    
+    // Si es una URL completa, retornar como está
+    if (imgUrl.startsWith('http')) {
+      return imgUrl;
+    }
+    
+    // Si es una ruta del servidor (/uploads/...), prepender el URL base
+    if (imgUrl.startsWith('/uploads/')) {
+      return `${apiConfig.baseUrl}${imgUrl}`;
+    }
+    
+    // Retornar como está
+    return imgUrl;
+  };
+
   // Cargar imágenes de presentación del servidor
   useEffect(() => {
     const fetchPresentationImages = async () => {
@@ -55,7 +85,8 @@ const Presentacion = ({ cambiarvista }) => {
         if (response.ok) {
           const data = await response.json();
           if (data.presentationImages && data.presentationImages.length > 0) {
-            setImages(data.presentationImages);
+            const resolvedImages = data.presentationImages.map(resolveImageUrl);
+            setImages(resolvedImages);
           }
         }
       } catch (error) {

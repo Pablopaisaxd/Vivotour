@@ -2873,35 +2873,44 @@ const homepageUpload = multer({
   }
 });
 
-// GET - Obtener imágenes de homepage
-app.get('/api/homepage-images', requireAuth, async (req, res) => {
+// GET - Obtener imágenes de homepage (público, sin autenticación)
+app.get('/api/homepage-images', async (req, res) => {
   try {
-    // Verificar que sea admin
-    const userId = req.userId;
-    const [user] = await db.execute(
-      'SELECT Rol FROM accounts WHERE IdAccount = ?',
-      [userId]
-    );
-
-    if (!user.length || user[0].Rol !== 'Administrador') {
-      return res.status(403).json({ success: false, mensaje: 'Acceso denegado' });
-    }
-
+    console.log('GET /api/homepage-images');
     // Obtener imágenes de la base de datos
     const [images] = await db.execute(`
       SELECT * FROM homepage_images ORDER BY tipo ASC, posicion ASC
     `);
 
+    console.log('Total images from DB:', images.length);
+    console.log('Images:', images);
+
     // Agrupar por tipo
     const presentationImages = images
       .filter(img => img.tipo === 'presentation')
       .sort((a, b) => a.posicion - b.posicion)
-      .map(img => `${process.env.BACKEND_URL || 'http://localhost:5000'}${img.ruta}`);
+      .map(img => {
+        // Si la ruta comienza con /assets/, es una ruta del frontend que se debe retornar como está
+        // El frontend la resolverá correctamente
+        if (img.ruta.startsWith('/assets/')) {
+          return img.ruta;
+        }
+        // Si es una ruta del servidor, construir URL completa
+        return `${process.env.BACKEND_URL || 'http://localhost:5000'}${img.ruta}`;
+      });
 
     const opinionImages = images
       .filter(img => img.tipo === 'opinion')
       .sort((a, b) => a.posicion - b.posicion)
-      .map(img => `${process.env.BACKEND_URL || 'http://localhost:5000'}${img.ruta}`);
+      .map(img => {
+        if (img.ruta.startsWith('/assets/')) {
+          return img.ruta;
+        }
+        return `${process.env.BACKEND_URL || 'http://localhost:5000'}${img.ruta}`;
+      });
+
+    console.log('Presentation images:', presentationImages.length);
+    console.log('Opinion images:', opinionImages.length);
 
     res.json({
       success: true,
@@ -2917,36 +2926,61 @@ app.get('/api/homepage-images', requireAuth, async (req, res) => {
 // POST - Guardar/actualizar imágenes de homepage
 app.post('/api/homepage-images', requireAuth, homepageUpload.array('presentationImages', 3), async (req, res) => {
   try {
-    // Verificar que sea admin
-    const userId = req.userId;
-    const [user] = await db.execute(
-      'SELECT Rol FROM accounts WHERE IdAccount = ?',
-      [userId]
-    );
-
-    if (!user.length || user[0].Rol !== 'Administrador') {
-      return res.status(403).json({ success: false, mensaje: 'Acceso denegado' });
+    console.log('POST /api/homepage-images - Inicio');
+    console.log('Files:', req.files ? req.files.length : 0);
+    console.log('Existing URLs:', req.body.existingUrls);
+    
+    // Procesar archivos nuevos
+    let newImages = [];
+    if (req.files && req.files.length > 0) {
+      for (const file of req.files) {
+        newImages.push({
+          ruta: `/uploads/homepage/${file.filename}`
+        });
+      }
     }
 
-    // Procesar archivos subidos
-    if (!req.files || req.files.length === 0) {
-      return res.status(400).json({ success: false, mensaje: 'No se subieron archivos' });
+    // Procesar URLs existentes
+    let existingImages = [];
+    if (req.body.existingUrls) {
+      try {
+        existingImages = JSON.parse(req.body.existingUrls);
+      } catch (e) {
+        console.log('Error parsing existingUrls:', e);
+      }
     }
 
-    // Limpiar imágenes antiguas
-    await db.execute('DELETE FROM homepage_images');
+    console.log('New images:', newImages.length);
+    console.log('Existing images:', existingImages.length);
 
-    // Guardar nuevas imágenes
-    let posicion = 1;
-    for (const file of req.files) {
-      const rutaImagen = `/uploads/homepage/${file.filename}`;
+    // Eliminar todas las imágenes de presentación actuales
+    await db.execute('DELETE FROM homepage_images WHERE tipo = ?', ['presentation']);
+
+    // Insertar las imágenes existentes
+    for (const img of existingImages) {
+      console.log(`Restoring image at position ${img.posicion}: ${img.ruta}`);
       await db.execute(
         'INSERT INTO homepage_images (tipo, posicion, ruta) VALUES (?, ?, ?)',
-        ['presentation', posicion, rutaImagen]
+        ['presentation', img.posicion, img.ruta]
+      );
+    }
+
+    // Insertar las nuevas imágenes en orden
+    let posicion = 1;
+    for (const img of newImages) {
+      // Buscar la primera posición disponible
+      while (existingImages.some(e => e.posicion === posicion)) {
+        posicion++;
+      }
+      console.log(`Inserting new image at position ${posicion}: ${img.ruta}`);
+      await db.execute(
+        'INSERT INTO homepage_images (tipo, posicion, ruta) VALUES (?, ?, ?)',
+        ['presentation', posicion, img.ruta]
       );
       posicion++;
     }
 
+    console.log('Success');
     res.json({
       success: true,
       mensaje: 'Imágenes guardadas correctamente'
@@ -2960,35 +2994,61 @@ app.post('/api/homepage-images', requireAuth, homepageUpload.array('presentation
 // POST - Guardar/actualizar imágenes de opinión (manejo separado)
 app.post('/api/homepage-images/opinion', requireAuth, homepageUpload.array('opinionImages', 3), async (req, res) => {
   try {
-    // Verificar que sea admin
-    const userId = req.userId;
-    const [user] = await db.execute(
-      'SELECT Rol FROM accounts WHERE IdAccount = ?',
-      [userId]
-    );
-
-    if (!user.length || user[0].Rol !== 'Administrador') {
-      return res.status(403).json({ success: false, mensaje: 'Acceso denegado' });
+    console.log('POST /api/homepage-images/opinion - Inicio');
+    console.log('Files:', req.files ? req.files.length : 0);
+    console.log('Existing URLs:', req.body.existingUrls);
+    
+    // Procesar archivos nuevos
+    let newImages = [];
+    if (req.files && req.files.length > 0) {
+      for (const file of req.files) {
+        newImages.push({
+          ruta: `/uploads/homepage/${file.filename}`
+        });
+      }
     }
 
-    if (!req.files || req.files.length === 0) {
-      return res.status(400).json({ success: false, mensaje: 'No se subieron archivos' });
+    // Procesar URLs existentes
+    let existingImages = [];
+    if (req.body.existingUrls) {
+      try {
+        existingImages = JSON.parse(req.body.existingUrls);
+      } catch (e) {
+        console.log('Error parsing existingUrls:', e);
+      }
     }
 
-    // Eliminar imágenes de opinión antiguas
+    console.log('New images:', newImages.length);
+    console.log('Existing images:', existingImages.length);
+
+    // Eliminar todas las imágenes de opinión actuales
     await db.execute('DELETE FROM homepage_images WHERE tipo = ?', ['opinion']);
 
-    // Guardar nuevas imágenes de opinión
-    let posicion = 1;
-    for (const file of req.files) {
-      const rutaImagen = `/uploads/homepage/${file.filename}`;
+    // Insertar las imágenes existentes
+    for (const img of existingImages) {
+      console.log(`Restoring opinion image at position ${img.posicion}: ${img.ruta}`);
       await db.execute(
         'INSERT INTO homepage_images (tipo, posicion, ruta) VALUES (?, ?, ?)',
-        ['opinion', posicion, rutaImagen]
+        ['opinion', img.posicion, img.ruta]
+      );
+    }
+
+    // Insertar las nuevas imágenes en orden
+    let posicion = 1;
+    for (const img of newImages) {
+      // Buscar la primera posición disponible
+      while (existingImages.some(e => e.posicion === posicion)) {
+        posicion++;
+      }
+      console.log(`Inserting new opinion image at position ${posicion}: ${img.ruta}`);
+      await db.execute(
+        'INSERT INTO homepage_images (tipo, posicion, ruta) VALUES (?, ?, ?)',
+        ['opinion', posicion, img.ruta]
       );
       posicion++;
     }
 
+    console.log('Opinion Success');
     res.json({
       success: true,
       mensaje: 'Imágenes de opinión guardadas correctamente'
