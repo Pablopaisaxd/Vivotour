@@ -114,6 +114,8 @@ const Reserva = () => {
     const [carouselIndex, setCarouselIndex] = useState(0);
     const [addonsState, setAddonsState] = useState({}); // { [key]: boolean }
     const [extraServices, setExtraServices] = useState([]); // Servicios extra desde BD
+    const [reservedAlojamientos, setReservedAlojamientos] = useState({}); // { [planId]: boolean }
+    const [selectedDateRange, setSelectedDateRange] = useState({ start: null, end: null });
 
     // Cargar servicios extra desde la API
     useEffect(() => {
@@ -145,6 +147,70 @@ const Reserva = () => {
 
         loadExtraServices();
     }, []);
+
+    // Función para cargar reservas de un alojamiento en un rango de fechas
+    const loadReservationsForDateRange = async (startDate, endDate) => {
+        if (!startDate || !endDate) {
+            setReservedAlojamientos({});
+            return;
+        }
+
+        try {
+            const token = localStorage.getItem('token');
+            if (!token) {
+                console.warn('No token available for loading reservations');
+                return;
+            }
+
+            // Mapear planes a IDs de alojamientos
+            // Soportar tanto IDs numéricos como string IDs
+            const planToAlojamientoMap = {
+                1: 1, // Plan ID numérico -> Alojamiento ID
+                2: 2,
+                3: 3,
+                4: 4,
+                'ventana-rio': 1,      // Plan ID string -> Alojamiento ID
+                'cabana-fenix': 2,
+                'cabana-aventureros': 3,
+                'dia-de-sol': 4,
+            };
+
+            const reserved = {};
+            
+            // Obtener reservas para cada alojamiento en los planes actuales
+            const reservationPromises = plansToUse.map(async (plan) => {
+                try {
+                    // Determinar el alojamiento ID basado en el plan ID
+                    const alojamientoId = planToAlojamientoMap[plan.id] || planToAlojamientoMap[plan.stringId] || plan.id;
+                    
+                    const response = await fetch(
+                        `${apiConfig.baseUrl}/api/alojamientos/${alojamientoId}/reservas?fechaInicio=${startDate}&fechaFin=${endDate}`,
+                        {
+                            headers: {
+                                'Authorization': `Bearer ${token}`,
+                                'Content-Type': 'application/json'
+                            }
+                        }
+                    );
+
+                    if (response.ok) {
+                        const data = await response.json();
+                        if (data.reservas && data.reservas.length > 0) {
+                            reserved[plan.id] = true;
+                            console.log(`Plan ${plan.id} (Alojamiento ${alojamientoId}) tiene ${data.reservas.length} reserva(s)`);
+                        }
+                    }
+                } catch (err) {
+                    console.error(`Error loading reservations for plan ${plan.id}:`, err);
+                }
+            });
+
+            await Promise.all(reservationPromises);
+            setReservedAlojamientos(reserved);
+        } catch (err) {
+            console.error('Error loading reservations:', err);
+        }
+    };
 
     // Cargar planes con imágenes desde el servidor
     const loadPlansWithImages = async () => {
@@ -294,6 +360,13 @@ const Reserva = () => {
         };
         loadPlans();
     }, []);
+
+    // Cargar reservas cuando cambian las fechas
+    useEffect(() => {
+        if (selectedDateRange.start && selectedDateRange.end) {
+            loadReservationsForDateRange(selectedDateRange.start, selectedDateRange.end);
+        }
+    }, [selectedDateRange]);
 
     // Usar los planes del servidor (que siempre está inicializado)
     const plansToUse = serverPlans;
@@ -648,11 +721,23 @@ Total: $${summaryData.totals?.total || 0}
                                 <div className="reserva-people">
                                     <div className="reserva-group">
                                         <label htmlFor="reservation-date-start">Fecha de entrada</label>
-                                        <input type="date" id="reservation-date-start" name="reservation-date-start" required />
+                                        <input 
+                                            type="date" 
+                                            id="reservation-date-start" 
+                                            name="reservation-date-start" 
+                                            required 
+                                            onChange={(e) => setSelectedDateRange(prev => ({ ...prev, start: e.target.value }))}
+                                        />
                                     </div>
                                     <div className="reserva-group">
                                         <label htmlFor="reservation-date-end">Fecha de salida</label>
-                                        <input type="date" id="reservation-date-end" name="reservation-date-end" required />
+                                        <input 
+                                            type="date" 
+                                            id="reservation-date-end" 
+                                            name="reservation-date-end" 
+                                            required 
+                                            onChange={(e) => setSelectedDateRange(prev => ({ ...prev, end: e.target.value }))}
+                                        />
                                     </div>
                                 </div>
                             </div>
@@ -678,7 +763,7 @@ Total: $${summaryData.totals?.total || 0}
                             <h3 className="reserva-title">Elige tu plan</h3>
                             <div className="reserva-options plans-grid">
                                 {plansToUse.map((p) => (
-                                    <div key={p.id} className={`reserva-card ${selectedPlan?.id === p.id ? 'selected' : ''}`}>
+                                    <div key={p.id} className={`reserva-card ${selectedPlan?.id === p.id ? 'selected' : ''} ${reservedAlojamientos[p.id] ? 'reserved' : ''}`}>
                                         <img src={getCoverImage(p)} alt={p.title} />
                                         <h4>{p.title}</h4>
                                         <p>
@@ -686,8 +771,8 @@ Total: $${summaryData.totals?.total || 0}
                                         </p>
                                         <p>Capacidad: {p.capacity.min} - {p.capacity.max} personas</p>
                                         <div className="plan-actions">
-                                            <button type="button" className="btn-secondary" onClick={() => { setModalPlan(p); setPlanModalOpen(true); setCarouselIndex(0); }}>Ver detalles</button>
-                                            <button type="button" className="btn-primary" onClick={() => setSelectedPlan(p)}>Seleccionar</button>
+                                            <button type="button" className="btn-secondary" onClick={() => { setModalPlan(p); setPlanModalOpen(true); setCarouselIndex(0); }} disabled={reservedAlojamientos[p.id]}>Ver detalles</button>
+                                            <button type="button" className="btn-primary" onClick={() => setSelectedPlan(p)} disabled={reservedAlojamientos[p.id]}>Seleccionar</button>
                                         </div>
                                     </div>
                                 ))}

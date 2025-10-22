@@ -1251,6 +1251,61 @@ app.get('/alojamientos', async (req, res) => {
   }
 });
 
+// Obtener reservas de un alojamiento en un rango de fechas
+app.get('/api/alojamientos/:idAlojamiento/reservas', autenticarToken, async (req, res) => {
+  try {
+    const { idAlojamiento } = req.params;
+    const { fechaInicio, fechaFin } = req.query;
+
+    // Validar que las fechas sean proporcionadas
+    if (!fechaInicio || !fechaFin) {
+      return res.status(400).json({ 
+        success: false, 
+        mensaje: 'fechaInicio y fechaFin son requeridos' 
+      });
+    }
+
+    // Validar que el alojamiento existe
+    const [alojamientoRows] = await db.query(
+      "SELECT IdAlojamiento FROM alojamientos WHERE IdAlojamiento = ?", 
+      [idAlojamiento]
+    );
+    
+    if (alojamientoRows.length === 0) {
+      return res.status(404).json({ success: false, mensaje: 'Alojamiento no encontrado' });
+    }
+
+    // Obtener reservas que se solapan con el rango de fechas
+    // Una reserva se solapa si: FechaIngreso < fechaFin AND FechaSalida > fechaInicio
+    const [reservas] = await db.query(`
+      SELECT 
+        IdReserva,
+        IdAlojamiento,
+        FechaIngreso,
+        FechaSalida,
+        CantidadAdultos,
+        CantidadNinos
+      FROM reservas 
+      WHERE IdAlojamiento = ? 
+        AND FechaIngreso < ? 
+        AND FechaSalida > ?
+      ORDER BY FechaIngreso ASC
+    `, [idAlojamiento, fechaFin, fechaInicio]);
+
+    res.json({ 
+      success: true, 
+      reservas: reservas || [] 
+    });
+
+  } catch (error) {
+    console.error('Error obteniendo reservas del alojamiento:', error);
+    res.status(500).json({ 
+      success: false, 
+      mensaje: 'Error del servidor' 
+    });
+  }
+});
+
 // Crear nuevo alojamiento (solo Admin y Empleados)
 app.post('/alojamientos', requireAuth, async (req, res) => {
   try {
