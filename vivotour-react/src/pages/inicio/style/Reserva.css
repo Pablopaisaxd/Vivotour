@@ -236,6 +236,49 @@
   pointer-events:none;
 }
 
+.reserva-card.unavailable{
+  border-color:#ff9800;
+  background:#ffe0b2;
+  box-shadow:0 2px 8px rgba(255,152,0,0.2);
+  cursor:not-allowed;
+  opacity:0.8;
+  position:relative;
+}
+
+.reserva-card.unavailable::after{
+  content:attr(data-razon);
+  position:absolute;
+  top:50%;
+  left:50%;
+  transform:translate(-50%, -50%) rotate(-15deg);
+  background:rgba(255,152,0,0.9);
+  color:#fff;
+  padding:8px 12px;
+  border-radius:4px;
+  font-weight:bold;
+  font-size:0.8rem;
+  letter-spacing:0.5px;
+  white-space:pre-wrap;
+  word-break:break-word;
+  max-width:120px;
+  box-shadow:0 4px 8px rgba(255,152,0,0.3);
+  line-height:1.2;
+  text-align:center;
+}
+
+.reserva-card.unavailable:hover,
+.reserva-card.unavailable:focus{
+  border-color:#ff9800;
+  box-shadow:0 2px 8px rgba(255,152,0,0.2);
+  transform:none;
+}
+
+.reserva-card.unavailable .plan-actions button{
+  cursor:not-allowed;
+  opacity:0.5;
+  pointer-events:none;
+}
+
 .plan-actions{
   display:flex;
   gap:10px;

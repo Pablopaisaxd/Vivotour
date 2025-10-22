@@ -114,7 +114,7 @@ const Reserva = () => {
     const [carouselIndex, setCarouselIndex] = useState(0);
     const [addonsState, setAddonsState] = useState({}); // { [key]: boolean }
     const [extraServices, setExtraServices] = useState([]); // Servicios extra desde BD
-    const [reservedAlojamientos, setReservedAlojamientos] = useState({}); // { [planId]: boolean }
+    const [reservedAlojamientos, setReservedAlojamientos] = useState({}); // { [planId]: { status, razon } }
     const [selectedDateRange, setSelectedDateRange] = useState({ start: null, end: null });
 
     // Cargar servicios extra desde la API
@@ -148,7 +148,7 @@ const Reserva = () => {
         loadExtraServices();
     }, []);
 
-    // Función para cargar reservas de un alojamiento en un rango de fechas
+    // Función para cargar reservas y no disponibilidad de un alojamiento en un rango de fechas
     const loadReservationsForDateRange = async (startDate, endDate) => {
         if (!startDate || !endDate) {
             setReservedAlojamientos({});
@@ -162,8 +162,7 @@ const Reserva = () => {
                 return;
             }
 
-            // Mapear planes a IDs de alojamientos
-            // Soportar tanto IDs numéricos como string IDs
+            // Mapeo de planes a alojamientos (para compatibilidad con planes locales)
             const planToAlojamientoMap = {
                 1: 1, // Plan ID numérico -> Alojamiento ID
                 2: 2,
@@ -175,15 +174,24 @@ const Reserva = () => {
                 'dia-de-sol': 4,
             };
 
-            const reserved = {};
+            const reserved = {}; // { planId: { status: 'reserved' | 'unavailable', razon: '' } }
             
-            // Obtener reservas para cada alojamiento en los planes actuales
+            // Obtener reservas Y no disponibilidad para cada alojamiento en los planes actuales
+            // Solo procesar planes que tengan alojamiento (planes principales, no extras)
             const reservationPromises = plansToUse.map(async (plan) => {
                 try {
-                    // Determinar el alojamiento ID basado en el plan ID
-                    const alojamientoId = planToAlojamientoMap[plan.id] || planToAlojamientoMap[plan.stringId] || plan.id;
+                    // Intentar usar IdAlojamiento del servidor primero, luego el mapeo
+                    let alojamientoId = plan.IdAlojamiento || planToAlojamientoMap[plan.id] || planToAlojamientoMap[plan.stringId];
                     
-                    const response = await fetch(
+                    // Si no hay alojamiento asociado, no marcar como reservado
+                    // (esto permite que planes "extra" no se marquen)
+                    if (!alojamientoId) {
+                        console.log(`Plan ${plan.id} (${plan.name}) no tiene alojamiento asociado, omitiendo verificación`);
+                        return;
+                    }
+                    
+                    // 1. Verificar reservas
+                    const reservasResponse = await fetch(
                         `${apiConfig.baseUrl}/api/alojamientos/${alojamientoId}/reservas?fechaInicio=${startDate}&fechaFin=${endDate}`,
                         {
                             headers: {
@@ -193,15 +201,62 @@ const Reserva = () => {
                         }
                     );
 
-                    if (response.ok) {
-                        const data = await response.json();
-                        if (data.reservas && data.reservas.length > 0) {
-                            reserved[plan.id] = true;
-                            console.log(`Plan ${plan.id} (Alojamiento ${alojamientoId}) tiene ${data.reservas.length} reserva(s)`);
+                    if (reservasResponse.ok) {
+                        const reservasData = await reservasResponse.json();
+                        if (reservasData.reservas && reservasData.reservas.length > 0) {
+                            reserved[plan.id] = { status: 'reserved', razon: 'RESERVADO' };
+                            console.log(`Plan ${plan.id} ${plan.name} tiene ${reservasData.reservas.length} reserva(s)`);
                         }
                     }
+
+                    // 2. Verificar no disponibilidad
+                    const unavailResponse = await fetch(
+                        `${apiConfig.baseUrl}/api/plans/${plan.id}/unavailability`,
+                        {
+                            headers: {
+                                'Authorization': `Bearer ${token}`,
+                                'Content-Type': 'application/json'
+                            }
+                        }
+                    );
+
+                    if (unavailResponse.ok) {
+                        const unavailData = await unavailResponse.json();
+                        if (unavailData.unavailablePeriods && unavailData.unavailablePeriods.length > 0) {
+                            console.log(`Verificando plan ${plan.id} (${plan.name}): fechas ${startDate} a ${endDate}`);
+                            console.log(`  Periodos no disponibles recibidos:`, unavailData.unavailablePeriods);
+                            
+                            // Función para comparar fechas en formato YYYY-MM-DD
+                            const dateComparison = (dateStr1, dateStr2) => {
+                                // Retorna: -1 si dateStr1 < dateStr2, 0 si son iguales, 1 si dateStr1 > dateStr2
+                                return dateStr1 < dateStr2 ? -1 : dateStr1 > dateStr2 ? 1 : 0;
+                            };
+                            
+                            for (const period of unavailData.unavailablePeriods) {
+                                console.log(`  Comparando: ${startDate} a ${endDate} vs periodo ${period.fecha_inicio} a ${period.fecha_fin}`);
+                                
+                                // Solapamiento: start <= periodEnd AND end >= periodStart
+                                const startsBeforeOrOn = dateComparison(startDate, period.fecha_fin) <= 0;
+                                const endsOnOrAfter = dateComparison(endDate, period.fecha_inicio) >= 0;
+                                
+                                console.log(`    startsBeforeOrOn: ${startsBeforeOrOn}, endsOnOrAfter: ${endsOnOrAfter}`);
+                                
+                                if (startsBeforeOrOn && endsOnOrAfter) {
+                                    if (!reserved[plan.id] || reserved[plan.id].status !== 'reserved') {
+                                        // Usar la razón de no disponibilidad si existe
+                                        const razon = period.razon || 'NO DISPONIBLE TEMPORALMENTE';
+                                        reserved[plan.id] = { status: 'unavailable', razon };
+                                        console.log(`  ✓ SOLAPAMIENTO DETECTADO: Plan ${plan.id} NO DISPONIBLE - Razón: ${razon}`);
+                                    }
+                                    break;
+                                }
+                            }
+                        }
+                    } else {
+                        console.warn(`Error fetching unavailability for plan ${plan.id}:`, unavailResponse.status);
+                    }
                 } catch (err) {
-                    console.error(`Error loading reservations for plan ${plan.id}:`, err);
+                    console.error(`Error loading data for plan ${plan.id}:`, err);
                 }
             });
 
@@ -763,7 +818,7 @@ Total: $${summaryData.totals?.total || 0}
                             <h3 className="reserva-title">Elige tu plan</h3>
                             <div className="reserva-options plans-grid">
                                 {plansToUse.map((p) => (
-                                    <div key={p.id} className={`reserva-card ${selectedPlan?.id === p.id ? 'selected' : ''} ${reservedAlojamientos[p.id] ? 'reserved' : ''}`}>
+                                    <div key={p.id} className={`reserva-card ${selectedPlan?.id === p.id ? 'selected' : ''} ${reservedAlojamientos[p.id]?.status === 'reserved' ? 'reserved' : ''} ${reservedAlojamientos[p.id]?.status === 'unavailable' ? 'unavailable' : ''}`} data-razon={reservedAlojamientos[p.id]?.razon || ''}>
                                         <img src={getCoverImage(p)} alt={p.title} />
                                         <h4>{p.title}</h4>
                                         <p>
@@ -771,8 +826,8 @@ Total: $${summaryData.totals?.total || 0}
                                         </p>
                                         <p>Capacidad: {p.capacity.min} - {p.capacity.max} personas</p>
                                         <div className="plan-actions">
-                                            <button type="button" className="btn-secondary" onClick={() => { setModalPlan(p); setPlanModalOpen(true); setCarouselIndex(0); }} disabled={reservedAlojamientos[p.id]}>Ver detalles</button>
-                                            <button type="button" className="btn-primary" onClick={() => setSelectedPlan(p)} disabled={reservedAlojamientos[p.id]}>Seleccionar</button>
+                                            <button type="button" className="btn-secondary" onClick={() => { setModalPlan(p); setPlanModalOpen(true); setCarouselIndex(0); }} disabled={!!reservedAlojamientos[p.id]}>Ver detalles</button>
+                                            <button type="button" className="btn-primary" onClick={() => setSelectedPlan(p)} disabled={!!reservedAlojamientos[p.id]}>Seleccionar</button>
                                         </div>
                                     </div>
                                 ))}

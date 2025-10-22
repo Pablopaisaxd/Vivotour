@@ -1,69 +1,153 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import apiConfig from '../../../config/apiConfig';
 
 const AvailabilityManagement = () => {
-    const [selectedDates, setSelectedDates] = useState([]);
-    const [newDate, setNewDate] = useState('');
-    const [accommodationAvailability, setAccommodationAvailability] = useState({
-        cabin: true,
-        camping: true
+    const [plans, setPlans] = useState([]);
+    const [extraServices, setExtraServices] = useState([]);
+    const [planUnavailability, setPlanUnavailability] = useState({}); // { planId: [{ id, fecha_inicio, fecha_fin, razon }] }
+    const [newUnavailability, setNewUnavailability] = useState({
+        planId: '',
+        fecha_inicio: '',
+        fecha_fin: '',
+        razon: ''
     });
-    const [activitiesAvailability, setActivitiesAvailability] = useState({
-        'Caminata a la cascada': true,
-        'Caminata Puente Amarillo': true,
-        'Avistamiento de aves': true,
-        'Zona de motocross': true,
-        'Día de sol': true,
-        'Charco': true,
-        'Cabalgatas': true
-    });
-    const [mealsAvailability, setMealsAvailability] = useState({
-        'Desayuno': true,
-        'Almuerzo': true,
-        'Cena': true
-    });
+    const [loading, setLoading] = useState(true);
+    const [message, setMessage] = useState('');
+    const [messageType, setMessageType] = useState('success');
+    const [hoveredButton, setHoveredButton] = useState(null);
 
-    const ACTIVITIES = [
-        { name: 'Caminata a la cascada', tooltip: 'Disfruta de una hermosa caminata junto a la cascada.' },
-        { name: 'Caminata Puente Amarillo', tooltip: 'Explora el Puente Amarillo con vistas espectaculares.' },
-        { name: 'Avistamiento de aves', tooltip: 'Observa aves exóticas en su hábitat natural.' },
-        { name: 'Zona de motocross', tooltip: 'Zona para los amantes del motocross y la aventura.' },
-        { name: 'Día de sol', tooltip: 'Relájate y disfruta del sol en áreas designadas.' },
-        { name: 'Charco', tooltip: 'Zona natural para refrescarse y divertirse.' },
-        { name: 'Cabalgatas', tooltip: 'Paseos a caballo por senderos naturales.' }
-    ];
+    // Cargar planes y servicios extra al montar
+    useEffect(() => {
+        loadPlansAndServices();
+    }, []);
 
-    const MEALS = ['Desayuno', 'Almuerzo', 'Cena'];
+    const loadPlansAndServices = async () => {
+        try {
+            setLoading(true);
+            const token = localStorage.getItem('token');
 
-    const addDate = () => {
-        if (newDate && !selectedDates.includes(newDate)) {
-            setSelectedDates([...selectedDates, newDate]);
-            setNewDate('');
+            // Cargar planes
+            const plansResponse = await fetch(`${apiConfig.baseUrl}/api/plans`, {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            if (plansResponse.ok) {
+                const plansData = await plansResponse.json();
+                setPlans(plansData.plans || []);
+
+                // Cargar no disponibilidad para cada plan
+                const unavailabilityMap = {};
+                for (const plan of (plansData.plans || [])) {
+                    const unavailResponse = await fetch(
+                        `${apiConfig.baseUrl}/api/plans/${plan.id}/unavailability`,
+                        { headers: { 'Authorization': `Bearer ${token}` } }
+                    );
+                    if (unavailResponse.ok) {
+                        const unavailData = await unavailResponse.json();
+                        unavailabilityMap[plan.id] = unavailData.unavailablePeriods || [];
+                    }
+                }
+                setPlanUnavailability(unavailabilityMap);
+            }
+
+            // Cargar servicios extra
+            const servicesResponse = await fetch(`${apiConfig.baseUrl}/api/extra-services`, {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            if (servicesResponse.ok) {
+                const servicesData = await servicesResponse.json();
+                setExtraServices(servicesData.services || []);
+            }
+
+            setLoading(false);
+        } catch (err) {
+            console.error('Error cargando datos:', err);
+            setMessage('Error al cargar planes y servicios');
+            setLoading(false);
         }
     };
 
-    const removeDate = (dateToRemove) => {
-        setSelectedDates(selectedDates.filter(date => date !== dateToRemove));
+    const handleAddUnavailability = async () => {
+        try {
+            if (!newUnavailability.planId || !newUnavailability.fecha_inicio || !newUnavailability.fecha_fin) {
+                setMessage('Por favor completa todos los campos requeridos');
+                return;
+            }
+
+            if (new Date(newUnavailability.fecha_fin) <= new Date(newUnavailability.fecha_inicio)) {
+                setMessage('La fecha fin debe ser posterior a la fecha inicio');
+                return;
+            }
+
+            const token = localStorage.getItem('token');
+            const response = await fetch(
+                `${apiConfig.baseUrl}/api/plans/${newUnavailability.planId}/unavailability`,
+                {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        fecha_inicio: newUnavailability.fecha_inicio,
+                        fecha_fin: newUnavailability.fecha_fin,
+                        razon: newUnavailability.razon
+                    })
+                }
+            );
+
+            if (response.ok) {
+                const data = await response.json();
+                setMessage('No disponibilidad creada exitosamente');
+
+                // Actualizar el estado local
+                setPlanUnavailability(prev => ({
+                    ...prev,
+                    [newUnavailability.planId]: [
+                        ...(prev[newUnavailability.planId] || []),
+                        {
+                            id: data.id,
+                            fecha_inicio: newUnavailability.fecha_inicio,
+                            fecha_fin: newUnavailability.fecha_fin,
+                            razon: newUnavailability.razon
+                        }
+                    ]
+                }));
+
+                setNewUnavailability({ planId: '', fecha_inicio: '', fecha_fin: '', razon: '' });
+            } else {
+                const errorData = await response.json();
+                setMessage(errorData.mensaje || 'Error al crear no disponibilidad');
+            }
+        } catch (err) {
+            console.error('Error:', err);
+            setMessage('Error al crear no disponibilidad');
+        }
     };
 
-    const handleToggleAccommodation = (type) => {
-        setAccommodationAvailability(prev => ({
-            ...prev,
-            [type]: !prev[type]
-        }));
-    };
+    const handleRemoveUnavailability = async (planId, unavailabilityId) => {
+        try {
+            const token = localStorage.getItem('token');
+            const response = await fetch(
+                `${apiConfig.baseUrl}/api/plans/${planId}/unavailability/${unavailabilityId}`,
+                {
+                    method: 'DELETE',
+                    headers: { 'Authorization': `Bearer ${token}` }
+                }
+            );
 
-    const handleToggleActivity = (activityName) => {
-        setActivitiesAvailability(prev => ({
-            ...prev,
-            [activityName]: !prev[activityName]
-        }));
-    };
-
-    const handleToggleMeal = (mealName) => {
-        setMealsAvailability(prev => ({
-            ...prev,
-            [mealName]: !prev[mealName]
-        }));
+            if (response.ok) {
+                setMessage('Periodo eliminado exitosamente');
+                setPlanUnavailability(prev => ({
+                    ...prev,
+                    [planId]: prev[planId].filter(u => u.id !== unavailabilityId)
+                }));
+            } else {
+                setMessage('Error al eliminar periodo');
+            }
+        } catch (err) {
+            console.error('Error:', err);
+            setMessage('Error al eliminar periodo');
+        }
     };
 
     const styles = {
@@ -95,17 +179,18 @@ const AvailabilityManagement = () => {
             marginBottom: '10px',
             fontWeight: '500',
         },
-        dateInputContainer: {
-            display: 'flex',
-            alignItems: 'center',
+        inputContainer: {
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
             gap: '10px',
             marginBottom: '10px',
         },
-        dateInput: {
+        input: {
             padding: '8px',
             border: '1px solid var(--border-color-light)',
             borderRadius: '5px',
             color: 'var(--rich-black)',
+            fontSize: '0.9rem',
         },
         addButton: {
             backgroundColor: 'var(--forest-green)',
@@ -114,172 +199,189 @@ const AvailabilityManagement = () => {
             borderRadius: '5px',
             border: 'none',
             cursor: 'pointer',
+            fontWeight: '600',
+            gridColumn: '1 / -1',
         },
-        selectedDatesList: {
+        unavailabilityList: {
             display: 'flex',
-            flexWrap: 'wrap',
-            gap: '5px',
+            flexDirection: 'column',
+            gap: '8px',
             marginTop: '10px',
         },
-        selectedDateItem: {
-            backgroundColor: 'var(--error-main)',
-            color: 'white',
-            padding: '5px 10px',
-            borderRadius: '15px',
-            fontSize: '0.9rem',
+        unavailabilityItem: {
             display: 'flex',
+            justifyContent: 'space-between',
             alignItems: 'center',
-            gap: '5px',
+            padding: '12px 15px',
+            backgroundColor: '#fff3cd',
+            borderRadius: '8px',
+            border: '1px solid #ffc107',
+            boxShadow: '0 2px 4px rgba(255, 193, 7, 0.1)',
+        },
+        unavailabilityText: {
+            color: 'var(--rich-black)',
+            fontSize: '0.95rem',
+            flex: 1,
         },
         removeButton: {
-            backgroundColor: 'transparent',
+            backgroundColor: '#dc3545',
             color: 'white',
             border: 'none',
+            padding: '8px 16px',
+            borderRadius: '5px',
             cursor: 'pointer',
-            fontSize: '1.2rem',
-        },
-        availabilityGrid: {
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
-            gap: '15px',
-        },
-        availabilityItem: {
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            padding: '10px',
-            border: '1px solid var(--border-color-light)',
-            borderRadius: '8px',
-            backgroundColor: 'var(--alice-blue)',
-            color: 'var(--rich-black)',
-        },
-        toggleButton: {
+            fontSize: '0.9rem',
+            fontWeight: '600',
             marginLeft: '10px',
-            padding: '5px 10px',
+            transition: 'all 0.3s ease',
+        },
+        message: {
+            padding: '10px',
             borderRadius: '5px',
-            border: 'none',
-            cursor: 'pointer',
-            fontWeight: 'bold',
+            marginBottom: '10px',
+            display: message ? 'block' : 'none',
         },
-        availableButton: {
-            backgroundColor: 'var(--forest-green)',
-            color: 'white',
+        successMessage: {
+            backgroundColor: '#d4edda',
+            color: '#155724',
+            border: '1px solid #c3e6cb',
         },
-        unavailableButton: {
-            backgroundColor: 'var(--error-main)',
-            color: 'white',
+        errorMessage: {
+            backgroundColor: '#f8d7da',
+            color: '#721c24',
+            border: '1px solid #f5c6cb',
         },
-        saveButton: {
-            backgroundColor: 'var(--forest-green)',
-            color: 'white',
-            padding: '10px 15px',
-            borderRadius: '5px',
-            border: 'none',
-            cursor: 'pointer',
-            marginTop: '10px',
-            alignSelf: 'flex-end',
-        },
+        loadingText: {
+            textAlign: 'center',
+            color: 'var(--rich-black)',
+            padding: '20px',
+        }
     };
+
+    if (loading) {
+        return <div style={styles.loadingText}>Cargando planes y servicios...</div>;
+    }
 
     return (
         <div style={styles.container}>
-            <h2 style={styles.title}>Modificar Disponibilidad</h2>
+            <h2 style={styles.title}>Gestión de No Disponibilidad</h2>
+
+            {message && (
+                <div style={{
+                    ...styles.message,
+                    ...(message.includes('Error') || message.includes('Por favor') ? styles.errorMessage : styles.successMessage)
+                }}>
+                    {message}
+                </div>
+            )}
 
             <div style={styles.section}>
-                <h3 style={styles.subtitle}>Fechas</h3>
-                <div style={styles.dateInputContainer}>
+                <h3 style={styles.subtitle}>Marcar Plan como No Disponible</h3>
+                <div style={styles.inputContainer}>
+                    <select
+                        value={newUnavailability.planId}
+                        onChange={(e) => setNewUnavailability({ ...newUnavailability, planId: e.target.value })}
+                        style={styles.input}
+                    >
+                        <option value="">-- Selecciona un Plan --</option>
+                        {plans.map(plan => (
+                            <option key={plan.id} value={plan.id}>
+                                {plan.name}
+                            </option>
+                        ))}
+                    </select>
                     <input
                         type="date"
-                        value={newDate}
-                        onChange={(e) => setNewDate(e.target.value)}
-                        style={styles.dateInput}
+                        value={newUnavailability.fecha_inicio}
+                        onChange={(e) => setNewUnavailability({ ...newUnavailability, fecha_inicio: e.target.value })}
+                        style={styles.input}
+                        placeholder="Fecha inicio"
                     />
-                    <button onClick={addDate} style={styles.addButton}>Agregar Fecha</button>
+                    <input
+                        type="date"
+                        value={newUnavailability.fecha_fin}
+                        onChange={(e) => setNewUnavailability({ ...newUnavailability, fecha_fin: e.target.value })}
+                        style={styles.input}
+                        placeholder="Fecha fin"
+                    />
+                    <input
+                        type="text"
+                        value={newUnavailability.razon}
+                        onChange={(e) => setNewUnavailability({ ...newUnavailability, razon: e.target.value })}
+                        style={styles.input}
+                        placeholder="Razón (opcional)"
+                    />
+                    <button onClick={handleAddUnavailability} style={styles.addButton}>
+                        Agregar No Disponibilidad
+                    </button>
                 </div>
-                <div style={styles.selectedDatesList}>
-                    {selectedDates.map(date => (
-                        <div key={date} style={styles.selectedDateItem}>
-                            {new Date(date).toLocaleDateString()}
-                            <button onClick={() => removeDate(date)} style={styles.removeButton}>×</button>
+            </div>
+
+            {plans.length > 0 && (
+                <div style={styles.section}>
+                    <h3 style={styles.subtitle}>Planes Disponibles</h3>
+                    {plans.map(plan => (
+                        <div key={plan.id} style={{ marginBottom: '15px', paddingBottom: '15px', borderBottom: '1px solid var(--border-color-light)' }}>
+                            <h4 style={{ color: 'var(--rich-black)', marginBottom: '10px' }}>
+                                {plan.name} {plan.IdAlojamiento && `(Alojamiento: ${plan.IdAlojamiento})`}
+                            </h4>
+                            {planUnavailability[plan.id] && planUnavailability[plan.id].length > 0 ? (
+                                <div style={styles.unavailabilityList}>
+                                    {planUnavailability[plan.id].map(period => (
+                                        <div key={period.id} style={styles.unavailabilityItem}>
+                                            <div style={styles.unavailabilityText}>
+                                                <strong>{new Date(period.fecha_inicio).toLocaleDateString()}</strong> a <strong>{new Date(period.fecha_fin).toLocaleDateString()}</strong>
+                                                {period.razon && ` - ${period.razon}`}
+                                            </div>
+                                            <button
+                                                onClick={() => handleRemoveUnavailability(plan.id, period.id)}
+                                                onMouseEnter={() => setHoveredButton(`${plan.id}-${period.id}`)}
+                                                onMouseLeave={() => setHoveredButton(null)}
+                                                style={{
+                                                    ...styles.removeButton,
+                                                    backgroundColor: hoveredButton === `${plan.id}-${period.id}` ? '#bb2d3b' : '#dc3545',
+                                                    transform: hoveredButton === `${plan.id}-${period.id}` ? 'scale(1.05)' : 'scale(1)',
+                                                }}
+                                            >
+                                                🗑️ Eliminar
+                                            </button>
+                                        </div>
+                                    ))}
+                                </div>
+                            ) : (
+                                <p style={{ color: '#999', fontSize: '0.9rem' }}>Sin periodos de no disponibilidad</p>
+                            )}
                         </div>
                     ))}
                 </div>
-                <p style={{ color: 'var(--rich-black)', textAlign: 'center', marginTop: '10px' }}>
-                    Fechas seleccionadas para deshabilitar: {selectedDates.map(d => new Date(d).toLocaleDateString()).join(', ')}
-                </p>
-            </div>
+            )}
 
-            <div style={styles.section}>
-                <h3 style={styles.subtitle}>Alojamiento</h3>
-                <div style={styles.availabilityGrid}>
-                    <div style={styles.availabilityItem}>
-                        Cabañas
-                        <button
-                            style={{
-                                ...styles.toggleButton,
-                                ...(accommodationAvailability.cabin ? styles.availableButton : styles.unavailableButton)
-                            }}
-                            onClick={() => handleToggleAccommodation('cabin')}
-                        >
-                            {accommodationAvailability.cabin ? '✔ Disponible' : '✖ No Disponible'}
-                        </button>
+            {extraServices.length > 0 && (
+                <div style={styles.section}>
+                    <h3 style={styles.subtitle}>Servicios Extra (No tienen disponibilidad configurable)</h3>
+                    <p style={{ color: '#666', fontSize: '0.9rem', marginBottom: '10px' }}>
+                        Los servicios extra no requieren gestión de disponibilidad.
+                    </p>
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '10px' }}>
+                        {extraServices.map(service => (
+                            <div key={service.id} style={{
+                                padding: '10px',
+                                backgroundColor: '#f9f9f9',
+                                border: '1px solid var(--border-color-light)',
+                                borderRadius: '5px'
+                            }}>
+                                <strong>{service.name}</strong>
+                                <p style={{ fontSize: '0.85rem', color: '#666', margin: '5px 0' }}>
+                                    {service.category} - ${service.price}
+                                </p>
+                                {service.description && (
+                                    <p style={{ fontSize: '0.8rem', color: '#999' }}>{service.description}</p>
+                                )}
+                            </div>
+                        ))}
                     </div>
-                    <div style={styles.availabilityItem}>
-                        Zona de Camping
-                        <button
-                            style={{
-                                ...styles.toggleButton,
-                                ...(accommodationAvailability.camping ? styles.availableButton : styles.unavailableButton)
-                            }}
-                            onClick={() => handleToggleAccommodation('camping')}
-                        >
-                            {accommodationAvailability.camping ? '✔ Disponible' : '✖ No Disponible'}
-                        </button>
-                    </div>
                 </div>
-            </div>
-
-            <div style={styles.section}>
-                <h3 style={styles.subtitle}>Actividades y Servicios</h3>
-                <div style={styles.availabilityGrid}>
-                    {ACTIVITIES.map(activity => (
-                        <div key={activity.name} style={styles.availabilityItem}>
-                            {activity.name}
-                            <button
-                                style={{
-                                    ...styles.toggleButton,
-                                    ...(activitiesAvailability[activity.name] ? styles.availableButton : styles.unavailableButton)
-                                }}
-                                onClick={() => handleToggleActivity(activity.name)}
-                            >
-                                {activitiesAvailability[activity.name] ? '✔ Disponible' : '✖ No Disponible'}
-                            </button>
-                        </div>
-                    ))}
-                </div>
-            </div>
-
-            <div style={styles.section}>
-                <h3 style={styles.subtitle}>Opciones de Comida</h3>
-                <div style={styles.availabilityGrid}>
-                    {MEALS.map(meal => (
-                        <div key={meal} style={styles.availabilityItem}>
-                            {meal}
-                            <button
-                                style={{
-                                    ...styles.toggleButton,
-                                    ...(mealsAvailability[meal] ? styles.availableButton : styles.unavailableButton)
-                                }}
-                                onClick={() => handleToggleMeal(meal)}
-                            >
-                                {mealsAvailability[meal] ? '✔ Disponible' : '✖ No Disponible'}
-                            </button>
-                        </div>
-                    ))}
-                </div>
-            </div>
-
-            <button style={styles.saveButton}>Guardar Cambios</button>
+            )}
         </div>
     );
 };

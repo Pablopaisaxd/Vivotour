@@ -594,6 +594,34 @@ app.get('/auth/google/config-check', (req, res) => {
   } catch (e) {
     // Column may already exist, silently continue
   }
+
+  // Asegurar columna IdAlojamiento en plans
+  try {
+    const [alojamientoCols] = await db.query("SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME='plans' AND COLUMN_NAME='IdAlojamiento'");
+    if (!alojamientoCols || alojamientoCols.length === 0) {
+      await db.query("ALTER TABLE plans ADD COLUMN IdAlojamiento INT NULL");
+    }
+  } catch (e) {
+    // Column may already exist, silently continue
+  }
+
+  // Crear tabla de disponibilidad de planes (no disponibilidad temporal)
+  try {
+    await db.query(`
+      CREATE TABLE IF NOT EXISTS plan_unavailability (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        plan_id INT NOT NULL,
+        fecha_inicio DATE NOT NULL,
+        fecha_fin DATE NOT NULL,
+        razon VARCHAR(255),
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (plan_id) REFERENCES plans(id) ON DELETE CASCADE,
+        INDEX (plan_id, fecha_inicio, fecha_fin)
+      ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+    `);
+  } catch (e) {
+    console.error('Error creando tabla plan_unavailability:', e);
+  }
 })();
 
 async function sendResetMail(toEmail, resetLink) {
@@ -3497,6 +3525,86 @@ app.delete('/api/plans/:planId/images/:filename', requireAuth, async (req, res) 
     res.json({ success: true, mensaje: 'Imagen eliminada exitosamente' });
   } catch (error) {
     console.error('Error eliminando imagen:', error);
+    res.status(500).json({ success: false, mensaje: 'Error del servidor: ' + error.message });
+  }
+});
+
+// ==================== NO DISPONIBILIDAD DE PLANES ====================
+
+// GET /api/plans/:planId/unavailability - Obtener periodos de no disponibilidad
+app.get('/api/plans/:planId/unavailability', requireAuth, async (req, res) => {
+  try {
+    const { planId } = req.params;
+    
+    const [unavailablePeriods] = await db.execute(
+      'SELECT * FROM plan_unavailability WHERE plan_id = ? ORDER BY fecha_inicio ASC',
+      [planId]
+    );
+    
+    res.json({ success: true, unavailablePeriods });
+  } catch (error) {
+    console.error('Error obteniendo no disponibilidad:', error);
+    res.status(500).json({ success: false, mensaje: 'Error del servidor: ' + error.message });
+  }
+});
+
+// POST /api/plans/:planId/unavailability - Crear periodo de no disponibilidad
+app.post('/api/plans/:planId/unavailability', requireAuth, async (req, res) => {
+  try {
+    if (req.user.IdRol !== 1) {
+      return res.status(403).json({ success: false, mensaje: 'Acceso denegado. Solo administradores.' });
+    }
+
+    const { planId } = req.params;
+    const { fecha_inicio, fecha_fin, razon } = req.body;
+
+    if (!fecha_inicio || !fecha_fin) {
+      return res.status(400).json({ success: false, mensaje: 'Fechas de inicio y fin son requeridas' });
+    }
+
+    // Validar que el plan existe
+    const [plans] = await db.execute('SELECT id FROM plans WHERE id = ?', [planId]);
+    if (plans.length === 0) {
+      return res.status(404).json({ success: false, mensaje: 'Plan no encontrado' });
+    }
+
+    const [result] = await db.execute(
+      'INSERT INTO plan_unavailability (plan_id, fecha_inicio, fecha_fin, razon) VALUES (?, ?, ?, ?)',
+      [planId, fecha_inicio, fecha_fin, razon || null]
+    );
+
+    res.json({
+      success: true,
+      mensaje: 'Periodo de no disponibilidad creado',
+      id: result.insertId
+    });
+  } catch (error) {
+    console.error('Error creando no disponibilidad:', error);
+    res.status(500).json({ success: false, mensaje: 'Error del servidor: ' + error.message });
+  }
+});
+
+// DELETE /api/plans/:planId/unavailability/:unavailabilityId - Eliminar periodo de no disponibilidad
+app.delete('/api/plans/:planId/unavailability/:unavailabilityId', requireAuth, async (req, res) => {
+  try {
+    if (req.user.IdRol !== 1) {
+      return res.status(403).json({ success: false, mensaje: 'Acceso denegado. Solo administradores.' });
+    }
+
+    const { unavailabilityId } = req.params;
+
+    const [result] = await db.execute(
+      'DELETE FROM plan_unavailability WHERE id = ?',
+      [unavailabilityId]
+    );
+
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ success: false, mensaje: 'Periodo no encontrado' });
+    }
+
+    res.json({ success: true, mensaje: 'Periodo eliminado' });
+  } catch (error) {
+    console.error('Error eliminando no disponibilidad:', error);
     res.status(500).json({ success: false, mensaje: 'Error del servidor: ' + error.message });
   }
 });
