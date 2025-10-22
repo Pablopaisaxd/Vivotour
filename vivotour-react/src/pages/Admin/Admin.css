@@ -1,50 +1,57 @@
+/* Layout principal del dashboard administrativo */
 .App {
   text-align: center;
-  min-height: 100vh; /* Permite crecer y scrollear */
+  min-height: 100vh;
   width: 100%;
   display: grid;
-  grid-template: 60px 20px auto / 270px 15px 12fr 15px;
-  background: var(--dashboard-background); /* Aplicar el degradado */
-  border: none; /* Eliminar borde principal */
-  overflow-x: hidden; /* Sólo ocultar scroll horizontal si se desborda */
+  /* División del grid: header | espacio | contenido principal */
+  grid-template: 60px 20px 1fr / 270px 15px 12fr 15px;
+  background: var(--dashboard-background);
+  border: none;
+  overflow: hidden;
+  position: relative;
 }
 
-.header{
+/* Header principal con navegación y controles */
+.header {
   grid-row: 1;
   grid-column: 1/-1;
   display: grid;
-  grid-template-columns: 269px 1fr ;
+  grid-template-columns: 269px 1fr;
   border-bottom: 1px solid var(--border-color-light);
-  background-color: var(--card-background); /* Fondo para el header */
+  background-color: var(--card-background);
   box-shadow: 0 2px 5px var(--shadow-light);
-  z-index: 1000; /* Below sidebar but above content */
+  z-index: 1000;
   position: relative;
-  min-width: 0; /* evita colisiones de flex internos */
+  min-width: 0;
 }
 
-.sidebar{
+/* Barra lateral con navegación y perfil */
+.sidebar {
   grid-row: 2/-1;
   grid-column: 1/2;
   border-bottom: 1px solid var(--border-color-light);
   border-right: 1px solid var(--border-color-light);
   display: grid;
-  grid-template-rows: 205px 1fr; /* Ajustado para que el menú ocupe el espacio restante */
-  background-color: var(--card-background); /* Fondo para el sidebar */
+  grid-template-rows: 205px 1fr;
+  background-color: var(--card-background);
   box-shadow: 2px 0 5px var(--shadow-light);
 }
 
-.content{
+/* Área principal de contenido con scroll independiente */
+.content {
   grid-row: 3/-1;
   grid-column: 3/4;
   display: grid;
-  grid-template: 330px 220px 280px / repeat(2, 1fr);
+  grid-template: auto auto auto / repeat(2, 1fr);
   grid-gap: 1em;
   padding: 1em;
   background-color: var(--main-background);
   border-radius: 8px 8px 0 0;
   width: 100%;
   max-width: 100%;
-  overflow-x: auto;
+  overflow-y: auto;
+  height: calc(100vh - 80px);
 }
 
 .header-second{
@@ -66,25 +73,27 @@
   border-bottom: 1px solid var(--border-color-light);
 }
 
-.online{
+/* Indicador de estado en línea */
+.online {
   display: inline-block;
   width: 10px;
   height: 10px;
   border-radius: 50%;
-  background-color: var(--forest-green); /* Color de online */
+  background-color: var(--forest-green);
   margin-left: 5px;
 }
 
-.picture{
+/* Imagen de perfil circular con sombra y borde */
+.picture {
   height: 90px;
   width: 90px;
   border-radius: 50%;
-  object-fit: cover; /* Cambiado a cover para mejor visualización */
+  object-fit: cover;
   filter: drop-shadow(0 0 0.45rem var(--shadow-light));
-  border: 2px solid var(--golden-yellow); /* Borde para la imagen de perfil */
+  border: 2px solid var(--golden-yellow);
 }
 
-/* Estilos para las tarjetas de contenido */
+/* Tarjetas de métricas y contenido con hover effect */
 .daily-visitors,
 .total-visits,
 .most-visited,
@@ -92,8 +101,8 @@
   border: 1px solid var(--border-color-light);
   background-color: var(--card-background);
   box-shadow: 0 5px 15px var(--shadow-light);
-  border-radius: 8px; /* Bordes redondeados para las tarjetas */
-  padding: 15px; /* Padding general para las tarjetas */
+  border-radius: 8px;
+  padding: 15px;
   transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 

@@ -94,6 +94,8 @@ const CommentsManagement = () => {
             borderRadius: '8px',
             boxShadow: '0 5px 15px var(--shadow-light)',
             gridColumn: '1 / -1',
+            width: '100%', 
+            height: '100vh',
             display: 'flex',
             flexDirection: 'column',
             gap: '20px',
