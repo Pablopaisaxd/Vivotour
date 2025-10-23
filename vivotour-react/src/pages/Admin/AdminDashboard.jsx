@@ -12,10 +12,12 @@ function AdminDashboard() {
   return (
     <AdminProvider>
       <ThemeProvider theme={Theme}>
-        <div className="App">
-          <Header />
-          <Sidebar />
-          <Content />
+        <div className="admin-page-container">
+          <div className="admin-dashboard">
+            <Header />
+            <Sidebar />
+            <Content />
+          </div>
         </div>
       </ThemeProvider>
     </AdminProvider>

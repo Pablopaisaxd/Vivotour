@@ -8,8 +8,8 @@ import { AdminContext } from '../AdminContext';
 function Header() {
     const { sidebarOpen, toggleSidebar } = useContext(AdminContext);
     return (
-        <div className="header">
-            <div className="header-left">
+        <div className="admin-header">
+            <div className="admin-header-left">
                 <button
                     className="sidebar-toggle"
                     aria-label={sidebarOpen ? 'Cerrar menú' : 'Abrir menú'}

@@ -56,7 +56,7 @@ function Content() {
     };
 
     return (
-        <div className="content">
+        <div className="admin-content">
             {renderContent()}
         </div>
     );
