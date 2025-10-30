@@ -4,7 +4,7 @@ import apiConfig from '../../../config/apiConfig';
 const AvailabilityManagement = () => {
     const [plans, setPlans] = useState([]);
     const [extraServices, setExtraServices] = useState([]);
-    const [planUnavailability, setPlanUnavailability] = useState({}); // { planId: [{ id, fecha_inicio, fecha_fin, razon }] }
+    const [planUnavailability, setPlanUnavailability] = useState({});
     const [newUnavailability, setNewUnavailability] = useState({
         planId: '',
         fecha_inicio: '',
@@ -16,7 +16,6 @@ const AvailabilityManagement = () => {
     const [messageType, setMessageType] = useState('success');
     const [hoveredButton, setHoveredButton] = useState(null);
 
-    // Cargar planes y servicios extra al montar
     useEffect(() => {
         loadPlansAndServices();
     }, []);
@@ -26,7 +25,6 @@ const AvailabilityManagement = () => {
             setLoading(true);
             const token = localStorage.getItem('token');
 
-            // Cargar planes
             const plansResponse = await fetch(`${apiConfig.baseUrl}/api/plans`, {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
@@ -34,7 +32,6 @@ const AvailabilityManagement = () => {
                 const plansData = await plansResponse.json();
                 setPlans(plansData.plans || []);
 
-                // Cargar no disponibilidad para cada plan
                 const unavailabilityMap = {};
                 for (const plan of (plansData.plans || [])) {
                     const unavailResponse = await fetch(
@@ -49,7 +46,6 @@ const AvailabilityManagement = () => {
                 setPlanUnavailability(unavailabilityMap);
             }
 
-            // Cargar servicios extra
             const servicesResponse = await fetch(`${apiConfig.baseUrl}/api/extra-services`, {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
@@ -99,7 +95,6 @@ const AvailabilityManagement = () => {
                 const data = await response.json();
                 setMessage('No disponibilidad creada exitosamente');
 
-                // Actualizar el estado local
                 setPlanUnavailability(prev => ({
                     ...prev,
                     [newUnavailability.planId]: [
@@ -152,109 +147,131 @@ const AvailabilityManagement = () => {
 
     const styles = {
         container: {
-            padding: '20px',
-            backgroundColor: 'var(--card-background)',
-            borderRadius: '8px',
-            boxShadow: '0 5px 15px var(--shadow-light)',
+            padding: '1.5rem',
+            background: 'var(--alice-blue)',
+            borderRadius: '12px',
+            boxShadow: '0 8px 32px var(--shadow-light)',
             gridColumn: '1 / -1',
             display: 'flex',
             flexDirection: 'column',
-            gap: '20px',
+            gap: '1.5rem',
+            border: '1px solid var(--input-border)',
         },
         title: {
-            fontSize: '1.5rem',
+            fontSize: '1.75rem',
             color: 'var(--rich-black)',
-            marginBottom: '15px',
-            fontWeight: '600',
+            marginBottom: '1rem',
+            fontWeight: '700',
+            textAlign: 'center',
+            background: 'linear-gradient(135deg, var(--forest-green), var(--golden-yellow))',
+            WebkitBackgroundClip: 'text',
+            WebkitTextFillColor: 'transparent',
         },
         section: {
-            marginBottom: '20px',
-            border: '1px solid var(--border-color-light)',
-            borderRadius: '8px',
-            padding: '15px',
+            marginBottom: '1.5rem',
+            border: '1px solid var(--input-border)',
+            borderRadius: '12px',
+            padding: '1.25rem',
+            background: 'rgba(255, 255, 255, 0.8)',
+            backdropFilter: 'blur(10px)',
+            transition: 'var(--transition)',
         },
         subtitle: {
-            fontSize: '1.2rem',
+            fontSize: '1.3rem',
             color: 'var(--rich-black)',
-            marginBottom: '10px',
-            fontWeight: '500',
+            marginBottom: '1rem',
+            fontWeight: '600',
+            borderBottom: '2px solid var(--forest-green)',
+            paddingBottom: '0.5rem',
         },
         inputContainer: {
             display: 'grid',
             gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
-            gap: '10px',
-            marginBottom: '10px',
+            gap: '1rem',
+            marginBottom: '1rem',
         },
         input: {
-            padding: '8px',
-            border: '1px solid var(--border-color-light)',
-            borderRadius: '5px',
+            padding: '0.75rem',
+            border: '1px solid var(--input-border)',
+            borderRadius: '8px',
             color: 'var(--rich-black)',
-            fontSize: '0.9rem',
+            fontSize: '0.95rem',
+            background: 'var(--input-bg)',
+            transition: 'var(--transition)',
         },
         addButton: {
-            backgroundColor: 'var(--forest-green)',
+            background: 'linear-gradient(135deg, var(--forest-green), var(--golden-yellow))',
             color: 'white',
-            padding: '8px 12px',
-            borderRadius: '5px',
+            padding: '0.75rem 1.5rem',
+            borderRadius: '25px',
             border: 'none',
             cursor: 'pointer',
-            fontWeight: '600',
+            fontWeight: '700',
             gridColumn: '1 / -1',
+            fontSize: '1rem',
+            boxShadow: '0 4px 15px var(--shadow-strong)',
+            transition: 'var(--transition)',
         },
         unavailabilityList: {
             display: 'flex',
             flexDirection: 'column',
-            gap: '8px',
-            marginTop: '10px',
+            gap: '0.75rem',
+            marginTop: '1rem',
         },
         unavailabilityItem: {
             display: 'flex',
             justifyContent: 'space-between',
             alignItems: 'center',
-            padding: '12px 15px',
-            backgroundColor: '#fff3cd',
-            borderRadius: '8px',
-            border: '1px solid #ffc107',
-            boxShadow: '0 2px 4px rgba(255, 193, 7, 0.1)',
+            padding: '1rem 1.25rem',
+            background: 'linear-gradient(135deg, #fff3cd, #ffeaa7)',
+            borderRadius: '12px',
+            border: '1px solid var(--golden-yellow)',
+            boxShadow: '0 4px 12px rgba(255, 201, 20, 0.2)',
+            transition: 'var(--transition)',
         },
         unavailabilityText: {
             color: 'var(--rich-black)',
-            fontSize: '0.95rem',
+            fontSize: '1rem',
             flex: 1,
+            fontWeight: '500',
         },
         removeButton: {
-            backgroundColor: '#dc3545',
+            background: 'linear-gradient(135deg, #dc3545, #c82333)',
             color: 'white',
             border: 'none',
-            padding: '8px 16px',
-            borderRadius: '5px',
+            padding: '0.5rem 1rem',
+            borderRadius: '20px',
             cursor: 'pointer',
             fontSize: '0.9rem',
             fontWeight: '600',
-            marginLeft: '10px',
-            transition: 'all 0.3s ease',
+            marginLeft: '1rem',
+            transition: 'var(--transition)',
+            boxShadow: '0 2px 8px rgba(220, 53, 69, 0.3)',
         },
         message: {
-            padding: '10px',
-            borderRadius: '5px',
-            marginBottom: '10px',
+            padding: '1rem',
+            borderRadius: '8px',
+            marginBottom: '1rem',
             display: message ? 'block' : 'none',
+            fontWeight: '500',
+            textAlign: 'center',
         },
         successMessage: {
-            backgroundColor: '#d4edda',
+            background: 'linear-gradient(135deg, #d4edda, #c3e6cb)',
             color: '#155724',
-            border: '1px solid #c3e6cb',
+            border: '1px solid var(--forest-green)',
         },
         errorMessage: {
-            backgroundColor: '#f8d7da',
+            background: 'linear-gradient(135deg, #f8d7da, #f5c6cb)',
             color: '#721c24',
-            border: '1px solid #f5c6cb',
+            border: '1px solid #dc3545',
         },
         loadingText: {
             textAlign: 'center',
             color: 'var(--rich-black)',
-            padding: '20px',
+            padding: '2rem',
+            fontSize: '1.1rem',
+            fontWeight: '500',
         }
     };
 
@@ -311,7 +328,18 @@ const AvailabilityManagement = () => {
                         style={styles.input}
                         placeholder="Razón (opcional)"
                     />
-                    <button onClick={handleAddUnavailability} style={styles.addButton}>
+                    <button 
+                        onClick={handleAddUnavailability} 
+                        style={styles.addButton}
+                        onMouseEnter={(e) => {
+                            e.target.style.transform = 'translateY(-2px)';
+                            e.target.style.boxShadow = '0 6px 20px var(--shadow-hover)';
+                        }}
+                        onMouseLeave={(e) => {
+                            e.target.style.transform = 'translateY(0)';
+                            e.target.style.boxShadow = '0 4px 15px var(--shadow-strong)';
+                        }}
+                    >
                         Agregar No Disponibilidad
                     </button>
                 </div>
@@ -321,8 +349,17 @@ const AvailabilityManagement = () => {
                 <div style={styles.section}>
                     <h3 style={styles.subtitle}>Planes Disponibles</h3>
                     {plans.map(plan => (
-                        <div key={plan.id} style={{ marginBottom: '15px', paddingBottom: '15px', borderBottom: '1px solid var(--border-color-light)' }}>
-                            <h4 style={{ color: 'var(--rich-black)', marginBottom: '10px' }}>
+                        <div key={plan.id} style={{ 
+                            marginBottom: '1.25rem', 
+                            paddingBottom: '1.25rem', 
+                            borderBottom: '1px solid var(--input-border)' 
+                        }}>
+                            <h4 style={{ 
+                                color: 'var(--rich-black)', 
+                                marginBottom: '1rem',
+                                fontSize: '1.1rem',
+                                fontWeight: '600'
+                            }}>
                                 {plan.name} {plan.IdAlojamiento && `(Alojamiento: ${plan.IdAlojamiento})`}
                             </h4>
                             {planUnavailability[plan.id] && planUnavailability[plan.id].length > 0 ? (
@@ -335,13 +372,17 @@ const AvailabilityManagement = () => {
                                             </div>
                                             <button
                                                 onClick={() => handleRemoveUnavailability(plan.id, period.id)}
-                                                onMouseEnter={() => setHoveredButton(`${plan.id}-${period.id}`)}
-                                                onMouseLeave={() => setHoveredButton(null)}
-                                                style={{
-                                                    ...styles.removeButton,
-                                                    backgroundColor: hoveredButton === `${plan.id}-${period.id}` ? '#bb2d3b' : '#dc3545',
-                                                    transform: hoveredButton === `${plan.id}-${period.id}` ? 'scale(1.05)' : 'scale(1)',
+                                                onMouseEnter={(e) => {
+                                                    setHoveredButton(`${plan.id}-${period.id}`);
+                                                    e.target.style.transform = 'scale(1.05)';
+                                                    e.target.style.boxShadow = '0 4px 12px rgba(220, 53, 69, 0.5)';
                                                 }}
+                                                onMouseLeave={(e) => {
+                                                    setHoveredButton(null);
+                                                    e.target.style.transform = 'scale(1)';
+                                                    e.target.style.boxShadow = '0 2px 8px rgba(220, 53, 69, 0.3)';
+                                                }}
+                                                style={styles.removeButton}
                                             >
                                                 🗑️ Eliminar
                                             </button>
@@ -349,7 +390,13 @@ const AvailabilityManagement = () => {
                                     ))}
                                 </div>
                             ) : (
-                                <p style={{ color: '#999', fontSize: '0.9rem' }}>Sin periodos de no disponibilidad</p>
+                                <p style={{ 
+                                    color: 'var(--input-placeholder)', 
+                                    fontSize: '0.95rem',
+                                    fontStyle: 'italic'
+                                }}>
+                                    Sin periodos de no disponibilidad
+                                </p>
                             )}
                         </div>
                     ))}
@@ -358,24 +405,45 @@ const AvailabilityManagement = () => {
 
             {extraServices.length > 0 && (
                 <div style={styles.section}>
-                    <h3 style={styles.subtitle}>Servicios Extra (No tienen disponibilidad configurable)</h3>
-                    <p style={{ color: '#666', fontSize: '0.9rem', marginBottom: '10px' }}>
+                    <h3 style={styles.subtitle}>Servicios Extra</h3>
+                    <p style={{ 
+                        color: 'var(--input-placeholder)', 
+                        fontSize: '0.95rem', 
+                        marginBottom: '1rem',
+                        fontStyle: 'italic'
+                    }}>
                         Los servicios extra no requieren gestión de disponibilidad.
                     </p>
-                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '10px' }}>
+                    <div style={{ 
+                        display: 'grid', 
+                        gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', 
+                        gap: '1rem' 
+                    }}>
                         {extraServices.map(service => (
                             <div key={service.id} style={{
-                                padding: '10px',
-                                backgroundColor: '#f9f9f9',
-                                border: '1px solid var(--border-color-light)',
-                                borderRadius: '5px'
+                                padding: '1rem',
+                                background: 'rgba(255, 255, 255, 0.9)',
+                                border: '1px solid var(--input-border)',
+                                borderRadius: '8px',
+                                transition: 'var(--transition)',
                             }}>
-                                <strong>{service.name}</strong>
-                                <p style={{ fontSize: '0.85rem', color: '#666', margin: '5px 0' }}>
+                                <strong style={{ color: 'var(--rich-black)' }}>{service.name}</strong>
+                                <p style={{ 
+                                    fontSize: '0.9rem', 
+                                    color: 'var(--forest-green)', 
+                                    margin: '0.5rem 0',
+                                    fontWeight: '600'
+                                }}>
                                     {service.category} - ${service.price}
                                 </p>
                                 {service.description && (
-                                    <p style={{ fontSize: '0.8rem', color: '#999' }}>{service.description}</p>
+                                    <p style={{ 
+                                        fontSize: '0.85rem', 
+                                        color: 'var(--input-placeholder)',
+                                        lineHeight: '1.4'
+                                    }}>
+                                        {service.description}
+                                    </p>
                                 )}
                             </div>
                         ))}

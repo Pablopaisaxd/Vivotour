@@ -31,12 +31,11 @@ function MostVisited() {
             if (response.ok) {
                 const data = await response.json();
                 console.log('Datos de preferencias del backend:', data.data);
-                // Usar directamente los datos del backend, ya procesados
                 const formattedData = data.data.map((item, index) => ({
                     name: item.planTipo,
                     count: item.cantidad,
                     percentage: parseFloat(item.porcentaje),
-                    trend: `+${Math.floor(Math.random() * 3) + 1}%` // Tendencia simulada
+                    trend: `+${Math.floor(Math.random() * 3) + 1}%`
                 }));
                 setPreferences(formattedData);
                 setError(null);
@@ -54,38 +53,59 @@ function MostVisited() {
         }
     };
 
-    const setFallbackData = () => {
-        // Eliminamos los datos de respaldo para mostrar solo datos reales
-        setPreferences([]);
-    };
-
-    const borderColor = "#4BAC35";
-    const backgroundColor = "rgba(75, 172, 53, 0.2)";
+    const borderColor = "var(--forest-green)";
+    const backgroundColor = "rgba(75, 172, 53, 0.15)";
     const color = { borderColor, backgroundColor };
     const height = "50px";
     const width = "100px";
 
     const styles = {
         headerSpan: {
-            filter: 'drop-shadow(0 0 0.25rem rgba(0,0,0,0.05))',
             color: "var(--rich-black)",
+            fontWeight: "600",
+            fontSize: "1rem",
+            textShadow: "0 1px 2px var(--shadow-light)",
         },
         tableRowText: {
-            fontWeight: "600",
+            fontWeight: "500",
             color: "var(--rich-black)",
-            fontSize: "13px",
+            fontSize: "0.85rem",
             display: "flex",
             justifyContent: "center",
             alignItems: "center",
+            padding: "0.5rem",
         },
         tableHeader: {
             color: "var(--rich-black)",
-            fontWeight: "600",
-            fontSize: "13px",
-            padding: "15px 15px",
+            fontWeight: "700",
+            fontSize: "0.75rem",
+            padding: "1rem 0.8rem",
+            textTransform: "uppercase",
+            letterSpacing: "0.5px",
         },
         launchIcon: {
             color: "var(--forest-green)",
+            marginLeft: "0.3rem",
+        },
+        loadingContainer: {
+            padding: '1.5rem',
+            textAlign: 'center',
+            color: 'var(--rich-black)',
+        },
+        errorContainer: {
+            padding: '1.5rem',
+            textAlign: 'center',
+            color: 'var(--error-color)',
+            background: 'var(--error-bg)',
+            border: '1px solid var(--error-border)',
+            borderRadius: '8px',
+            margin: '1rem',
+        },
+        noDataContainer: {
+            gridColumn: '1 / -1',
+            textAlign: 'center',
+            padding: '1.5rem',
+            color: 'var(--input-placeholder)',
         }
     };
 
@@ -95,7 +115,7 @@ function MostVisited() {
                 <header className="most-visited-header">
                     <span style={styles.headerSpan}>Opciones de Reserva Preferidas</span>
                 </header>
-                <div style={{ padding: '20px', textAlign: 'center' }}>
+                <div style={styles.loadingContainer}>
                     Cargando...
                 </div>
             </div>
@@ -108,7 +128,7 @@ function MostVisited() {
                 <header className="most-visited-header">
                     <span style={styles.headerSpan}>Opciones de Reserva Preferidas</span>
                 </header>
-                <div style={{ padding: '20px', textAlign: 'center', color: 'red' }}>
+                <div style={styles.errorContainer}>
                     Error: {error}
                     <br />
                     <small>Verifica que el servidor esté funcionando</small>
@@ -132,7 +152,8 @@ function MostVisited() {
                 {preferences.map((item, index) => (
                     <React.Fragment key={index}>
                         <span style={styles.tableRowText}>
-                            {item.name} <LaunchIcon fontSize="small" sx={styles.launchIcon}/>
+                            {item.name} 
+                            <LaunchIcon fontSize="small" sx={styles.launchIcon}/>
                         </span>
                         <span style={styles.tableRowText}>{item.count}</span>
                         <span style={styles.tableRowText}>{item.percentage}%</span>
@@ -142,7 +163,7 @@ function MostVisited() {
                 ))}
                 
                 {preferences.length === 0 && (
-                    <div style={{ gridColumn: '1 / -1', textAlign: 'center', padding: '20px' }}>
+                    <div style={styles.noDataContainer}>
                         No hay datos de preferencias disponibles
                     </div>
                 )}

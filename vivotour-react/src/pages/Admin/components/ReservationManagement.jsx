@@ -7,16 +7,13 @@ const ReservationManagement = () => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
     
-    // Filtros de fecha
     const [filterStartDate, setFilterStartDate] = useState('');
     const [filterEndDate, setFilterEndDate] = useState('');
 
-    // Cargar reservas al montar el componente
     useEffect(() => {
         fetchReservations();
     }, []);
 
-    // Aplicar filtros cuando cambian las fechas
     useEffect(() => {
         applyFilters();
     }, [reservations, filterStartDate, filterEndDate]);
@@ -33,7 +30,6 @@ const ReservationManagement = () => {
                 return;
             }
 
-            // Obtener todas las reservas del backend
             const response = await fetch(`${apiConfig.baseUrl}/api/admin/reservas`, {
                 method: 'GET',
                 headers: {
@@ -52,7 +48,6 @@ const ReservationManagement = () => {
             const data = await response.json();
 
             if (data.success && Array.isArray(data.reservas)) {
-                // Mapear datos del backend al formato del componente
                 const formattedReservations = data.reservas.map(res => ({
                     id: res.IdReserva,
                     user: res.NombreUsuario || 'N/A',
@@ -99,121 +94,129 @@ const ReservationManagement = () => {
 
     const styles = {
         container: {
-            padding: '20px',
-            backgroundColor: 'var(--card-background)',
-            borderRadius: '8px',
-            boxShadow: '0 5px 15px var(--shadow-light)',
+            padding: '1.5rem',
+            background: 'linear-gradient(135deg, var(--alice-blue) 0%, rgba(75, 172, 53, 0.05) 100%)',
+            borderRadius: '12px',
+            boxShadow: '0 8px 25px var(--shadow-medium)',
             gridColumn: '1 / -1',
             display: 'flex',
             flexDirection: 'column',
-            gap: '20px',
+            gap: '1.5rem',
         },
         title: {
-            fontSize: '1.5rem',
+            fontSize: '1.8rem',
             color: 'var(--rich-black)',
-            marginBottom: '15px',
-            fontWeight: '600',
+            marginBottom: '1rem',
+            fontWeight: '700',
+            textShadow: '0 2px 4px var(--shadow-light)',
         },
         filterSection: {
             display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
-            gap: '15px',
-            padding: '15px',
-            backgroundColor: '#f8f9fa',
-            borderRadius: '8px',
-            border: '1px solid var(--border-color-light)',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))',
+            gap: '1.2rem',
+            padding: '1.5rem',
+            background: 'var(--input-bg)',
+            borderRadius: '12px',
+            border: '2px solid var(--input-border)',
+            boxShadow: '0 4px 15px var(--shadow-light)',
         },
         filterGroup: {
             display: 'flex',
             flexDirection: 'column',
-            gap: '5px',
+            gap: '0.5rem',
         },
         filterLabel: {
-            fontSize: '0.9rem',
+            fontSize: '0.95rem',
             fontWeight: '600',
             color: 'var(--rich-black)',
+            textTransform: 'uppercase',
+            letterSpacing: '0.5px',
         },
         filterInput: {
-            padding: '8px 12px',
-            border: '1px solid var(--border-color-light)',
-            borderRadius: '5px',
+            padding: '0.8rem 1rem',
+            border: '2px solid var(--input-border)',
+            borderRadius: '8px',
             fontSize: '0.95rem',
+            background: 'var(--alice-blue)',
+            color: 'var(--rich-black)',
+            transition: 'var(--transition)',
         },
         filterButtons: {
             display: 'flex',
-            gap: '10px',
+            gap: '1rem',
             alignItems: 'flex-end',
         },
-        filterButton: {
-            padding: '8px 16px',
-            backgroundColor: '#2c5530',
-            color: 'white',
-            border: 'none',
-            borderRadius: '5px',
-            cursor: 'pointer',
-            fontWeight: 'bold',
-            fontSize: '0.9rem',
-        },
         clearButton: {
-            padding: '8px 16px',
-            backgroundColor: '#6c757d',
+            padding: '0.8rem 1.5rem',
+            background: 'linear-gradient(135deg, #6c757d, #5a6268)',
             color: 'white',
             border: 'none',
-            borderRadius: '5px',
+            borderRadius: '8px',
             cursor: 'pointer',
-            fontWeight: 'bold',
+            fontWeight: '600',
             fontSize: '0.9rem',
+            boxShadow: '0 4px 15px rgba(108, 117, 125, 0.3)',
+            transition: 'var(--transition)',
         },
         errorMessage: {
-            padding: '12px',
-            backgroundColor: '#f8d7da',
-            color: '#721c24',
-            borderRadius: '5px',
-            border: '1px solid #f5c2c7',
+            padding: '1rem 1.2rem',
+            background: 'var(--error-bg)',
+            color: 'var(--error-color)',
+            borderRadius: '8px',
+            border: '2px solid var(--error-border)',
+            fontWeight: '500',
         },
         loadingMessage: {
-            padding: '12px',
-            backgroundColor: '#d1ecf1',
-            color: '#0c5460',
-            borderRadius: '5px',
-            border: '1px solid #bee5eb',
+            padding: '1.5rem',
+            background: 'var(--input-bg)',
+            color: 'var(--rich-black)',
+            borderRadius: '8px',
+            border: '2px solid var(--input-border)',
             textAlign: 'center',
+            fontSize: '1.1rem',
         },
         section: {
-            marginBottom: '20px',
-            border: '1px solid var(--border-color-light)',
-            borderRadius: '8px',
-            padding: '15px',
+            marginBottom: '1.5rem',
+            border: '2px solid var(--input-border)',
+            borderRadius: '12px',
+            padding: '1.5rem',
+            background: 'var(--alice-blue)',
+            boxShadow: '0 4px 15px var(--shadow-light)',
         },
         subtitle: {
-            fontSize: '1.2rem',
+            fontSize: '1.3rem',
             color: 'var(--rich-black)',
-            marginBottom: '10px',
-            fontWeight: '500',
+            marginBottom: '1rem',
+            fontWeight: '600',
+            textShadow: '0 1px 2px var(--shadow-light)',
         },
         reservationList: {
             display: 'flex',
             flexDirection: 'column',
-            gap: '10px',
+            gap: '1rem',
         },
         reservationItem: {
-            border: '1px solid var(--border-color-light)',
-            borderRadius: '8px',
-            padding: '15px',
-            backgroundColor: 'var(--alice-blue)',
+            border: '2px solid var(--input-border)',
+            borderRadius: '10px',
+            padding: '1.2rem',
+            background: 'linear-gradient(135deg, var(--alice-blue) 0%, rgba(75, 172, 53, 0.03) 100%)',
             display: 'flex',
             flexDirection: 'column',
-            gap: '5px',
+            gap: '0.8rem',
+            transition: 'var(--transition)',
+            boxShadow: '0 2px 8px var(--shadow-light)',
         },
         reservationDetail: {
             color: 'var(--rich-black)',
             fontSize: '0.95rem',
+            lineHeight: '1.4',
         },
         noData: {
             textAlign: 'center',
-            padding: '20px',
-            color: '#6c757d',
-            fontSize: '1rem',
+            padding: '2rem',
+            color: 'var(--input-placeholder)',
+            fontSize: '1.1rem',
+            fontWeight: '500',
         },
     };
 
@@ -224,7 +227,6 @@ const ReservationManagement = () => {
             {error && <div style={styles.errorMessage}>{error}</div>}
             {loading && <div style={styles.loadingMessage}>Cargando reservas...</div>}
 
-            {/* Filtro de fechas */}
             {!loading && (
                 <div style={styles.filterSection}>
                     <div style={styles.filterGroup}>
@@ -234,6 +236,14 @@ const ReservationManagement = () => {
                             style={styles.filterInput}
                             value={filterStartDate}
                             onChange={(e) => setFilterStartDate(e.target.value)}
+                            onFocus={(e) => {
+                                e.target.style.borderColor = 'var(--forest-green)';
+                                e.target.style.background = 'var(--input-bg-focus)';
+                            }}
+                            onBlur={(e) => {
+                                e.target.style.borderColor = 'var(--input-border)';
+                                e.target.style.background = 'var(--alice-blue)';
+                            }}
                         />
                     </div>
                     <div style={styles.filterGroup}>
@@ -243,12 +253,28 @@ const ReservationManagement = () => {
                             style={styles.filterInput}
                             value={filterEndDate}
                             onChange={(e) => setFilterEndDate(e.target.value)}
+                            onFocus={(e) => {
+                                e.target.style.borderColor = 'var(--forest-green)';
+                                e.target.style.background = 'var(--input-bg-focus)';
+                            }}
+                            onBlur={(e) => {
+                                e.target.style.borderColor = 'var(--input-border)';
+                                e.target.style.background = 'var(--alice-blue)';
+                            }}
                         />
                     </div>
                     <div style={styles.filterButtons}>
                         <button
                             style={styles.clearButton}
                             onClick={clearFilters}
+                            onMouseEnter={(e) => {
+                                e.target.style.transform = 'translateY(-2px)';
+                                e.target.style.boxShadow = '0 6px 20px rgba(108, 117, 125, 0.4)';
+                            }}
+                            onMouseLeave={(e) => {
+                                e.target.style.transform = 'translateY(0)';
+                                e.target.style.boxShadow = '0 4px 15px rgba(108, 117, 125, 0.3)';
+                            }}
                         >
                             Limpiar Filtros
                         </button>
@@ -256,7 +282,6 @@ const ReservationManagement = () => {
                 </div>
             )}
 
-            {/* Lista de reservas */}
             <div style={styles.section}>
                 <h3 style={styles.subtitle}>
                     Reservas ({filteredReservations.length})
@@ -268,7 +293,18 @@ const ReservationManagement = () => {
                 ) : (
                     <div style={styles.reservationList}>
                         {filteredReservations.map(res => (
-                            <div key={res.id} style={styles.reservationItem}>
+                            <div key={res.id} style={styles.reservationItem}
+                                onMouseEnter={(e) => {
+                                    e.currentTarget.style.transform = 'translateY(-2px)';
+                                    e.currentTarget.style.boxShadow = '0 6px 20px var(--shadow-medium)';
+                                    e.currentTarget.style.borderColor = 'var(--forest-green)';
+                                }}
+                                onMouseLeave={(e) => {
+                                    e.currentTarget.style.transform = 'translateY(0)';
+                                    e.currentTarget.style.boxShadow = '0 2px 8px var(--shadow-light)';
+                                    e.currentTarget.style.borderColor = 'var(--input-border)';
+                                }}
+                            >
                                 <p style={styles.reservationDetail}><strong>Usuario:</strong> {res.user} ({res.email})</p>
                                 <p style={styles.reservationDetail}><strong>Fechas:</strong> {new Date(res.dateS).toLocaleDateString()} - {new Date(res.dateE).toLocaleDateString()}</p>
                                 <p style={styles.reservationDetail}><strong>Alojamiento:</strong> {res.accommodation}</p>

@@ -13,7 +13,6 @@ function TotalVisits() {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
 
-    // Función para obtener estadísticas totales
     const fetchTotalStats = async () => {
         try {
             const token = localStorage.getItem('token');
@@ -32,15 +31,12 @@ function TotalVisits() {
             
             if (response.ok) {
                 const result = await response.json();
-                console.log('Stats del backend:', result.data);
                 setStats(result.data || {});
                 setError(null);
             } else {
-                console.error('Error obteniendo estadísticas totales');
                 setError('Error al obtener datos del servidor');
             }
         } catch (error) {
-            console.error('Error conectando con el servidor:', error);
             setError('Sin conexión al servidor');
         } finally {
             setLoading(false);
@@ -51,7 +47,6 @@ function TotalVisits() {
         fetchTotalStats();
     }, []);
 
-    // Calcular el porcentaje de cambio
     const calculatePercentageChange = () => {
         if (stats.reservasMesAnterior === 0 && stats.reservasMesActual === 0) {
             return { percentage: 0, isPositive: true };
@@ -67,9 +62,7 @@ function TotalVisits() {
         };
     };
 
-    // Crear datos para la gráfica basados en las reservas del mes
     const createChartData = () => {
-        // Generar datos simples basados en las reservas actuales
         const days = ['Sem 1', 'Sem 2', 'Sem 3', 'Sem 4'];
         const values = [
             Math.max(1, Math.floor(stats.reservasMesActual * 0.15)),
@@ -83,18 +76,31 @@ function TotalVisits() {
 
     const chartData = createChartData();
     const change = calculatePercentageChange();
-    const borderColor = "#FFC914";
+    const borderColor = "var(--golden-yellow)";
     const backgroundColor = "rgba(255, 201, 20, 0.2)";
     const color = { borderColor, backgroundColor };
     const height = "100px";
     const width = "220px";
-    const valueClass = "metric-value";
 
     if (loading) {
         return (
             <div className="total-visits">
                 <p className="metric-title">RESERVAS ESTE MES</p>
-                <p className={valueClass}>Cargando...</p>
+                <p className="metric-value">⏳</p>
+                <div style={{ 
+                    width: '100%', 
+                    height: '4px', 
+                    background: 'var(--alice-blue)', 
+                    borderRadius: '2px',
+                    overflow: 'hidden'
+                }}>
+                    <div style={{
+                        width: '100%',
+                        height: '100%',
+                        background: 'linear-gradient(90deg, var(--forest-green), var(--golden-yellow))',
+                        animation: 'loading 1.5s infinite'
+                    }}></div>
+                </div>
             </div>
         );
     }
@@ -103,10 +109,12 @@ function TotalVisits() {
         return (
             <div className="total-visits">
                 <p className="metric-title">RESERVAS ESTE MES</p>
-                <p className={valueClass} style={{ color: 'red', fontSize: '14px' }}>
-                    Error: {error}
+                <p className="metric-value" style={{ color: 'var(--error-color)', fontSize: '16px' }}>
+                    ⚠️ Error
                 </p>
-                <small>Verifica conexión del servidor</small>
+                <small style={{ color: 'var(--text-color-secondary)' }}>
+                    {error}
+                </small>
             </div>
         );
     }
@@ -114,18 +122,15 @@ function TotalVisits() {
     return (
         <div className="total-visits">
             <p className="metric-title">RESERVAS ESTE MES</p>
-            <p className={valueClass}>{stats.reservasMesActual.toLocaleString()}</p>
+            <p className="metric-value">{stats.reservasMesActual.toLocaleString()}</p>
             <p className={`metric-percentage ${change.isPositive ? 'up' : 'down'}`}>
-                {change.isPositive ? '+' : '-'}{change.percentage}% 
-                <span 
-                    className="metric-launch" 
-                    style={{
-                        paddingLeft: 0, 
-                        paddingRight: '10px', 
-                        transform: change.isPositive ? 'rotate(0deg)' : 'rotate(180deg)'
-                    }}
-                >
-                    <LaunchIcon/>
+                {change.isPositive ? '📈' : '📉'} {change.isPositive ? '+' : '-'}{change.percentage}% 
+                <span className="metric-launch">
+                    <LaunchIcon sx={{ 
+                        fontSize: 14,
+                        transform: change.isPositive ? 'rotate(0deg)' : 'rotate(180deg)',
+                        transition: 'var(--transition)'
+                    }}/>
                 </span>
             </p>
             <MyLine color={color} height={height} width={width} data={chartData} />

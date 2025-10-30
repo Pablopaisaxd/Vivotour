@@ -10,7 +10,6 @@ import opinImg3 from '../../../assets/Fondos/turistas en rio 2.jpg';
 const DEFAULT_PRESENTATION = [img1, img2, img3];
 const DEFAULT_OPINION = [opinImg1, opinImg2, opinImg3];
 
-// Mapa para resolver rutas de assets del frontend a componentes importados
 const assetMap = {
     '/assets/Fondos/Rio.jpg': img1,
     '/assets/Fondos/Río.jpg': img1,
@@ -21,17 +20,13 @@ const assetMap = {
     '/assets/Fondos/turistas en rio 2.jpg': opinImg3,
 };
 
-// Función para resolver URLs de imagen correctamente
 const resolveImageUrl = (imgUrl) => {
-    // Si está en el mapa de assets, retornar el componente importado
     if (assetMap[imgUrl]) {
         return assetMap[imgUrl];
     }
-    // Si es una URL de uploads, prepender baseUrl
     if (imgUrl && imgUrl.startsWith('/uploads/')) {
         return `${apiConfig.baseUrl}${imgUrl}`;
     }
-    // Si ya es una URL completa o dataURL, retornarla como está
     return imgUrl;
 };
 
@@ -113,9 +108,7 @@ const HomePageSettings = () => {
         return new File([u8], name, { type: mime });
     };
 
-    // Función para obtener la ruta original del asset
     const getOriginalAssetPath = (img) => {
-        // Buscar en el mapa de assets para obtener la ruta original
         for (const [path, importedImg] of Object.entries(assetMap)) {
             if (importedImg === img) {
                 return path;
@@ -132,29 +125,24 @@ const HomePageSettings = () => {
             const token = localStorage.getItem('token');
             let ok = false;
 
-            // Verificar si hay cambios en presentación
             const hasPresentationChanges = presentationChanged.some(c => c);
             if (hasPresentationChanges) {
                 console.log('Saving presentation images...');
                 const presentationForm = new FormData();
                 
-                // Enviar TODAS las 3 imágenes, pero solo las nuevas como archivos
                 for (let i = 0; i < presentationImages.length; i++) {
                     const img = presentationImages[i];
                     if (img && typeof img === 'string' && img.startsWith('data:')) {
-                        // Es una imagen nueva - enviarla como archivo
                         presentationForm.append('presentationImages', toFile(img, `pres_${i}.jpg`));
                     }
                 }
                 
-                // Enviar las rutas de las imágenes existentes que no cambiaron
                 const existingUrls = [];
                 for (let i = 0; i < presentationImages.length; i++) {
                     const img = presentationImages[i];
                     if (img && typeof img === 'string' && !img.startsWith('data:')) {
-                        // Puede ser un asset o una URL de uploads
                         const assetPath = getOriginalAssetPath(img);
-                        const ruta = assetPath || img; // Usar ruta original del asset o la URL tal como está
+                        const ruta = assetPath || img;
                         existingUrls.push({ posicion: i + 1, ruta });
                     }
                 }
@@ -172,29 +160,24 @@ const HomePageSettings = () => {
                 if (res.ok) ok = true;
             }
 
-            // Verificar si hay cambios en opinión
             const hasOpinionChanges = opinionChanged.some(c => c);
             if (hasOpinionChanges) {
                 console.log('Saving opinion images...');
                 const opinionForm = new FormData();
                 
-                // Enviar TODAS las 3 imágenes, pero solo las nuevas como archivos
                 for (let i = 0; i < opinionImages.length; i++) {
                     const img = opinionImages[i];
                     if (img && typeof img === 'string' && img.startsWith('data:')) {
-                        // Es una imagen nueva - enviarla como archivo
                         opinionForm.append('opinionImages', toFile(img, `opin_${i}.jpg`));
                     }
                 }
                 
-                // Enviar las rutas de las imágenes existentes que no cambiaron
                 const existingUrls = [];
                 for (let i = 0; i < opinionImages.length; i++) {
                     const img = opinionImages[i];
                     if (img && typeof img === 'string' && !img.startsWith('data:')) {
-                        // Puede ser un asset o una URL de uploads
                         const assetPath = getOriginalAssetPath(img);
-                        const ruta = assetPath || img; // Usar ruta original del asset o la URL tal como está
+                        const ruta = assetPath || img;
                         existingUrls.push({ posicion: i + 1, ruta });
                     }
                 }
@@ -231,44 +214,251 @@ const HomePageSettings = () => {
 
     const ph = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjE0MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjZjBmMGYwIi8+PHRleHQgeD0iNTAlIiB5PSI1MCUiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC1zaXplPSIxNCIgZmlsbD0iI2NjYyIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZHk9Ii4zZW0iPkltYWdlbjwvdGV4dD48L3N2Zz4=';
 
+    const styles = {
+        container: {
+            padding: '1.5rem',
+            background: 'var(--alice-blue)',
+            gridColumn: '1 / -1',
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            width: '100%',
+            minHeight: '100vh',
+            boxSizing: 'border-box',
+            borderRadius: '12px',
+            border: '1px solid var(--input-border)',
+            boxShadow: '0 8px 32px var(--shadow-light)',
+        },
+        title: {
+            fontSize: '1.75rem',
+            marginBottom: '2rem',
+            textAlign: 'center',
+            color: 'var(--rich-black)',
+            fontWeight: '700',
+            background: 'linear-gradient(135deg, var(--forest-green), var(--golden-yellow))',
+            WebkitBackgroundClip: 'text',
+            WebkitTextFillColor: 'transparent',
+        },
+        alert: {
+            padding: '1rem 1.5rem',
+            marginBottom: '1.5rem',
+            borderRadius: '8px',
+            textAlign: 'center',
+            width: '100%',
+            maxWidth: '600px',
+            fontWeight: '500',
+        },
+        errorAlert: {
+            background: 'linear-gradient(135deg, #f8d7da, #f5c6cb)',
+            color: '#721c24',
+            border: '1px solid #dc3545',
+        },
+        successAlert: {
+            background: 'linear-gradient(135deg, #d4edda, #c3e6cb)',
+            color: '#155724',
+            border: '1px solid var(--forest-green)',
+        },
+        section: {
+            marginBottom: '3rem',
+            width: '100%',
+            maxWidth: '900px',
+            background: 'rgba(255, 255, 255, 0.8)',
+            borderRadius: '16px',
+            padding: '2rem',
+            border: '1px solid var(--input-border)',
+            backdropFilter: 'blur(10px)',
+            boxShadow: '0 8px 25px var(--shadow-light)',
+        },
+        sectionTitle: {
+            marginBottom: '1.5rem',
+            textAlign: 'center',
+            fontSize: '1.4rem',
+            color: 'var(--rich-black)',
+            fontWeight: '600',
+            borderBottom: '2px solid var(--forest-green)',
+            paddingBottom: '0.5rem',
+        },
+        imagesGrid: {
+            display: 'flex',
+            gap: '2rem',
+            justifyContent: 'center',
+            flexWrap: 'wrap',
+        },
+        imageCard: {
+            textAlign: 'center',
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            gap: '1rem',
+            padding: '1rem',
+            borderRadius: '12px',
+            background: 'rgba(255, 255, 255, 0.9)',
+            border: '1px solid var(--input-border)',
+            transition: 'var(--transition)',
+            boxShadow: '0 4px 15px var(--shadow-light)',
+        },
+        image: {
+            width: '220px',
+            height: '160px',
+            objectFit: 'cover',
+            borderRadius: '8px',
+            border: '2px solid var(--input-border)',
+            transition: 'var(--transition)',
+        },
+        changeButton: {
+            cursor: 'pointer',
+            background: 'linear-gradient(135deg, var(--forest-green), var(--golden-yellow))',
+            color: 'white',
+            padding: '0.75rem 1.5rem',
+            borderRadius: '25px',
+            fontSize: '0.95rem',
+            border: 'none',
+            fontWeight: '600',
+            transition: 'var(--transition)',
+            boxShadow: '0 4px 12px var(--shadow-strong)',
+        },
+        saveButton: {
+            background: 'linear-gradient(135deg, var(--forest-green), var(--golden-yellow))',
+            color: 'white',
+            padding: '1rem 3rem',
+            fontSize: '1.1rem',
+            borderRadius: '25px',
+            border: 'none',
+            fontWeight: '700',
+            transition: 'var(--transition)',
+            boxShadow: '0 6px 20px var(--shadow-strong)',
+            marginTop: '2rem',
+        }
+    };
+
     return (
-        <div style={{ padding: '30px', backgroundColor: 'var(--card-background)', gridColumn: '1 / -1', display: 'flex', flexDirection: 'column', alignItems: 'center', width: '100%', height: '100vh' , boxSizing: 'border-box' }}>
-            <h2 style={{ fontSize: '2rem', marginBottom: '30px', textAlign: 'center', color: 'var(--rich-black)', fontWeight: '600' }}>Configuración de Página de Inicio</h2>
-            {error && <div style={{ backgroundColor: '#f8d7da', color: '#721c24', padding: '12px 20px', marginBottom: '20px', borderRadius: '4px', textAlign: 'center', border: '1px solid #f5c6cb', width: '100%', maxWidth: '600px' }}>Error: {error}</div>}
-            {success && <div style={{ backgroundColor: '#d4edda', color: '#155724', padding: '12px 20px', marginBottom: '20px', borderRadius: '4px', textAlign: 'center', border: '1px solid #c3e6cb', width: '100%', maxWidth: '600px' }}>Cambios guardados exitosamente</div>}
+        <div style={styles.container}>
+            <h2 style={styles.title}>🏠 Configuración de Página de Inicio</h2>
             
-            <div style={{ marginBottom: '40px', width: '100%', maxWidth: '800px' }}>
-                <h3 style={{ marginBottom: '20px', textAlign: 'center', fontSize: '1.4rem', color: 'var(--rich-black)', fontWeight: '500' }}>Imágenes de Presentación</h3>
-                <div style={{ display: 'flex', gap: '25px', justifyContent: 'center', flexWrap: 'wrap' }}>
+            {error && (
+                <div style={{ ...styles.alert, ...styles.errorAlert }}>
+                    ⚠️ Error: {error}
+                </div>
+            )}
+            
+            {success && (
+                <div style={{ ...styles.alert, ...styles.successAlert }}>
+                    ✅ Cambios guardados exitosamente
+                </div>
+            )}
+            
+            <div style={styles.section}>
+                <h3 style={styles.sectionTitle}>📸 Imágenes de Presentación</h3>
+                <div style={styles.imagesGrid}>
                     {getPadded(presentationImages).map((img, i) => (
-                        <div key={i} style={{ textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '10px' }}>
-                            <img src={img || ph} style={{ width: '200px', height: '140px', objectFit: 'cover', borderRadius: '6px', border: '2px solid var(--border-color-light)' }} onError={(e) => e.target.src = ph} />
-                            <label style={{ cursor: 'pointer', backgroundColor: 'var(--forest-green)', color: 'white', padding: '8px 16px', borderRadius: '4px', fontSize: '14px', border: 'none', fontWeight: '500', transition: 'background-color 0.3s' }}>
-                                Cambiar
-                                <input type='file' accept='image/*' onChange={(e) => handle('presentation', i, e)} style={{ display: 'none' }} />
+                        <div 
+                            key={i} 
+                            style={styles.imageCard}
+                            onMouseEnter={(e) => {
+                                e.currentTarget.style.transform = 'translateY(-5px)';
+                                e.currentTarget.style.boxShadow = '0 8px 25px var(--shadow-medium)';
+                            }}
+                            onMouseLeave={(e) => {
+                                e.currentTarget.style.transform = 'translateY(0)';
+                                e.currentTarget.style.boxShadow = '0 4px 15px var(--shadow-light)';
+                            }}
+                        >
+                            <img 
+                                src={img || ph} 
+                                style={styles.image} 
+                                onError={(e) => e.target.src = ph}
+                                alt={`Presentación ${i + 1}`}
+                            />
+                            <label 
+                                style={styles.changeButton}
+                                onMouseEnter={(e) => {
+                                    e.target.style.transform = 'scale(1.05)';
+                                    e.target.style.boxShadow = '0 6px 20px var(--shadow-hover)';
+                                }}
+                                onMouseLeave={(e) => {
+                                    e.target.style.transform = 'scale(1)';
+                                    e.target.style.boxShadow = '0 4px 12px var(--shadow-strong)';
+                                }}
+                            >
+                                📷 Cambiar
+                                <input 
+                                    type='file' 
+                                    accept='image/*' 
+                                    onChange={(e) => handle('presentation', i, e)} 
+                                    style={{ display: 'none' }} 
+                                />
                             </label>
                         </div>
                     ))}
                 </div>
             </div>
 
-            <div style={{ marginBottom: '40px', width: '100%', maxWidth: '800px' }}>
-                <h3 style={{ marginBottom: '20px', textAlign: 'center', fontSize: '1.4rem', color: 'var(--rich-black)', fontWeight: '500' }}>Imágenes de Opinión</h3>
-                <div style={{ display: 'flex', gap: '25px', justifyContent: 'center', flexWrap: 'wrap' }}>
+            <div style={styles.section}>
+                <h3 style={styles.sectionTitle}>💭 Imágenes de Opinión</h3>
+                <div style={styles.imagesGrid}>
                     {getPadded(opinionImages).map((img, i) => (
-                        <div key={i} style={{ textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '10px' }}>
-                            <img src={img || ph} style={{ width: '200px', height: '140px', objectFit: 'cover', borderRadius: '6px', border: '2px solid var(--border-color-light)' }} onError={(e) => e.target.src = ph} />
-                            <label style={{ cursor: 'pointer', backgroundColor: 'var(--forest-green)', color: 'white', padding: '8px 16px', borderRadius: '4px', fontSize: '14px', border: 'none', fontWeight: '500', transition: 'background-color 0.3s' }}>
-                                Cambiar
-                                <input type='file' accept='image/*' onChange={(e) => handle('opinion', i, e)} style={{ display: 'none' }} />
+                        <div 
+                            key={i} 
+                            style={styles.imageCard}
+                            onMouseEnter={(e) => {
+                                e.currentTarget.style.transform = 'translateY(-5px)';
+                                e.currentTarget.style.boxShadow = '0 8px 25px var(--shadow-medium)';
+                            }}
+                            onMouseLeave={(e) => {
+                                e.currentTarget.style.transform = 'translateY(0)';
+                                e.currentTarget.style.boxShadow = '0 4px 15px var(--shadow-light)';
+                            }}
+                        >
+                            <img 
+                                src={img || ph} 
+                                style={styles.image} 
+                                onError={(e) => e.target.src = ph}
+                                alt={`Opinión ${i + 1}`}
+                            />
+                            <label 
+                                style={styles.changeButton}
+                                onMouseEnter={(e) => {
+                                    e.target.style.transform = 'scale(1.05)';
+                                    e.target.style.boxShadow = '0 6px 20px var(--shadow-hover)';
+                                }}
+                                onMouseLeave={(e) => {
+                                    e.target.style.transform = 'scale(1)';
+                                    e.target.style.boxShadow = '0 4px 12px var(--shadow-strong)';
+                                }}
+                            >
+                                📷 Cambiar
+                                <input 
+                                    type='file' 
+                                    accept='image/*' 
+                                    onChange={(e) => handle('opinion', i, e)} 
+                                    style={{ display: 'none' }} 
+                                />
                             </label>
                         </div>
                     ))}
                 </div>
             </div>
 
-            <button onClick={save} disabled={loading} style={{ backgroundColor: 'var(--forest-green)', color: 'white', padding: '12px 40px', fontSize: '16px', borderRadius: '4px', border: 'none', cursor: loading ? 'not-allowed' : 'pointer', opacity: loading ? 0.6 : 1, fontWeight: '600', transition: 'background-color 0.3s' }}>
-                {loading ? 'Guardando...' : 'Guardar Cambios'}
+            <button 
+                onClick={save} 
+                disabled={loading} 
+                style={{
+                    ...styles.saveButton,
+                    cursor: loading ? 'not-allowed' : 'pointer',
+                    opacity: loading ? 0.6 : 1,
+                }}
+                onMouseEnter={(e) => {
+                    if (!loading) {
+                        e.target.style.transform = 'translateY(-3px)';
+                        e.target.style.boxShadow = '0 8px 30px var(--shadow-hover)';
+                    }
+                }}
+                onMouseLeave={(e) => {
+                    e.target.style.transform = 'translateY(0)';
+                    e.target.style.boxShadow = '0 6px 20px var(--shadow-strong)';
+                }}
+            >
+                {loading ? '⏳ Guardando...' : '💾 Guardar Cambios'}
             </button>
         </div>
     );

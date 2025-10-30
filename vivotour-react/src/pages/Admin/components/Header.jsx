@@ -9,7 +9,7 @@ function Header() {
     const { sidebarOpen, toggleSidebar } = useContext(AdminContext);
     return (
         <div className="admin-header">
-            <div className="admin-header-left">
+            <div className="header-left">
                 <button
                     className="sidebar-toggle"
                     aria-label={sidebarOpen ? 'Cerrar menú' : 'Abrir menú'}

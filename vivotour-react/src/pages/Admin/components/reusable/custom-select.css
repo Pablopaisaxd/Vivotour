@@ -1,10 +1,10 @@
-.select-holder{
-    position: relative;
-    min-width: 200px ;
-    filter: drop-shadow(0 0 0.15rem rgba(0,0,0,0.05)); /* Sombra más suave */
-  }
+.select-holder {
+  position: relative;
+  min-width: 200px;
+  filter: drop-shadow(0 0 0.15rem var(--shadow-light));
+}
 
-  .select-holder::after{
+.select-holder::after {
   content: "◀ ▶";
   font-size: 10px;
   position: absolute;
@@ -12,46 +12,99 @@
   left: 145px;
   transform: rotate(90deg);
   pointer-events: none;
-  color:	var(--rich-black); /* Color del icono */
+  color: var(--rich-black);
+  transition: var(--transition);
+}
+
+.select-holder > select::-ms-expand {
+  display: none;
+}
+
+.select-holder > select {
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  width: 100%;
+  max-width: 140px;
+  height: 40px;
+  padding: 5px 30px;
+  font-size: 14px;
+  line-height: 2.05;
+  color: var(--rich-black);
+  background-color: var(--input-bg);
+  background-image: none;
+  border: 2px solid var(--input-border);
+  border-radius: 8px;
+  word-spacing: 10px;
+  transition: var(--transition);
+  cursor: pointer;
+  font-weight: 500;
+  box-shadow: 0 2px 8px var(--shadow-light);
+}
+
+.select-holder > select:focus {
+  outline: none;
+  border-color: var(--forest-green);
+  box-shadow: 0 0 0 3px var(--shadow-strong);
+  background-color: var(--input-bg-focus);
+}
+
+.select-holder > select:hover,
+.select-holder > select:active {
+  border-color: var(--forest-green);
+  background-color: var(--input-bg-focus);
+  transform: translateY(-1px);
+}
+
+.select-holder:hover::after {
+  color: var(--forest-green);
+  transform: rotate(90deg) scale(1.1);
+}
+
+@media (min-width: 480px) {
+  .select-holder {
+    min-width: 180px;
   }
+  
+  .select-holder > select {
+    max-width: 130px;
+  }
+  
+  .select-holder::after {
+    left: 125px;
+  }
+}
 
-  select::-ms-expand {
-    display: none;
-    }
-
-  .select-holder > select{
-
-    -webkit-appearance: none;
-    -moz-appearance: none;
-    appearance: none;
-    width: 100%;
+@media (min-width: 768px) {
+  .select-holder {
+    min-width: 200px;
+  }
+  
+  .select-holder > select {
     max-width: 140px;
-    height: 40px;
-    padding: 5px 30px;
-    font-size: 14px;
-    line-height: 2.05;
-    color: var(--rich-black); /* Color de texto */
-    background-color: var(--alice-blue); /* Fondo del select */
-    background-image: none;
-    border: 1px solid var(--border-color-light); /* Borde más suave */
-    border-radius: 5px;
-    word-spacing: 10px;
   }
+  
+  .select-holder::after {
+    left: 145px;
+  }
+}
 
+@media (min-width: 1024px) {
+  .select-holder {
+    min-width: 220px;
+  }
+  
+  .select-holder > select {
+    max-width: 160px;
+    font-size: 15px;
+  }
+  
+  .select-holder::after {
+    left: 165px;
+    font-size: 11px;
+  }
+}
 
-  .select-holder > select:focus{
-    outline: none;
-    border-color: var(--forest-green); /* Borde al enfocar */
-    box-shadow: 0 0 0 2px rgba(75, 172, 53, 0.2); /* Sombra al enfocar */
-    }
-
-    .select-holder > select:hover,
-    .select-holder > select:active {
-      border-color: var(--forest-green); /* Borde al pasar el ratón */
-      animation: border-color 0.5s ease-in-out;
-    }
-
-/* Responsive para custom select en móviles muy pequeños */
 @media screen and (max-width: 480px) {
   .select-holder {
     min-width: 120px;

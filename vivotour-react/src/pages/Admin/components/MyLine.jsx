@@ -30,7 +30,6 @@ const MyLine = ({ color, height, width, data: chartInputData }) => {
   });
 
   useEffect(() => {
-    // Si se proporcionan datos reales, usarlos
     if (chartInputData && chartInputData.labels && chartInputData.data) {
       setData({
         labels: chartInputData.labels,
@@ -40,21 +39,20 @@ const MyLine = ({ color, height, width, data: chartInputData }) => {
             fill: true,
             backgroundColor: color.backgroundColor,
             borderColor: color.borderColor,
-            borderWidth: 2,
-            pointBorderColor: "#4BAC35",
-            pointBackgroundColor: "#fff",
-            pointHoverRadius: 5,
-            pointHoverBackgroundColor: "#4BAC35",
-            pointHoverBorderColor: "rgba(75, 172, 53, 0.5)",
-            pointHoverBorderWidth: 7,
+            borderWidth: 2.5,
+            pointBorderColor: color.borderColor,
+            pointBackgroundColor: "var(--alice-blue)",
+            pointHoverRadius: 6,
+            pointHoverBackgroundColor: color.borderColor,
+            pointHoverBorderColor: "rgba(75, 172, 53, 0.3)",
+            pointHoverBorderWidth: 8,
             pointRadius: 0,
-            pointHitRadius: 30,
+            pointHitRadius: 35,
             tension: 0.4,
           },
         ],
       });
     } else {
-      // Datos por defecto
       setData({
         labels: ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10"],
         datasets: [
@@ -63,15 +61,15 @@ const MyLine = ({ color, height, width, data: chartInputData }) => {
             fill: true,
             backgroundColor: color.backgroundColor,
             borderColor: color.borderColor,
-            borderWidth: 2,
-            pointBorderColor: "#4BAC35",
-            pointBackgroundColor: "#fff",
-            pointHoverRadius: 5,
-            pointHoverBackgroundColor: "#4BAC35",
-            pointHoverBorderColor: "rgba(75, 172, 53, 0.5)",
-            pointHoverBorderWidth: 7,
+            borderWidth: 2.5,
+            pointBorderColor: color.borderColor,
+            pointBackgroundColor: "var(--alice-blue)",
+            pointHoverRadius: 6,
+            pointHoverBackgroundColor: color.borderColor,
+            pointHoverBorderColor: "rgba(75, 172, 53, 0.3)",
+            pointHoverBorderWidth: 8,
             pointRadius: 0,
-            pointHitRadius: 30,
+            pointHitRadius: 35,
             tension: 0.4,
           },
         ],
@@ -82,7 +80,10 @@ const MyLine = ({ color, height, width, data: chartInputData }) => {
   const chartContainerStyle = {
     height: height,
     width: width,
-    filter: 'drop-shadow(0 0 0.15rem rgba(0,0,0,0.05))',
+    padding: "0.5rem",
+    borderRadius: "8px",
+    background: "linear-gradient(135deg, var(--alice-blue) 0%, rgba(75, 172, 53, 0.03) 100%)",
+    boxShadow: "0 2px 8px var(--shadow-light)",
   };
 
   return (
@@ -95,18 +96,29 @@ const MyLine = ({ color, height, width, data: chartInputData }) => {
           plugins: {
             tooltip: {
               titleAlign: "center",
-              caretPadding: 5,
-              cornerRadius: 5,
-              padding: 10,
+              caretPadding: 8,
+              cornerRadius: 8,
+              padding: 12,
               position: "nearest",
               bodyAlign: "center",
-              bodyFont: { weight: 'bold', color: 'var(--rich-black)' },
-              backgroundColor: "rgba(255, 255, 255, 0.9)",
-              borderColor: "rgba(75, 172, 53, 0.5)",
-              borderWidth: 1,
+              bodyFont: { 
+                weight: '600', 
+                size: 13 
+              },
+              titleFont: {
+                weight: '600',
+                size: 14
+              },
+              backgroundColor: "rgba(240, 248, 255, 0.95)",
+              borderColor: color.borderColor,
+              borderWidth: 2,
               titleColor: "var(--rich-black)",
-              labelTextColor: function(tooltipItem, chart) {
-                  return 'var(--rich-black)';
+              bodyColor: "var(--rich-black)",
+              displayColors: false,
+              callbacks: {
+                labelTextColor: function(tooltipItem, chart) {
+                    return 'var(--rich-black)';
+                }
               }
             },
             legend: {
@@ -118,12 +130,23 @@ const MyLine = ({ color, height, width, data: chartInputData }) => {
               beginAtZero: true,
               ticks: { display: false },
               grid: { display: false },
+              border: { display: false }
             },
             x: {
               ticks: { display: false },
               grid: { display: false },
+              border: { display: false }
             },
           },
+          elements: {
+            point: {
+              hoverRadius: 6,
+            }
+          },
+          interaction: {
+            intersect: false,
+            mode: 'index'
+          }
         }}
       />
     </div>

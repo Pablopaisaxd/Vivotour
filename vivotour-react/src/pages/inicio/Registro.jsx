@@ -35,6 +35,13 @@ export const Registro = () => {
       console.error(error);
     }
   };
+    const handleGoogleLogin = () => {
+    window.location.href = 'http://localhost:5000/auth/google';
+  };
+
+  const handleFacebookLogin = () => {
+    window.location.href = 'http://localhost:5000/auth/facebook';
+  };
 
   return (
     <div className="registro-page">
@@ -197,6 +204,21 @@ export const Registro = () => {
               Registrarse
             </button>
           </form>
+
+          <div className="login-divider">
+            <div className="login-divider-line"></div>
+            <span>o desea usar</span>
+            <div className="login-divider-line"></div>
+          </div>
+
+          <div className="login-methods">
+            <div className="login-method facebook" title="Iniciar sesión con Facebook" onClick={handleFacebookLogin} role="button" tabIndex={0} onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') handleFacebookLogin(); }}>
+              <img src="/src/assets/Icons/Facebook.png" alt="facebook" />
+            </div>
+            <div className="login-method google" title="Iniciar sesión con Google" onClick={handleGoogleLogin} role="button" tabIndex={0} onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') handleGoogleLogin(); }}>
+              <img src="/src/assets/Icons/Google.png" alt="google" />
+            </div>
+          </div>
 
           <div className="registro-login">
             <h3 className="textcolor">¿Tienes una cuenta?</h3>

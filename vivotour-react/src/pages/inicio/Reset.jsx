@@ -1,4 +1,5 @@
 import React, { useMemo, useState } from 'react';
+import logo from '../../assets/Logos/new vivo contorno2.png';
 import axios from 'axios';
 import Footer from "../../components/use/Footer";
 import './style/Forgot.css';
@@ -33,6 +34,9 @@ export default function Reset() {
     <div className="forgot-page">
       <div className="forgot-container">
         <div className="forgot-card">
+          <div className="registro-logo">
+            <img src={logo} alt="logoVentana" className="main-logo" onClick={() => navigate("/")} />
+          </div>
           <h1 className="forgot-title">Restablecer Contraseña</h1>
           <form className="forgot-form" onSubmit={onSubmit}>
             <input

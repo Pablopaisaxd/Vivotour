@@ -20,14 +20,13 @@ const MyChart = ({ month, year, dailyData }) => {
 
   useEffect(() => {
     if (!dailyData || dailyData.length === 0) {
-      // Si no hay datos, mostrar chart vacío
       setChartData({
         labels: [],
         datasets: [
           {
             label: "Llegadas",
             data: [],
-            backgroundColor: "#4BAC35",
+            backgroundColor: "var(--forest-green)",
             hoverBackgroundColor: "#3d9129",
             barThickness: 9,
             minBarLength: 1,
@@ -37,7 +36,6 @@ const MyChart = ({ month, year, dailyData }) => {
       return;
     }
 
-    // Procesar los datos de reservas por fecha
     const processedData = processReservationData(dailyData, month, year);
     
     setChartData({
@@ -46,7 +44,7 @@ const MyChart = ({ month, year, dailyData }) => {
         {
           label: "Llegadas",
           data: processedData.data,
-          backgroundColor: "#4BAC35",
+          backgroundColor: "var(--forest-green)",
           hoverBackgroundColor: "#3d9129",
           barThickness: 9,
           minBarLength: 1,
@@ -56,7 +54,6 @@ const MyChart = ({ month, year, dailyData }) => {
   }, [month, year, dailyData]);
 
   const processReservationData = (data, selectedMonth, selectedYear) => {
-    // Convertir nombres de meses a números
     const monthNames = {
       'Enero': 1, 'Febrero': 2, 'Marzo': 3, 'Abril': 4, 'Mayo': 5, 'Junio': 6,
       'Julio': 7, 'Agosto': 8, 'Septiembre': 9, 'Octubre': 10, 'Noviembre': 11, 'Diciembre': 12
@@ -65,23 +62,19 @@ const MyChart = ({ month, year, dailyData }) => {
     const selectedMonthNum = monthNames[selectedMonth];
     const selectedYearNum = parseInt(selectedYear);
     
-    // Filtrar datos para el mes/año seleccionado
     const monthData = data.filter(item => {
       const date = new Date(item.fecha);
       return date.getMonth() + 1 === selectedMonthNum && date.getFullYear() === selectedYearNum;
     });
     
-    // Obtener número de días en el mes
     const daysInMonth = new Date(selectedYearNum, selectedMonthNum, 0).getDate();
     
-    // Crear array para todos los días del mes
     const labels = [];
     const reservationCounts = [];
     
     for (let day = 1; day <= daysInMonth; day++) {
       labels.push(day.toString());
       
-      // Buscar reservas para este día específico
       const dayData = monthData.find(item => {
         const date = new Date(item.fecha);
         return date.getDate() === day;
@@ -98,10 +91,13 @@ const MyChart = ({ month, year, dailyData }) => {
 
   const chartContainerStyle = {
     position: "relative",
-    height: "250px",
-    width: "90%",
-    margin: "0 auto",
-    filter: "drop-shadow(0 0 0.15rem rgba(0,0,0,0.05))",
+    height: "280px",
+    width: "95%",
+    margin: "1rem auto",
+    padding: "1rem",
+    background: "linear-gradient(135deg, var(--alice-blue) 0%, rgba(75, 172, 53, 0.05) 100%)",
+    borderRadius: "12px",
+    boxShadow: "0 4px 15px var(--shadow-light)",
   };
 
   return (
@@ -115,24 +111,46 @@ const MyChart = ({ month, year, dailyData }) => {
             title: {
               display: true,
               text: `${month} ${year}`,
-              font: { size: 16, color: 'var(--rich-black)' },
+              font: { 
+                size: 18, 
+                weight: '600',
+              },
+              color: 'var(--rich-black)',
+              padding: {
+                top: 10,
+                bottom: 20
+              }
             },
             legend: {
               display: true,
               position: "top",
               labels: {
                 color: 'var(--rich-black)',
+                font: {
+                  size: 14,
+                  weight: '500'
+                },
+                padding: 15,
               }
             },
             tooltip: {
-              backgroundColor: "rgba(255, 255, 255, 0.9)",
-              borderColor: "rgba(75, 172, 53, 0.5)",
-              borderWidth: 1,
+              backgroundColor: "rgba(240, 248, 255, 0.95)",
+              borderColor: "var(--forest-green)",
+              borderWidth: 2,
               titleColor: "var(--rich-black)",
               titleAlign: "center",
+              titleFont: {
+                size: 14,
+                weight: '600'
+              },
+              bodyColor: "var(--rich-black)",
+              bodyFont: {
+                size: 13
+              },
               caretPadding: 15,
-              cornerRadius: 5,
-              padding: 10,
+              cornerRadius: 8,
+              padding: 12,
+              displayColors: true,
               callbacks: {
                 title: (tooltipItems) => {
                   const idx = tooltipItems[0].dataIndex;
@@ -155,17 +173,31 @@ const MyChart = ({ month, year, dailyData }) => {
           },
           scales: {
             x: {
-              grid: { display: false },
+              grid: { 
+                display: false 
+              },
               ticks: {
                 color: 'var(--rich-black)',
+                font: {
+                  size: 12,
+                  weight: '500'
+                }
               }
             },
             y: {
               beginAtZero: true,
+              grid: {
+                color: 'var(--input-border)',
+                lineWidth: 1
+              },
               ticks: { 
                 display: true,
                 color: 'var(--rich-black)',
                 stepSize: 1,
+                font: {
+                  size: 12,
+                  weight: '500'
+                },
                 callback: function(value) {
                   if (value % 1 === 0) {
                     return value;

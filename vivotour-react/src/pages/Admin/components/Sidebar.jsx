@@ -8,7 +8,7 @@ function Sidebar() {
     return (
         <>
             {sidebarOpen && <div className="sidebar-backdrop" onClick={closeSidebar} aria-hidden="true" />}
-            <div className={`sidebar ${sidebarOpen ? 'open' : ''}`}>
+            <div className={`admin-sidebar ${sidebarOpen ? 'open' : ''}`}>
                 <ProfileCard />
                 <Menu onNavigate={closeSidebar} />
             </div>

@@ -35,7 +35,6 @@ const GalleryManagement = () => {
 
   useEffect(() => {
     fetchCategories();
-    // Inicializar galería automáticamente al cargar
     initializeGalleryOnLoad();
   }, []);
 
@@ -85,7 +84,6 @@ const GalleryManagement = () => {
       
       if (data.success) {
         alert(data.mensaje);
-        // Recargar imágenes de la categoría seleccionada si existe
         if (selectedCategory) {
           await fetchCategoryImages(selectedCategory.IdCategoria);
         }
@@ -128,7 +126,6 @@ const GalleryManagement = () => {
         setError('No se pudieron cargar las categorías');
       }
     } catch (error) {
-      // Error fetching categories
       setError(`Error: ${error.message}`);
     }
   };
@@ -158,7 +155,6 @@ const GalleryManagement = () => {
         setError('No se pudieron cargar las imágenes');
       }
     } catch (error) {
-      // Error fetching images
       setError(`Error: ${error.message}`);
     } finally {
       setLoading(false);
@@ -257,14 +253,12 @@ const GalleryManagement = () => {
 
       if (data.success) {
         await fetchCategoryImages(categoryId);
-        // Limpiar el input
         event.target.value = '';
       } else {
         setError(data.mensaje || 'Error desconocido');
         alert('Error: ' + (data.mensaje || 'Error desconocido'));
       }
     } catch (error) {
-      // Error adding images
       setError(`Error: ${error.message}`);
       alert('Error al agregar imágenes: ' + error.message);
     } finally {
@@ -307,84 +301,319 @@ const GalleryManagement = () => {
   const endIndex = startIndex + IMAGES_PER_PAGE;
   const currentImages = categoryImages.slice(startIndex, endIndex);
 
+  const styles = {
+    container: {
+      padding: '1.5rem',
+      width: '100%',
+      maxWidth: 'none',
+      boxSizing: 'border-box',
+      background: 'var(--alice-blue)',
+      borderRadius: '12px',
+      border: '1px solid var(--input-border)',
+      boxShadow: '0 8px 32px var(--shadow-light)',
+    },
+    header: {
+      display: 'flex',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      marginBottom: '1.5rem'
+    },
+    title: {
+      margin: 0,
+      fontSize: '1.75rem',
+      color: 'var(--rich-black)',
+      fontWeight: '700',
+      background: 'linear-gradient(135deg, var(--forest-green), var(--golden-yellow))',
+      WebkitBackgroundClip: 'text',
+      WebkitTextFillColor: 'transparent',
+    },
+    errorAlert: {
+      background: 'linear-gradient(135deg, #f8d7da, #f5c6cb)',
+      color: '#721c24',
+      padding: '1rem 1.5rem',
+      borderRadius: '8px',
+      marginBottom: '1.5rem',
+      border: '1px solid #dc3545',
+      fontWeight: '500',
+    },
+    categoriesGrid: {
+      display: 'grid',
+      gridTemplateColumns: 'repeat(2, 1fr)',
+      gap: '2rem',
+      marginTop: '1.5rem',
+      margin: '1.5rem 0',
+      padding: '0',
+      width: '100%',
+      boxSizing: 'border-box'
+    },
+    categoryCard: {
+      border: '2px solid var(--forest-green)',
+      borderRadius: '16px',
+      overflow: 'hidden',
+      background: 'rgba(255, 255, 255, 0.9)',
+      boxShadow: '0 8px 25px var(--shadow-strong)',
+      transition: 'var(--transition)',
+      cursor: 'pointer',
+      backdropFilter: 'blur(10px)',
+    },
+    categoryHeader: {
+      display: 'flex',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      padding: '1.25rem',
+      borderBottom: '2px solid var(--forest-green)',
+      background: 'linear-gradient(135deg, var(--alice-blue), rgba(75, 172, 53, 0.1))',
+    },
+    categoryTitle: {
+      margin: 0,
+      fontSize: '1.1rem',
+      fontWeight: '700',
+      color: 'var(--forest-green)'
+    },
+    editButton: {
+      cursor: 'pointer',
+      padding: '0.75rem',
+      borderRadius: '50%',
+      background: 'linear-gradient(135deg, var(--forest-green), var(--golden-yellow))',
+      color: 'white',
+      display: 'flex',
+      alignItems: 'center',
+      border: 'none',
+      transition: 'var(--transition)',
+      boxShadow: '0 4px 12px var(--shadow-strong)',
+    },
+    imageContainer: {
+      position: 'relative',
+      width: '100%',
+      paddingBottom: '60%',
+      cursor: 'pointer',
+      overflow: 'hidden'
+    },
+    coverImage: {
+      position: 'absolute',
+      top: 0,
+      left: 0,
+      width: '100%',
+      height: '100%',
+      objectFit: 'cover',
+      transition: 'var(--transition)'
+    },
+    overlay: {
+      position: 'absolute',
+      top: 0,
+      left: 0,
+      right: 0,
+      bottom: 0,
+      background: 'linear-gradient(135deg, rgba(75, 172, 53, 0.8), rgba(255, 201, 20, 0.8))',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      color: 'white',
+      opacity: 0,
+      transition: 'var(--transition)',
+      fontSize: '1.1rem',
+      fontWeight: '700'
+    },
+    modalOverlay: {
+      position: 'fixed',
+      top: 0,
+      left: 0,
+      right: 0,
+      bottom: 0,
+      background: 'rgba(26, 24, 27, 0.8)',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      zIndex: 1000,
+      backdropFilter: 'blur(5px)',
+    },
+    modalContent: {
+      background: 'var(--alice-blue)',
+      borderRadius: '16px',
+      width: '90%',
+      maxWidth: '900px',
+      maxHeight: '90%',
+      overflow: 'hidden',
+      display: 'flex',
+      flexDirection: 'column',
+      border: '1px solid var(--input-border)',
+      boxShadow: '0 20px 60px rgba(26, 24, 27, 0.3)',
+    },
+    modalHeader: {
+      display: 'flex',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      padding: '1.5rem',
+      borderBottom: '1px solid var(--input-border)',
+      background: 'linear-gradient(135deg, var(--alice-blue), rgba(75, 172, 53, 0.1))',
+    },
+    modalTitle: {
+      margin: 0,
+      fontSize: '1.3rem',
+      fontWeight: '700',
+      color: 'var(--rich-black)'
+    },
+    modalActions: {
+      display: 'flex',
+      gap: '1rem',
+      alignItems: 'center'
+    },
+    addButton: {
+      background: 'linear-gradient(135deg, var(--forest-green), var(--golden-yellow))',
+      color: 'white',
+      padding: '0.75rem 1.25rem',
+      borderRadius: '25px',
+      cursor: 'pointer',
+      display: 'flex',
+      alignItems: 'center',
+      gap: '0.5rem',
+      border: 'none',
+      fontSize: '0.95rem',
+      fontWeight: '600',
+      transition: 'var(--transition)',
+      boxShadow: '0 4px 15px var(--shadow-strong)',
+    },
+    closeButton: {
+      background: 'rgba(255, 255, 255, 0.8)',
+      color: 'var(--rich-black)',
+      border: '1px solid var(--input-border)',
+      borderRadius: '50%',
+      width: '40px',
+      height: '40px',
+      cursor: 'pointer',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      transition: 'var(--transition)',
+    },
+    loadingText: {
+      padding: '3rem',
+      textAlign: 'center',
+      fontSize: '1.1rem',
+      color: 'var(--input-placeholder)',
+      fontWeight: '500',
+    },
+    modalBody: {
+      padding: '1.5rem',
+      flex: 1,
+      overflow: 'auto'
+    },
+    imagesGrid: {
+      display: 'grid',
+      gridTemplateColumns: 'repeat(auto-fill, minmax(150px, 1fr))',
+      gap: '1rem'
+    },
+    imageCard: {
+      position: 'relative',
+      aspectRatio: '16/9',
+      border: '1px solid var(--input-border)',
+      borderRadius: '8px',
+      overflow: 'hidden',
+      background: 'rgba(255, 255, 255, 0.8)',
+      transition: 'var(--transition)',
+    },
+    modalImage: {
+      width: '100%',
+      height: '100%',
+      objectFit: 'cover'
+    },
+    deleteButton: {
+      position: 'absolute',
+      top: '0.5rem',
+      right: '0.5rem',
+      background: 'linear-gradient(135deg, #dc3545, #c82333)',
+      color: 'white',
+      border: 'none',
+      borderRadius: '50%',
+      width: '32px',
+      height: '32px',
+      cursor: 'pointer',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      fontSize: '0.8rem',
+      transition: 'var(--transition)',
+      boxShadow: '0 2px 8px rgba(220, 53, 69, 0.3)',
+    },
+    emptyState: {
+      textAlign: 'center',
+      padding: '3rem',
+      color: 'var(--input-placeholder)'
+    },
+    pagination: {
+      display: 'flex',
+      justifyContent: 'center',
+      alignItems: 'center',
+      gap: '1rem',
+      marginTop: '2rem',
+      padding: '1rem'
+    },
+    paginationButton: {
+      padding: '0.75rem 1.25rem',
+      borderRadius: '25px',
+      border: 'none',
+      cursor: 'pointer',
+      fontWeight: '600',
+      transition: 'var(--transition)',
+    },
+    paginationInfo: {
+      padding: '0.75rem 1.25rem',
+      background: 'rgba(255, 255, 255, 0.8)',
+      borderRadius: '25px',
+      border: '1px solid var(--input-border)',
+      fontWeight: '500',
+    },
+    modalFooter: {
+      padding: '1rem 1.5rem',
+      borderTop: '1px solid var(--input-border)',
+      background: 'linear-gradient(135deg, var(--alice-blue), rgba(75, 172, 53, 0.1))',
+      textAlign: 'center',
+      color: 'var(--input-placeholder)'
+    }
+  };
+
   return (
-    <div className="gallery-management-full" style={{ padding: '20px', width: '100%', maxWidth: 'none', boxSizing: 'border-box' }}>
-      <div style={{
-        display: 'flex',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        marginBottom: '20px'
-      }}>
-        <h2 style={{ margin: 0, color: '#333' }}>Gestión de Galería</h2>
+    <div className="gallery-management-full" style={styles.container}>
+      <div style={styles.header}>
+        <h2 style={styles.title}>🖼️ Gestión de Galería</h2>
       </div>
+      
       {error && (
-        <div style={{
-          backgroundColor: '#f8d7da',
-          color: '#721c24',
-          padding: '12px 20px',
-          borderRadius: '4px',
-          marginBottom: '20px',
-          border: '1px solid #f5c6cb'
-        }}>
+        <div style={styles.errorAlert}>
           ⚠️ {error}
         </div>
       )}
-      <div style={{ 
-        display: 'grid', 
-        /* Show exactly 2 cards per row */
-        gridTemplateColumns: 'repeat(2, 1fr)', 
-        gap: '30px',
-        marginTop: '20px',
-        margin: '20px 0',
-        padding: '0',
-        width: '100%',
-        boxSizing: 'border-box'
-      }}>
+      
+      <div style={styles.categoriesGrid}>
         {categories.map(category => (
-          <div key={category.IdCategoria} style={{
-            border: '2px solid #4bac35',
-            borderRadius: '12px',
-            overflow: 'hidden',
-            backgroundColor: 'white',
-            boxShadow: '0 4px 12px rgba(75,172,53,0.15)',
-            transition: 'transform 0.3s, box-shadow 0.3s',
-            cursor: 'pointer'
-          }}
-          onMouseEnter={(e) => {
-            e.currentTarget.style.transform = 'translateY(-5px)';
-            e.currentTarget.style.boxShadow = '0 6px 20px rgba(75,172,53,0.25)';
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.transform = 'translateY(0)';
-            e.currentTarget.style.boxShadow = '0 4px 12px rgba(75,172,53,0.15)';
-          }}
+          <div 
+            key={category.IdCategoria} 
+            style={styles.categoryCard}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.transform = 'translateY(-8px)';
+              e.currentTarget.style.boxShadow = '0 12px 40px var(--shadow-hover)';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.transform = 'translateY(0)';
+              e.currentTarget.style.boxShadow = '0 8px 25px var(--shadow-strong)';
+            }}
           >
-            <div style={{
-              display: 'flex',
-              justifyContent: 'space-between',
-              alignItems: 'center',
-              padding: '15px',
-              borderBottom: '2px solid #4bac35',
-              backgroundColor: '#f8f9fa'
-            }}>
-              <h3 style={{ margin: 0, fontSize: '16px', fontWeight: '600', color: '#4bac35' }}>
+            <div style={styles.categoryHeader}>
+              <h3 style={styles.categoryTitle}>
                 {categoryTexts[category.IdCategoria] || category.NombreCategoria}
               </h3>
-              <label style={{
-                cursor: 'pointer',
-                padding: '8px',
-                borderRadius: '6px',
-                backgroundColor: '#4bac35',
-                color: 'white',
-                display: 'flex',
-                alignItems: 'center',
-                border: 'none',
-                transition: 'all 0.2s',
-                boxShadow: '0 2px 6px rgba(75,172,53,0.2)'
-              }}
-              onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#3d9129'}
-              onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#4bac35'}
-              title="Editar portada">
+              <label 
+                style={styles.editButton}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.transform = 'scale(1.1)';
+                  e.currentTarget.style.boxShadow = '0 6px 20px var(--shadow-hover)';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.transform = 'scale(1)';
+                  e.currentTarget.style.boxShadow = '0 4px 12px var(--shadow-strong)';
+                }}
+                title="Editar portada"
+              >
                 <input
                   type="file"
                   accept="image/*"
@@ -399,109 +628,55 @@ const GalleryManagement = () => {
             </div>
             
             <div 
-              style={{
-                position: 'relative',
-                width: '100%',
-                /* Make cover image container a horizontal rectangle instead of a square */
-                paddingBottom: '60%',
-                cursor: 'pointer',
-                overflow: 'hidden'
-              }}
+              style={styles.imageContainer}
               onClick={() => handleCategoryClick(category)}
             >
               <img 
                 src={coverImages[category.IdCategoria]} 
                 alt={category.NombreCategoria}
-                style={{
-                  position: 'absolute',
-                  top: 0,
-                  left: 0,
-                  width: '100%',
-                  height: '100%',
-                  objectFit: 'cover',
-                  transition: 'transform 0.3s'
-                }}
+                style={styles.coverImage}
                 onError={(e) => {
                   e.target.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjZGRkIi8+PHRleHQgeD0iNTAlIiB5PSI1MCUiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC1zaXplPSIxNCIgZmlsbD0iIzk5OSIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZHk9Ii4zZW0iPkltYWdlbiBubyBkaXNwb25pYmxlPC90ZXh0Pjwvc3ZnPg==';
                 }}
               />
-              <div style={{
-                position: 'absolute',
-                top: 0,
-                left: 0,
-                right: 0,
-                bottom: 0,
-                backgroundColor: 'rgba(75,172,53,0.8)',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                color: 'white',
-                opacity: 0,
-                transition: 'opacity 0.3s',
-                fontSize: '16px',
-                fontWeight: 'bold'
-              }}
-              onMouseEnter={(e) => { e.currentTarget.style.opacity = '1'; }}
-              onMouseLeave={(e) => { e.currentTarget.style.opacity = '0'; }}
+              <div 
+                style={styles.overlay}
+                onMouseEnter={(e) => { e.currentTarget.style.opacity = '1'; }}
+                onMouseLeave={(e) => { e.currentTarget.style.opacity = '0'; }}
               >
-                <span>Gestionar Imágenes</span>
+                <span>📸 Gestionar Imágenes</span>
               </div>
             </div>
           </div>
         ))}
       </div>
 
-      {/* Modal para gestionar imágenes */}
       {showModal && selectedCategory && (
-        <div style={{
-          position: 'fixed',
-          top: 0,
-          left: 0,
-          right: 0,
-          bottom: 0,
-          backgroundColor: 'rgba(0,0,0,0.8)',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          zIndex: 1000
-        }} onClick={() => setShowModal(false)}>
-          <div style={{
-            backgroundColor: 'white',
-            borderRadius: '8px',
-            width: '90%',
-            maxWidth: '900px',
-            maxHeight: '90%',
-            overflow: 'hidden',
-            display: 'flex',
-            flexDirection: 'column'
-          }} onClick={(e) => e.stopPropagation()}>
+        <div style={styles.modalOverlay} onClick={() => setShowModal(false)}>
+          <div style={styles.modalContent} onClick={(e) => e.stopPropagation()}>
             
-            <div style={{
-              display: 'flex',
-              justifyContent: 'space-between',
-              alignItems: 'center',
-              padding: '20px',
-              borderBottom: '1px solid #eee',
-              backgroundColor: '#f8f9fa'
-            }}>
-              <h3 style={{ margin: 0 }}>
-                Gestionar: {categoryTexts[selectedCategory.IdCategoria] || selectedCategory.NombreCategoria}
+            <div style={styles.modalHeader}>
+              <h3 style={styles.modalTitle}>
+                📸 Gestionar: {categoryTexts[selectedCategory.IdCategoria] || selectedCategory.NombreCategoria}
               </h3>
-              <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
-                <label style={{
-                  backgroundColor: '#007bff',
-                  color: 'white',
-                  padding: '10px 16px',
-                  borderRadius: '4px',
-                  cursor: loading ? 'not-allowed' : 'pointer',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '8px',
-                  border: 'none',
-                  fontSize: '14px',
-                  fontWeight: '500',
-                  opacity: loading ? 0.6 : 1
-                }}>
+              <div style={styles.modalActions}>
+                <label 
+                  style={{
+                    ...styles.addButton,
+                    opacity: loading ? 0.6 : 1,
+                    cursor: loading ? 'not-allowed' : 'pointer'
+                  }}
+                  onMouseEnter={(e) => {
+                    if (!loading) {
+                      e.currentTarget.style.transform = 'translateY(-2px)';
+                      e.currentTarget.style.boxShadow = '0 6px 20px var(--shadow-hover)';
+                    }
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.transform = 'translateY(0)';
+                    e.currentTarget.style.boxShadow = '0 4px 15px var(--shadow-strong)';
+                  }}
+                >
                   <input
                     id={`file-input-${selectedCategory.IdCategoria}`}
                     type="file"
@@ -515,22 +690,19 @@ const GalleryManagement = () => {
                     <circle cx="12" cy="12" r="10"/>
                     <path d="M12 8v8M8 12h8"/>
                   </svg>
-                  {loading ? 'Subiendo...' : 'Agregar Imágenes'}
+                  {loading ? 'Subiendo...' : '➕ Agregar Imágenes'}
                 </label>
                 <button 
-                  style={{
-                    background: '#6c757d',
-                    color: 'white',
-                    border: 'none',
-                    borderRadius: '4px',
-                    width: '32px',
-                    height: '32px',
-                    cursor: 'pointer',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center'
-                  }}
+                  style={styles.closeButton}
                   onClick={() => setShowModal(false)}
+                  onMouseEnter={(e) => {
+                    e.target.style.transform = 'scale(1.1)';
+                    e.target.style.boxShadow = '0 4px 15px var(--shadow-medium)';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.target.style.transform = 'scale(1)';
+                    e.target.style.boxShadow = '0 2px 8px var(--shadow-light)';
+                  }}
                 >
                   ✕
                 </button>
@@ -538,42 +710,23 @@ const GalleryManagement = () => {
             </div>
 
             {loading && (
-              <div style={{ 
-                padding: '40px', 
-                textAlign: 'center',
-                fontSize: '16px',
-                color: '#666'
-              }}>
-                Cargando...
+              <div style={styles.loadingText}>
+                🔄 Cargando...
               </div>
             )}
 
-            <div style={{ 
-              padding: '20px', 
-              flex: 1, 
-              overflow: 'auto' 
-            }}>
+            <div style={styles.modalBody}>
               {currentImages.length > 0 ? (
-                <div style={{
-                  display: 'grid',
-                  gridTemplateColumns: 'repeat(auto-fill, minmax(150px, 1fr))',
-                  gap: '15px'
-                }}>
+                <div style={styles.imagesGrid}>
                   {currentImages.map((image) => {
-                    // Obtener ID de la imagen (puede ser IdGaleria o IdImagen dependiendo de la tabla)
                     const imageId = image.IdGaleria || image.IdImagen;
                     
-                    // Construir la URL según el tipo de imagen
                     let imageUrl = image.RutaImagen;
                     
-                    // Si es una ruta de assets (comienza con /src/assets)
                     if (imageUrl.startsWith('/src/assets/')) {
-                      // Importar dinámicamente desde assets
                       try {
-                        // Convertir ruta: /src/assets/imgs/fauna/mono.jpg -> fauna/mono.jpg
                         const pathParts = imageUrl.replace('/src/assets/imgs/', '').split('/');
                         
-                        // Usar import.meta.glob para cargar la imagen
                         const allImgs = import.meta.glob('../../assets/imgs/**/*.{jpg,jpeg,png,JPG,JPEG,PNG}', { eager: true });
                         const matchedKey = Object.keys(allImgs).find(key => key.includes(pathParts[pathParts.length - 1]));
                         
@@ -584,52 +737,43 @@ const GalleryManagement = () => {
                         // Error loading asset image
                       }
                     } else if (imageUrl.startsWith('/uploads/')) {
-                      // Si es una imagen subida, usar URL completa del servidor
                       imageUrl = `${apiConfig.baseUrl}${imageUrl}`;
                     }
                     
                     return (
-                    <div key={imageId} style={{
-                      position: 'relative',
-                      /* Make modal image tiles rectangular (wider) using 16:9 aspect ratio */
-                      aspectRatio: '16/9',
-                      border: '1px solid #ddd',
-                      borderRadius: '6px',
-                      overflow: 'hidden',
-                      backgroundColor: '#f8f9fa'
-                    }}>
+                    <div 
+                      key={imageId} 
+                      style={styles.imageCard}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.transform = 'scale(1.05)';
+                        e.currentTarget.style.boxShadow = '0 8px 25px var(--shadow-medium)';
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.transform = 'scale(1)';
+                        e.currentTarget.style.boxShadow = '0 2px 8px var(--shadow-light)';
+                      }}
+                    >
                       <img 
                         src={imageUrl} 
                         alt={`Imagen ${imageId}`}
-                        style={{
-                          width: '100%',
-                          height: '100%',
-                          objectFit: 'cover'
-                        }}
+                        style={styles.modalImage}
                         onError={(e) => {
                           console.warn('❌ Error loading image:', image.RutaImagen, '| Final URL:', imageUrl);
                           e.target.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTUwIiBoZWlnaHQ9IjE1MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjZjhmOWZhIi8+PHRleHQgeD0iNTAlIiB5PSI1MCUiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC1zaXplPSIxMiIgZmlsbD0iIzZjNzU3ZCIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZHk9Ii4zZW0iPkVycm9yPC90ZXh0Pjwvc3ZnPg==';
                         }}
                       />
                       <button 
-                        style={{
-                          position: 'absolute',
-                          top: '5px',
-                          right: '5px',
-                          backgroundColor: 'rgba(220, 53, 69, 0.9)',
-                          color: 'white',
-                          border: 'none',
-                          borderRadius: '50%',
-                          width: '28px',
-                          height: '28px',
-                          cursor: 'pointer',
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                          fontSize: '12px'
-                        }}
+                        style={styles.deleteButton}
                         onClick={() => handleDeleteImage(imageId)}
                         title="Eliminar imagen"
+                        onMouseEnter={(e) => {
+                          e.target.style.transform = 'scale(1.1)';
+                          e.target.style.boxShadow = '0 4px 15px rgba(220, 53, 69, 0.5)';
+                        }}
+                        onMouseLeave={(e) => {
+                          e.target.style.transform = 'scale(1)';
+                          e.target.style.boxShadow = '0 2px 8px rgba(220, 53, 69, 0.3)';
+                        }}
                       >
                         🗑️
                       </button>
@@ -638,74 +782,50 @@ const GalleryManagement = () => {
                   })}
                 </div>
               ) : (
-                <div style={{
-                  textAlign: 'center',
-                  padding: '40px',
-                  color: '#6c757d'
-                }}>
-                  <p>No hay imágenes en esta categoría</p>
-                  <p style={{ fontSize: '14px' }}>Haz clic en "Agregar Imágenes" para subir nuevas fotos</p>
+                <div style={styles.emptyState}>
+                  <p style={{ fontSize: '1.2rem', marginBottom: '0.5rem' }}>📷 No hay imágenes en esta categoría</p>
+                  <p style={{ fontSize: '1rem', fontStyle: 'italic' }}>Haz clic en "Agregar Imágenes" para subir nuevas fotos</p>
                 </div>
               )}
 
               {totalPages > 1 && (
-                <div style={{
-                  display: 'flex',
-                  justifyContent: 'center',
-                  alignItems: 'center',
-                  gap: '15px',
-                  marginTop: '25px',
-                  padding: '15px'
-                }}>
+                <div style={styles.pagination}>
                   <button 
                     onClick={() => setCurrentPage(currentPage - 1)}
                     disabled={currentPage === 0}
                     style={{
-                      padding: '8px 16px',
-                      backgroundColor: currentPage === 0 ? '#e9ecef' : '#007bff',
-                      color: currentPage === 0 ? '#6c757d' : 'white',
-                      border: 'none',
-                      borderRadius: '4px',
-                      cursor: currentPage === 0 ? 'not-allowed' : 'pointer'
+                      ...styles.paginationButton,
+                      background: currentPage === 0 ? 'rgba(255, 255, 255, 0.5)' : 'linear-gradient(135deg, var(--forest-green), var(--golden-yellow))',
+                      color: currentPage === 0 ? 'var(--input-placeholder)' : 'white',
+                      cursor: currentPage === 0 ? 'not-allowed' : 'pointer',
+                      boxShadow: currentPage === 0 ? 'none' : '0 4px 12px var(--shadow-strong)',
                     }}
                   >
-                    Anterior
+                    ← Anterior
                   </button>
-                  <span style={{ 
-                    padding: '8px 16px',
-                    backgroundColor: '#f8f9fa',
-                    borderRadius: '4px',
-                    border: '1px solid #dee2e6'
-                  }}>
+                  <span style={styles.paginationInfo}>
                     Página {currentPage + 1} de {totalPages}
                   </span>
                   <button 
                     onClick={() => setCurrentPage(currentPage + 1)}
                     disabled={currentPage === totalPages - 1}
                     style={{
-                      padding: '8px 16px',
-                      backgroundColor: currentPage === totalPages - 1 ? '#e9ecef' : '#007bff',
-                      color: currentPage === totalPages - 1 ? '#6c757d' : 'white',
-                      border: 'none',
-                      borderRadius: '4px',
-                      cursor: currentPage === totalPages - 1 ? 'not-allowed' : 'pointer'
+                      ...styles.paginationButton,
+                      background: currentPage === totalPages - 1 ? 'rgba(255, 255, 255, 0.5)' : 'linear-gradient(135deg, var(--forest-green), var(--golden-yellow))',
+                      color: currentPage === totalPages - 1 ? 'var(--input-placeholder)' : 'white',
+                      cursor: currentPage === totalPages - 1 ? 'not-allowed' : 'pointer',
+                      boxShadow: currentPage === totalPages - 1 ? 'none' : '0 4px 12px var(--shadow-strong)',
                     }}
                   >
-                    Siguiente
+                    Siguiente →
                   </button>
                 </div>
               )}
             </div>
 
-            <div style={{
-              padding: '15px 20px',
-              borderTop: '1px solid #eee',
-              backgroundColor: '#f8f9fa',
-              textAlign: 'center',
-              color: '#6c757d'
-            }}>
-              <p style={{ margin: 0, fontSize: '14px' }}>
-                Total de imágenes: {categoryImages.length}
+            <div style={styles.modalFooter}>
+              <p style={{ margin: 0, fontSize: '0.95rem' }}>
+                📊 Total de imágenes: {categoryImages.length}
               </p>
             </div>
           </div>

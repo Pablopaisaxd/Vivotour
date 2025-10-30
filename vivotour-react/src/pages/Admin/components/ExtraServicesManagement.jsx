@@ -27,7 +27,6 @@ const ExtraServicesManagement = () => {
     { value: 'transporte', label: 'Transporte Extra' }
   ];
 
-  // Servicios por defecto para demostración
   const defaultServices = [
     {
       id: 1,
@@ -78,7 +77,6 @@ const ExtraServicesManagement = () => {
     }
 
     try {
-      // Llamar el endpoint de inicialización
       await fetch(`${apiConfig.baseUrl}/api/initialize-data`, {
         method: 'POST',
         headers: {
@@ -87,7 +85,6 @@ const ExtraServicesManagement = () => {
         }
       }).catch(err => console.log('Initialize data call result:', err));
 
-      // Luego cargar los servicios
       fetchServices();
     } catch (err) {
       console.error('Error in initialization:', err);
@@ -194,6 +191,7 @@ const ExtraServicesManagement = () => {
   const handleEdit = (service) => {
     setFormData(service);
     setEditingId(service.id);
+    setShowForm(true);
   };
 
   const handleDeleteClick = (service) => {
@@ -232,7 +230,7 @@ const ExtraServicesManagement = () => {
         setSuccess(true);
         setShowDeleteModal(false);
         setServiceToDelete(null);
-        await fetchServices(); // Recargar desde BD
+        await fetchServices();
         setTimeout(() => setSuccess(false), 3000);
       } else {
         const errorData = await response.json();
@@ -255,7 +253,6 @@ const ExtraServicesManagement = () => {
   };
 
   const handleDelete = async (id) => {
-    // Mantener para compatibilidad, pero usar el modal ahora
     const service = services.find(s => s.id === id);
     if (service) {
       handleDeleteClick(service);
@@ -270,6 +267,7 @@ const ExtraServicesManagement = () => {
       category: 'otros'
     });
     setEditingId(null);
+    setShowForm(false);
   };
 
   const getCategoryLabel = (value) => {
@@ -278,262 +276,282 @@ const ExtraServicesManagement = () => {
 
   const styles = {
     container: {
-      padding: '30px',
-      backgroundColor: 'var(--card-background)',
+      padding: '1.5rem',
+      background: 'var(--alice-blue)',
       display: 'flex',
       flexDirection: 'column',
       width: '100%',
-      boxSizing: 'border-box'
+      boxSizing: 'border-box',
+      borderRadius: '12px',
+      border: '1px solid var(--input-border)',
+      boxShadow: '0 8px 32px var(--shadow-light)',
     },
     title: {
-      fontSize: '2rem',
-      marginBottom: '30px',
+      fontSize: '1.75rem',
+      marginBottom: '1.5rem',
       textAlign: 'center',
       color: 'var(--rich-black)',
-      fontWeight: '600'
+      fontWeight: '700',
+      background: 'linear-gradient(135deg, var(--forest-green), var(--golden-yellow))',
+      WebkitBackgroundClip: 'text',
+      WebkitTextFillColor: 'transparent',
     },
     formContainer: {
-      backgroundColor: '#f9f9f9',
-      padding: '20px',
-      borderRadius: '8px',
-      marginBottom: '30px',
-      border: '1px solid var(--border-color-light)'
+      background: 'rgba(255, 255, 255, 0.8)',
+      padding: '1.5rem',
+      borderRadius: '12px',
+      marginBottom: '1.5rem',
+      border: '1px solid var(--input-border)',
+      backdropFilter: 'blur(10px)',
     },
     formGroup: {
-      marginBottom: '15px',
+      marginBottom: '1rem',
       display: 'flex',
       flexDirection: 'column'
     },
     label: {
-      marginBottom: '5px',
-      fontWeight: '500',
+      marginBottom: '0.5rem',
+      fontWeight: '600',
       color: 'var(--rich-black)',
-      fontSize: '14px'
+      fontSize: '0.95rem'
     },
     input: {
-      padding: '10px',
-      borderRadius: '4px',
-      border: '1px solid var(--border-color-light)',
-      fontSize: '14px',
-      fontFamily: 'inherit'
+      padding: '0.75rem',
+      borderRadius: '8px',
+      border: '1px solid var(--input-border)',
+      fontSize: '0.95rem',
+      fontFamily: 'inherit',
+      background: 'var(--input-bg)',
+      color: 'var(--rich-black)',
+      transition: 'var(--transition)',
     },
     select: {
-      padding: '10px',
-      borderRadius: '4px',
-      border: '1px solid var(--border-color-light)',
-      fontSize: '14px',
-      fontFamily: 'inherit'
+      padding: '0.75rem',
+      borderRadius: '8px',
+      border: '1px solid var(--input-border)',
+      fontSize: '0.95rem',
+      fontFamily: 'inherit',
+      background: 'var(--input-bg)',
+      color: 'var(--rich-black)',
+      transition: 'var(--transition)',
     },
     textarea: {
-      padding: '10px',
-      borderRadius: '4px',
-      border: '1px solid var(--border-color-light)',
-      fontSize: '14px',
+      padding: '0.75rem',
+      borderRadius: '8px',
+      border: '1px solid var(--input-border)',
+      fontSize: '0.95rem',
       fontFamily: 'inherit',
-      minHeight: '80px',
-      resize: 'vertical'
+      minHeight: '100px',
+      resize: 'vertical',
+      background: 'var(--input-bg)',
+      color: 'var(--rich-black)',
+      transition: 'var(--transition)',
     },
     buttonGroup: {
       display: 'flex',
-      gap: '10px',
+      gap: '1rem',
       justifyContent: 'center'
     },
     button: {
-      padding: '10px 20px',
-      borderRadius: '4px',
+      padding: '0.75rem 1.5rem',
+      borderRadius: '25px',
       border: 'none',
-      fontWeight: '600',
+      fontWeight: '700',
       cursor: 'pointer',
-      transition: 'background-color 0.3s',
-      fontSize: '14px'
+      transition: 'var(--transition)',
+      fontSize: '0.95rem',
+      boxShadow: '0 4px 12px var(--shadow-light)',
     },
     submitBtn: {
-      backgroundColor: 'var(--forest-green)',
-      color: 'white'
+      background: 'linear-gradient(135deg, var(--forest-green), var(--golden-yellow))',
+      color: 'white',
+      boxShadow: '0 4px 15px var(--shadow-strong)',
     },
     cancelBtn: {
-      backgroundColor: '#ccc',
-      color: '#333'
+      background: 'rgba(255, 255, 255, 0.8)',
+      color: 'var(--rich-black)',
+      border: '1px solid var(--input-border)',
     },
     servicesGrid: {
       display: 'grid',
-      gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))',
-      gap: '20px'
+      gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))',
+      gap: '1.5rem'
     },
     serviceCard: {
-      backgroundColor: '#fff',
-      padding: '18px',
-      borderRadius: '12px',
-      border: '2px solid rgba(0,0,0,0.06)',
-      boxShadow: '0 2px 8px rgba(0,0,0,0.05)',
+      background: 'rgba(255, 255, 255, 0.9)',
+      padding: '1.5rem',
+      borderRadius: '16px',
+      border: '1px solid var(--input-border)',
+      boxShadow: '0 4px 20px var(--shadow-light)',
       cursor: 'default',
-      transition: 'all 0.3s ease',
+      transition: 'var(--transition)',
       display: 'flex',
       flexDirection: 'column',
-      gap: '10px',
-      minHeight: '280px',
-      boxSizing: 'border-box'
-    },
-    serviceCardHover: {
-      borderColor: 'var(--forest-green)',
-      boxShadow: '0 4px 15px rgba(75,172,53,0.3)',
-      transform: 'translateY(-3px)'
+      gap: '1rem',
+      minHeight: '320px',
+      boxSizing: 'border-box',
+      backdropFilter: 'blur(10px)',
     },
     serviceTitle: {
-      fontSize: '1.05rem',
-      fontWeight: '600',
-      marginBottom: '5px',
+      fontSize: '1.2rem',
+      fontWeight: '700',
+      marginBottom: '0.5rem',
       color: 'var(--rich-black)'
     },
     servicePrice: {
-      fontSize: '1.3rem',
+      fontSize: '1.4rem',
       fontWeight: '700',
       color: 'var(--forest-green)',
-      marginBottom: '8px'
+      marginBottom: '0.75rem'
     },
     serviceCategory: {
       display: 'inline-block',
-      backgroundColor: '#e6f4d9',
-      color: '#2e7d32',
-      padding: '4px 12px',
+      background: 'linear-gradient(135deg, var(--forest-green), var(--golden-yellow))',
+      color: 'white',
+      padding: '0.5rem 1rem',
       borderRadius: '20px',
-      fontSize: '12px',
-      fontWeight: '600',
-      marginBottom: '10px',
-      width: 'fit-content'
+      fontSize: '0.8rem',
+      fontWeight: '700',
+      marginBottom: '1rem',
+      width: 'fit-content',
+      textTransform: 'uppercase',
+      letterSpacing: '0.5px',
     },
     serviceDescription: {
-      fontSize: '14px',
-      color: '#555',
-      marginBottom: '15px',
-      minHeight: '50px',
-      flex: '1'
+      fontSize: '0.95rem',
+      color: 'var(--input-placeholder)',
+      marginBottom: '1rem',
+      minHeight: '60px',
+      flex: '1',
+      lineHeight: '1.5',
     },
     serviceActions: {
       display: 'flex',
-      gap: '10px',
+      gap: '0.75rem',
       justifyContent: 'center',
       marginTop: 'auto',
-      paddingTop: '10px'
+      paddingTop: '1rem'
     },
     btnPrimary: {
-      padding: '9px 14px',
-      borderRadius: '10px',
+      padding: '0.75rem 1.25rem',
+      borderRadius: '20px',
       fontWeight: '700',
       cursor: 'pointer',
       border: 'none',
-      transition: 'all 0.3s ease',
-      fontSize: '13px',
-      backgroundColor: 'var(--forest-green)',
-      color: '#fff'
-    },
-    btnSecondary: {
-      padding: '9px 14px',
-      borderRadius: '10px',
-      fontWeight: '700',
-      cursor: 'pointer',
-      border: '1px solid rgba(0,0,0,0.06)',
-      transition: 'all 0.3s ease',
-      fontSize: '13px',
-      backgroundColor: '#fff',
-      color: 'var(--rich-black)'
+      transition: 'var(--transition)',
+      fontSize: '0.9rem',
+      background: 'linear-gradient(135deg, var(--forest-green), var(--golden-yellow))',
+      color: 'white',
+      boxShadow: '0 4px 12px var(--shadow-strong)',
     },
     btnDanger: {
-      padding: '9px 14px',
-      borderRadius: '10px',
+      padding: '0.75rem 1.25rem',
+      borderRadius: '20px',
       fontWeight: '700',
       cursor: 'pointer',
       border: 'none',
-      transition: 'all 0.3s ease',
-      fontSize: '13px',
-      backgroundColor: '#dc3545',
-      color: '#fff'
+      transition: 'var(--transition)',
+      fontSize: '0.9rem',
+      background: 'linear-gradient(135deg, #dc3545, #c82333)',
+      color: 'white',
+      boxShadow: '0 4px 12px rgba(220, 53, 69, 0.3)',
     },
     alert: {
-      padding: '12px 20px',
-      marginBottom: '20px',
-      borderRadius: '4px',
+      padding: '1rem 1.5rem',
+      marginBottom: '1.5rem',
+      borderRadius: '8px',
       textAlign: 'center',
-      border: '1px solid'
+      border: '1px solid',
+      fontWeight: '500',
     },
     alertError: {
-      backgroundColor: '#f8d7da',
+      background: 'linear-gradient(135deg, #f8d7da, #f5c6cb)',
       color: '#721c24',
-      borderColor: '#f5c6cb'
+      borderColor: '#dc3545'
     },
     alertSuccess: {
-      backgroundColor: '#d4edda',
+      background: 'linear-gradient(135deg, #d4edda, #c3e6cb)',
       color: '#155724',
-      borderColor: '#c3e6cb'
+      borderColor: 'var(--forest-green)'
     },
-    // Modal styles
     modalOverlay: {
       position: 'fixed',
       top: 0,
       left: 0,
       width: '100%',
       height: '100%',
-      backgroundColor: 'rgba(0, 0, 0, 0.7)',
+      background: 'rgba(26, 24, 27, 0.7)',
       display: 'flex',
       justifyContent: 'center',
       alignItems: 'center',
       zIndex: 9999,
+      backdropFilter: 'blur(5px)',
     },
     modalContent: {
-      backgroundColor: '#fff',
-      padding: '30px',
+      background: 'var(--alice-blue)',
+      padding: '2rem',
       borderRadius: '16px',
-      boxShadow: '0 10px 40px rgba(0, 0, 0, 0.3)',
+      boxShadow: '0 20px 60px rgba(26, 24, 27, 0.3)',
       maxWidth: '450px',
       width: '90%',
-      animation: 'fadeIn 0.3s ease-in-out',
+      border: '1px solid var(--input-border)',
     },
     modalTitle: {
-      fontSize: '1.5rem',
+      fontSize: '1.4rem',
       fontWeight: '700',
-      marginBottom: '15px',
+      marginBottom: '1rem',
       color: 'var(--rich-black)',
       textAlign: 'center',
     },
     modalMessage: {
       fontSize: '1rem',
-      color: '#555',
-      marginBottom: '10px',
+      color: 'var(--rich-black)',
+      marginBottom: '0.75rem',
       textAlign: 'center',
+      lineHeight: '1.5',
     },
     modalWarning: {
       fontSize: '0.9rem',
-      color: '#d32f2f',
+      color: '#dc3545',
       fontWeight: '600',
-      marginBottom: '25px',
+      marginBottom: '1.5rem',
       textAlign: 'center',
     },
     modalButtons: {
       display: 'flex',
-      gap: '12px',
+      gap: '1rem',
       justifyContent: 'center',
     },
     btnCancel: {
-      padding: '10px 25px',
-      borderRadius: '8px',
-      fontSize: '14px',
+      padding: '0.75rem 1.5rem',
+      borderRadius: '25px',
+      fontSize: '0.95rem',
       fontWeight: '600',
-      border: '1px solid #ddd',
-      backgroundColor: '#fff',
+      border: '1px solid var(--input-border)',
+      background: 'rgba(255, 255, 255, 0.8)',
       color: 'var(--rich-black)',
       cursor: 'pointer',
-      transition: 'all 0.3s ease',
+      transition: 'var(--transition)',
     },
     btnConfirm: {
-      padding: '10px 25px',
-      borderRadius: '8px',
-      fontSize: '14px',
+      padding: '0.75rem 1.5rem',
+      borderRadius: '25px',
+      fontSize: '0.95rem',
       fontWeight: '600',
       border: 'none',
-      backgroundColor: '#dc3545',
-      color: '#fff',
+      background: 'linear-gradient(135deg, #dc3545, #c82333)',
+      color: 'white',
       cursor: 'pointer',
-      transition: 'all 0.3s ease',
+      transition: 'var(--transition)',
+      boxShadow: '0 4px 12px rgba(220, 53, 69, 0.3)',
+    },
+    noServices: {
+      gridColumn: '1 / -1',
+      textAlign: 'center',
+      color: 'var(--input-placeholder)',
+      fontSize: '1.1rem',
+      fontStyle: 'italic',
+      padding: '2rem',
     }
   };
 
@@ -544,19 +562,33 @@ const ExtraServicesManagement = () => {
       {error && <div style={{ ...styles.alert, ...styles.alertError }}>{error}</div>}
       {success && <div style={{ ...styles.alert, ...styles.alertSuccess }}>Cambios guardados exitosamente</div>}
 
-      <div style={{ marginBottom: '20px' }}>
+      <div style={{ marginBottom: '1.5rem' }}>
         <button
           onClick={() => setShowForm(!showForm)}
           style={{ ...styles.button, ...styles.submitBtn }}
+          onMouseEnter={(e) => {
+            e.target.style.transform = 'translateY(-2px)';
+            e.target.style.boxShadow = '0 6px 20px var(--shadow-hover)';
+          }}
+          onMouseLeave={(e) => {
+            e.target.style.transform = 'translateY(0)';
+            e.target.style.boxShadow = '0 4px 15px var(--shadow-strong)';
+          }}
         >
-          {showForm ? 'Cerrar formulario' : 'Crear Nuevo Servicio'}
+          {showForm ? '✕ Cerrar formulario' : '➕ Crear Nuevo Servicio'}
         </button>
       </div>
 
       {showForm && (
       <div style={styles.formContainer}>
-        <h3 style={{ marginBottom: '20px', color: 'var(--rich-black)' }}>
-          {editingId ? 'Editar Servicio' : 'Nuevo Servicio Extra'}
+        <h3 style={{ 
+          marginBottom: '1.5rem', 
+          color: 'var(--rich-black)',
+          fontSize: '1.3rem',
+          fontWeight: '600',
+          textAlign: 'center'
+        }}>
+          {editingId ? '✏️ Editar Servicio' : '➕ Nuevo Servicio Extra'}
         </h3>
 
         <form onSubmit={handleSubmit}>
@@ -585,7 +617,7 @@ const ExtraServicesManagement = () => {
             />
           </div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
             <div style={styles.formGroup}>
               <label style={styles.label}>Precio ($)</label>
               <input
@@ -617,21 +649,44 @@ const ExtraServicesManagement = () => {
             </div>
           </div>
 
-          <div style={{ ...styles.buttonGroup, marginTop: '20px' }}>
+          <div style={{ ...styles.buttonGroup, marginTop: '1.5rem' }}>
             <button
               type="submit"
               disabled={loading}
-              style={{ ...styles.button, ...styles.submitBtn, opacity: loading ? 0.6 : 1 }}
+              style={{ 
+                ...styles.button, 
+                ...styles.submitBtn, 
+                opacity: loading ? 0.6 : 1,
+                cursor: loading ? 'not-allowed' : 'pointer'
+              }}
+              onMouseEnter={(e) => {
+                if (!loading) {
+                  e.target.style.transform = 'translateY(-2px)';
+                  e.target.style.boxShadow = '0 6px 20px var(--shadow-hover)';
+                }
+              }}
+              onMouseLeave={(e) => {
+                e.target.style.transform = 'translateY(0)';
+                e.target.style.boxShadow = '0 4px 15px var(--shadow-strong)';
+              }}
             >
-              {loading ? 'Guardando...' : editingId ? 'Actualizar Servicio' : 'Crear Servicio'}
+              {loading ? 'Guardando...' : editingId ? '💾 Actualizar Servicio' : '➕ Crear Servicio'}
             </button>
             {editingId && (
               <button
                 type="button"
                 onClick={handleCancel}
                 style={{ ...styles.button, ...styles.cancelBtn }}
+                onMouseEnter={(e) => {
+                  e.target.style.transform = 'translateY(-2px)';
+                  e.target.style.boxShadow = '0 4px 15px var(--shadow-medium)';
+                }}
+                onMouseLeave={(e) => {
+                  e.target.style.transform = 'translateY(0)';
+                  e.target.style.boxShadow = '0 4px 12px var(--shadow-light)';
+                }}
               >
-                Cancelar
+                ✕ Cancelar
               </button>
             )}
           </div>
@@ -639,15 +694,35 @@ const ExtraServicesManagement = () => {
       </div>
       )}
 
-      <h3 style={{ marginBottom: '20px', color: 'var(--rich-black)', marginTop: '30px' }}>Servicios Actuales</h3>
+      <h3 style={{ 
+        marginBottom: '1.5rem', 
+        color: 'var(--rich-black)', 
+        marginTop: '1.5rem',
+        fontSize: '1.3rem',
+        fontWeight: '600',
+        textAlign: 'center'
+      }}>
+        📋 Servicios Actuales
+      </h3>
       <div style={styles.servicesGrid}>
         {services.length === 0 ? (
-          <p style={{ gridColumn: '1 / -1', textAlign: 'center', color: '#999' }}>
+          <p style={styles.noServices}>
             No hay servicios creados aún
           </p>
         ) : (
           services.map(service => (
-            <div key={service.id} style={styles.serviceCard}>
+            <div 
+              key={service.id} 
+              style={styles.serviceCard}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.transform = 'translateY(-5px)';
+                e.currentTarget.style.boxShadow = '0 8px 30px var(--shadow-medium)';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.transform = 'translateY(0)';
+                e.currentTarget.style.boxShadow = '0 4px 20px var(--shadow-light)';
+              }}
+            >
               <div style={styles.serviceTitle}>{service.name}</div>
               <div style={styles.servicePrice}>
                 {new Intl.NumberFormat('es-CO', {
@@ -662,18 +737,30 @@ const ExtraServicesManagement = () => {
                 <button
                   onClick={() => handleEdit(service)}
                   style={styles.btnPrimary}
-                  onMouseOver={(e) => e.target.style.background = '#3d9129'}
-                  onMouseOut={(e) => e.target.style.background = 'var(--forest-green)'}
+                  onMouseEnter={(e) => {
+                    e.target.style.transform = 'scale(1.05)';
+                    e.target.style.boxShadow = '0 6px 20px var(--shadow-hover)';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.target.style.transform = 'scale(1)';
+                    e.target.style.boxShadow = '0 4px 12px var(--shadow-strong)';
+                  }}
                 >
-                  Editar
+                  ✏️ Editar
                 </button>
                 <button
                   onClick={() => handleDeleteClick(service)}
                   style={styles.btnDanger}
-                  onMouseOver={(e) => e.target.style.background = '#c82333'}
-                  onMouseOut={(e) => e.target.style.background = '#dc3545'}
+                  onMouseEnter={(e) => {
+                    e.target.style.transform = 'scale(1.05)';
+                    e.target.style.boxShadow = '0 6px 20px rgba(220, 53, 69, 0.5)';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.target.style.transform = 'scale(1)';
+                    e.target.style.boxShadow = '0 4px 12px rgba(220, 53, 69, 0.3)';
+                  }}
                 >
-                  Eliminar
+                  🗑️ Eliminar
                 </button>
               </div>
             </div>
@@ -681,11 +768,10 @@ const ExtraServicesManagement = () => {
         )}
       </div>
 
-      {/* Modal de Confirmación de Eliminación */}
       {showDeleteModal && serviceToDelete && (
         <div style={styles.modalOverlay} onClick={handleCancelDelete}>
           <div style={styles.modalContent} onClick={(e) => e.stopPropagation()}>
-            <h3 style={styles.modalTitle}>Confirmar Eliminación</h3>
+            <h3 style={styles.modalTitle}>⚠️ Confirmar Eliminación</h3>
             <p style={styles.modalMessage}>
               ¿Estás seguro que deseas eliminar el servicio <strong>{serviceToDelete.name}</strong>?
             </p>
@@ -696,19 +782,37 @@ const ExtraServicesManagement = () => {
               <button
                 onClick={handleCancelDelete}
                 style={styles.btnCancel}
-                onMouseOver={(e) => e.target.style.background = '#f0f0f0'}
-                onMouseOut={(e) => e.target.style.background = '#fff'}
+                onMouseEnter={(e) => {
+                  e.target.style.transform = 'translateY(-2px)';
+                  e.target.style.boxShadow = '0 4px 15px var(--shadow-medium)';
+                }}
+                onMouseLeave={(e) => {
+                  e.target.style.transform = 'translateY(0)';
+                  e.target.style.boxShadow = '0 2px 8px var(--shadow-light)';
+                }}
               >
-                Cancelar
+                ✕ Cancelar
               </button>
               <button
                 onClick={handleConfirmDelete}
                 disabled={loading}
-                style={{...styles.btnConfirm, opacity: loading ? 0.6 : 1, cursor: loading ? 'not-allowed' : 'pointer'}}
-                onMouseOver={(e) => !loading && (e.target.style.background = '#c82333')}
-                onMouseOut={(e) => !loading && (e.target.style.background = '#dc3545')}
+                style={{
+                  ...styles.btnConfirm, 
+                  opacity: loading ? 0.6 : 1, 
+                  cursor: loading ? 'not-allowed' : 'pointer'
+                }}
+                onMouseEnter={(e) => {
+                  if (!loading) {
+                    e.target.style.transform = 'translateY(-2px)';
+                    e.target.style.boxShadow = '0 6px 20px rgba(220, 53, 69, 0.5)';
+                  }
+                }}
+                onMouseLeave={(e) => {
+                  e.target.style.transform = 'translateY(0)';
+                  e.target.style.boxShadow = '0 4px 12px rgba(220, 53, 69, 0.3)';
+                }}
               >
-                {loading ? 'Eliminando...' : 'Eliminar'}
+                {loading ? 'Eliminando...' : '🗑️ Eliminar'}
               </button>
             </div>
           </div>

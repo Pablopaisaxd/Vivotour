@@ -9,11 +9,16 @@ export const AdminProvider = ({ children }) => {
     const toggleSidebar = () => setSidebarOpen(o => !o);
     const closeSidebar = () => setSidebarOpen(false);
 
-    // ESC key handler and body scroll lock
     useEffect(() => {
         const handleKeyDown = (e) => {
             if (e.key === 'Escape' && sidebarOpen) {
                 closeSidebar();
+            }
+        };
+
+        const handleResize = () => {
+            if (window.innerWidth > 900) {
+                setSidebarOpen(false);
             }
         };
 
@@ -24,14 +29,23 @@ export const AdminProvider = ({ children }) => {
             document.body.style.overflow = '';
         }
 
+        window.addEventListener('resize', handleResize);
+
         return () => {
             document.removeEventListener('keydown', handleKeyDown);
+            window.removeEventListener('resize', handleResize);
             document.body.style.overflow = '';
         };
     }, [sidebarOpen]);
 
     return (
-        <AdminContext.Provider value={{ activeComponent, setActiveComponent, sidebarOpen, toggleSidebar, closeSidebar }}>
+        <AdminContext.Provider value={{ 
+            activeComponent, 
+            setActiveComponent, 
+            sidebarOpen, 
+            toggleSidebar, 
+            closeSidebar 
+        }}>
             {children}
         </AdminContext.Provider>
     );

@@ -1,12 +1,10 @@
 import React, { useState } from 'react';
 import "./custom-select.css";
 
-function CustomSelect( props ) {
-
+function CustomSelect(props) {
     const { data, setMonth, setYear } = props;
-    const [ inputOptions ] = useState(data);
-    const [ selectedOption, setSelectedOption ] = useState("");
-
+    const [inputOptions] = useState(data);
+    const [selectedOption, setSelectedOption] = useState("");
 
     const changeSelected = (event) => {
         setSelectedOption(event.target.value);
@@ -18,9 +16,11 @@ function CustomSelect( props ) {
         }
     }
 
-    const options = inputOptions.map(option => <option key={option.id} value={option.id}>
-        {option.name}
-    </option> );
+    const options = inputOptions.map(option => 
+        <option key={option.id} value={option.id}>
+            {option.name}
+        </option> 
+    );
 
     return (
         <div className="select-holder">

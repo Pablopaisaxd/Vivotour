@@ -40,7 +40,6 @@ const CommentsManagement = () => {
                 },
             });
 
-            // Algunos servidores responden 204 No Content para DELETE
             if (response.status === 204) {
                 setComments((prev) => prev.filter((comment) => comment.id !== id));
                 return;
@@ -55,7 +54,6 @@ const CommentsManagement = () => {
                 setComments((prev) => prev.filter((comment) => comment.id !== id));
             } else {
                 const text = await response.text();
-                // Lanza un error más claro cuando el servidor devuelve HTML (p. ej., una página de error)
                 throw new Error(text?.slice(0, 200) || `Respuesta no válida del servidor (HTTP ${response.status})`);
             }
         } catch (err) {
@@ -66,19 +64,16 @@ const CommentsManagement = () => {
         }
     };
 
-    // Abre el modal de confirmación
     const requestDelete = (id) => {
         setConfirmId(id);
         setConfirmOpen(true);
     };
 
-    // Cierra el modal de confirmación sin eliminar
     const cancelConfirm = () => {
         setConfirmOpen(false);
         setConfirmId(null);
     };
 
-    // Confirma y ejecuta la eliminación
     const confirmDelete = async () => {
         if (confirmId == null) return;
         const id = confirmId;
@@ -89,108 +84,148 @@ const CommentsManagement = () => {
 
     const styles = {
         container: {
-            padding: '20px',
-            backgroundColor: 'var(--card-background)',
-            borderRadius: '8px',
-            boxShadow: '0 5px 15px var(--shadow-light)',
+            padding: '1.5rem',
+            background: 'var(--alice-blue)',
+            borderRadius: '12px',
+            boxShadow: '0 8px 32px var(--shadow-light)',
             gridColumn: '1 / -1',
             width: '100%', 
-            height: '100vh',
+            minHeight: '100vh',
             display: 'flex',
             flexDirection: 'column',
-            gap: '20px',
+            gap: '1.5rem',
+            border: '1px solid var(--input-border)',
         },
         title: {
-            fontSize: '1.5rem',
+            fontSize: '1.75rem',
             color: 'var(--rich-black)',
-            marginBottom: '15px',
-            fontWeight: '600',
+            marginBottom: '1rem',
+            fontWeight: '700',
+            textAlign: 'center',
+            background: 'linear-gradient(135deg, var(--forest-green), var(--golden-yellow))',
+            WebkitBackgroundClip: 'text',
+            WebkitTextFillColor: 'transparent',
         },
         commentList: {
             display: 'flex',
             flexDirection: 'column',
-            gap: '10px',
+            gap: '1rem',
         },
         commentItem: {
             display: 'flex',
             justifyContent: 'space-between',
             alignItems: 'center',
-            border: '1px solid var(--border-color-light)',
-            borderRadius: '8px',
-            padding: '10px',
-            backgroundColor: 'var(--alice-blue)',
+            border: '1px solid var(--input-border)',
+            borderRadius: '12px',
+            padding: '1.25rem',
+            background: 'rgba(255, 255, 255, 0.8)',
+            backdropFilter: 'blur(10px)',
+            transition: 'var(--transition)',
+            boxShadow: '0 4px 12px var(--shadow-light)',
         },
         commentText: {
             flexGrow: '1',
-            marginRight: '10px',
+            marginRight: '1rem',
             color: 'var(--rich-black)',
+            fontSize: '1rem',
+            lineHeight: '1.5',
         },
         deleteButton: {
-            backgroundColor: 'var(--error-main)',
-            color: '#ff0000ff',
-            padding: '8px 12px',
-            borderRadius: '5px',
+            background: 'linear-gradient(135deg, #dc3545, #c82333)',
+            color: 'white',
+            padding: '0.75rem 1.25rem',
+            borderRadius: '25px',
             border: 'none',
             cursor: 'pointer',
+            fontWeight: '600',
+            fontSize: '0.9rem',
+            transition: 'var(--transition)',
+            boxShadow: '0 4px 12px rgba(220, 53, 69, 0.3)',
         },
-        // Modal de confirmación
         modalOverlay: {
             position: 'fixed',
             inset: 0,
-            backgroundColor: 'rgba(0,0,0,0.65)',
+            background: 'rgba(26, 24, 27, 0.7)',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
             zIndex: 2000,
+            backdropFilter: 'blur(5px)',
         },
         modalContent: {
             width: 'min(90vw, 420px)',
-            backgroundColor: 'var(--card-background, #ffffff)',
-            borderRadius: '12px',
-            boxShadow: '0 12px 32px rgba(0,0,0,0.25)',
-            padding: '20px',
-            border: '1px solid var(--border-color-light, #e5e7eb)',
+            background: 'var(--alice-blue)',
+            borderRadius: '16px',
+            boxShadow: '0 20px 60px rgba(26, 24, 27, 0.3)',
+            padding: '2rem',
+            border: '1px solid var(--input-border)',
         },
         modalTitle: {
             margin: 0,
-            marginBottom: '8px',
-            fontSize: '1.15rem',
-            color: 'var(--rich-black, #111827)',
-            fontWeight: 700,
+            marginBottom: '1rem',
+            fontSize: '1.3rem',
+            color: 'var(--rich-black)',
+            fontWeight: '700',
+            textAlign: 'center',
         },
         modalText: {
             margin: 0,
-            color: 'var(--rich-black, #111827)',
-            opacity: 0.9,
+            color: 'var(--rich-black)',
+            fontSize: '1rem',
+            lineHeight: '1.5',
+            textAlign: 'center',
+            marginBottom: '1.5rem',
         },
         modalActions: {
             display: 'flex',
-            justifyContent: 'flex-end',
-            gap: '10px',
-            marginTop: '18px',
+            justifyContent: 'center',
+            gap: '1rem',
         },
         modalButton: {
-            padding: '10px 14px',
-            borderRadius: '8px',
+            padding: '0.75rem 1.5rem',
+            borderRadius: '25px',
             border: 'none',
             cursor: 'pointer',
-            fontWeight: 600,
+            fontWeight: '600',
+            fontSize: '1rem',
+            transition: 'var(--transition)',
+            minWidth: '100px',
         },
         cancelButton: {
-            backgroundColor: 'var(--alice-blue, #f3f4f6)',
-            color: 'var(--rich-black, #111827)',
-            border: '1px solid var(--border-color-light, #e5e7eb)',
+            background: 'rgba(255, 255, 255, 0.8)',
+            color: 'var(--rich-black)',
+            border: '1px solid var(--input-border)',
+            boxShadow: '0 2px 8px var(--shadow-light)',
         },
         confirmButton: {
-            backgroundColor: 'var(--error-main, #dc2626)',
-            color: '#fff',
+            background: 'linear-gradient(135deg, #dc3545, #c82333)',
+            color: 'white',
+            boxShadow: '0 4px 12px rgba(220, 53, 69, 0.3)',
         },
         loadingText: {
             color: 'var(--rich-black)',
+            textAlign: 'center',
+            fontSize: '1.1rem',
+            fontWeight: '500',
+            padding: '2rem',
         },
         errorText: {
-            color: 'var(--error-main)',
+            color: '#dc3545',
+            textAlign: 'center',
+            fontSize: '1.1rem',
+            fontWeight: '500',
+            padding: '2rem',
+            background: 'rgba(220, 53, 69, 0.1)',
+            borderRadius: '8px',
+            border: '1px solid rgba(220, 53, 69, 0.3)',
         },
+        noComments: {
+            textAlign: 'center',
+            color: 'var(--input-placeholder)',
+            fontSize: '1.1rem',
+            fontStyle: 'italic',
+            padding: '2rem',
+        }
     };
 
     if (loading) return <p style={styles.loadingText}>Cargando comentarios...</p>;
@@ -201,17 +236,40 @@ const CommentsManagement = () => {
             <h2 style={styles.title}>Gestión de Comentarios</h2>
             <div style={styles.commentList}>
                 {comments.length === 0 ? (
-                    <p>No hay comentarios para mostrar.</p>
+                    <p style={styles.noComments}>No hay comentarios para mostrar.</p>
                 ) : (
                     comments.map((comment) => (
-                        <div key={comment.id} style={styles.commentItem}>
-                            <p style={styles.commentText}><strong>{comment.nombre}:</strong> {comment.opinion}</p>
+                        <div 
+                            key={comment.id} 
+                            style={styles.commentItem}
+                            onMouseEnter={(e) => {
+                                e.currentTarget.style.transform = 'translateY(-2px)';
+                                e.currentTarget.style.boxShadow = '0 8px 25px var(--shadow-medium)';
+                            }}
+                            onMouseLeave={(e) => {
+                                e.currentTarget.style.transform = 'translateY(0)';
+                                e.currentTarget.style.boxShadow = '0 4px 12px var(--shadow-light)';
+                            }}
+                        >
+                            <p style={styles.commentText}>
+                                <strong style={{ color: 'var(--forest-green)' }}>{comment.nombre}:</strong> {comment.opinion}
+                            </p>
                             <button
                                 style={styles.deleteButton}
                                 onClick={() => requestDelete(comment.id)}
                                 disabled={deletingId === comment.id}
+                                onMouseEnter={(e) => {
+                                    if (!e.target.disabled) {
+                                        e.target.style.transform = 'scale(1.05)';
+                                        e.target.style.boxShadow = '0 6px 20px rgba(220, 53, 69, 0.5)';
+                                    }
+                                }}
+                                onMouseLeave={(e) => {
+                                    e.target.style.transform = 'scale(1)';
+                                    e.target.style.boxShadow = '0 4px 12px rgba(220, 53, 69, 0.3)';
+                                }}
                             >
-                                {deletingId === comment.id ? 'Eliminando…' : 'Eliminar'}
+                                {deletingId === comment.id ? 'Eliminando…' : '🗑️ Eliminar'}
                             </button>
                         </div>
                     ))
@@ -229,6 +287,16 @@ const CommentsManagement = () => {
                                 onClick={cancelConfirm}
                                 style={{ ...styles.modalButton, ...styles.cancelButton }}
                                 disabled={deletingId != null}
+                                onMouseEnter={(e) => {
+                                    if (!e.target.disabled) {
+                                        e.target.style.transform = 'translateY(-2px)';
+                                        e.target.style.boxShadow = '0 4px 15px var(--shadow-medium)';
+                                    }
+                                }}
+                                onMouseLeave={(e) => {
+                                    e.target.style.transform = 'translateY(0)';
+                                    e.target.style.boxShadow = '0 2px 8px var(--shadow-light)';
+                                }}
                             >
                                 Cancelar
                             </button>
@@ -237,6 +305,16 @@ const CommentsManagement = () => {
                                 onClick={confirmDelete}
                                 style={{ ...styles.modalButton, ...styles.confirmButton }}
                                 disabled={deletingId != null}
+                                onMouseEnter={(e) => {
+                                    if (!e.target.disabled) {
+                                        e.target.style.transform = 'translateY(-2px)';
+                                        e.target.style.boxShadow = '0 6px 20px rgba(220, 53, 69, 0.5)';
+                                    }
+                                }}
+                                onMouseLeave={(e) => {
+                                    e.target.style.transform = 'translateY(0)';
+                                    e.target.style.boxShadow = '0 4px 12px rgba(220, 53, 69, 0.3)';
+                                }}
                             >
                                 Eliminar
                             </button>

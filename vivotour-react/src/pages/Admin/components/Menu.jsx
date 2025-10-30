@@ -13,6 +13,7 @@ import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
 import PeopleIcon from '@mui/icons-material/People';
 import LocalActivityIcon from '@mui/icons-material/LocalActivity';
 import RoomServiceIcon from '@mui/icons-material/RoomService';
+import LogoutIcon from '@mui/icons-material/Logout';
 import { ListItemButton } from "@mui/material";
 import { AdminContext } from '../AdminContext';
 import { AuthContext } from '../../../AuthContext';
@@ -20,7 +21,7 @@ import { Link, useNavigate } from 'react-router-dom';
 
 export default function Menu({ onNavigate }) {
   const theme = useTheme();
-  const { setActiveComponent } = useContext(AdminContext);
+  const { activeComponent, setActiveComponent } = useContext(AdminContext);
   const { logout } = useContext(AuthContext);
   const navigate = useNavigate();
 
@@ -29,231 +30,106 @@ export default function Menu({ onNavigate }) {
     navigate("/");
   };
 
+  const menuItems = [
+    { id: 'dashboard', label: 'Dashboard', icon: DashboardOutlinedIcon },
+    { id: 'homePageSettings', label: 'Página de Inicio', icon: SettingsIcon },
+    { id: 'commentsManagement', label: 'Comentarios', icon: CommentIcon },
+    { id: 'galleryManagement', label: 'Galería', icon: PhotoLibraryIcon },
+    { id: 'reservationManagement', label: 'Reservas', icon: EventAvailableIcon },
+    { id: 'availabilityManagement', label: 'Disponibilidad', icon: CalendarTodayIcon },
+    { id: 'userManagement', label: 'Usuarios', icon: PeopleIcon },
+    { id: 'plansManagement', label: 'Planes', icon: LocalActivityIcon },
+    { id: 'extraServicesManagement', label: 'Servicios Extra', icon: RoomServiceIcon },
+  ];
+
   return (
-    <div>
-      <List>
-        <Divider />
-        <ListItemButton
-          onClick={() => { setActiveComponent('dashboard'); onNavigate && onNavigate(); }}
-          sx={{
-            pl: 4,
-            "&:hover": { color: theme.palette.primary.main },
-            "& .MuiListItemText-primary": {
-              fontWeight: "bold",
-              fontSize: 16,
-              color: theme.palette.secondary.main,
-              "&:hover": {
-                animation: "color 0.2s ease-in-out",
-                color: theme.palette.primary.main,
-              },
-            },
-          }}
-        >
-          <ListItemIcon>
-            <DashboardOutlinedIcon color="primary" />
-          </ListItemIcon>
-          <ListItemText primary="Dashboard" />
-        </ListItemButton>
-
-        <Divider variant="middle" />
-
-        <ListItemButton
-          onClick={() => { setActiveComponent('homePageSettings'); onNavigate && onNavigate(); }}
-          sx={{
-            pl: 4,
-            "&:hover": { color: theme.palette.primary.main },
-            "& .MuiListItemText-primary": {
-              fontWeight: "bold",
-              fontSize: 16,
-              color: theme.palette.secondary.main,
-              "&:hover": {
-                animation: "color 0.2s ease-in-out",
-                color: theme.palette.primary.main,
-              },
-            },
-          }}
-        >
-          <ListItemIcon>
-            <SettingsIcon color="primary" />
-          </ListItemIcon>
-          <ListItemText primary="Opciones Página Inicio" />
-        </ListItemButton>
-
-        <Divider variant="middle" />
-
-        <ListItemButton
-          onClick={() => { setActiveComponent('commentsManagement'); onNavigate && onNavigate(); }}
-          sx={{
-            pl: 4,
-            "&:hover": { color: theme.palette.primary.main },
-            "& .MuiListItemText-primary": {
-              fontWeight: "bold",
-              fontSize: 16,
-              color: theme.palette.secondary.main,
-              "&:hover": {
-                animation: "color 0.2s ease-in-out",
-                color: theme.palette.primary.main,
-              },
-            },
-          }}
-        >
-          <ListItemIcon>
-            <CommentIcon color="primary" />
-          </ListItemIcon>
-          <ListItemText primary="Gestión de Comentarios" />
-        </ListItemButton>
-
-        <Divider variant="middle" />
-
-        <ListItemButton
-          onClick={() => { setActiveComponent('galleryManagement'); onNavigate && onNavigate(); }}
-          sx={{
-            pl: 4,
-            "&:hover": { color: theme.palette.primary.main },
-            "& .MuiListItemText-primary": {
-              fontWeight: "bold",
-              fontSize: 16,
-              color: theme.palette.secondary.main,
-              "&:hover": {
-                animation: "color 0.2s ease-in-out",
-                color: theme.palette.primary.main,
-              },
-            },
-          }}
-        >
-          <ListItemIcon>
-            <PhotoLibraryIcon color="primary" />
-          </ListItemIcon>
-          <ListItemText primary="Gestión de Galería" />
-        </ListItemButton>
-
-        <Divider variant="middle" />
-
-        <ListItemButton
-          onClick={() => { setActiveComponent('reservationManagement'); onNavigate && onNavigate(); }}
-          sx={{
-            pl: 4,
-            "&:hover": { color: theme.palette.primary.main },
-            "& .MuiListItemText-primary": {
-              fontWeight: "bold",
-              fontSize: 16,
-              color: theme.palette.secondary.main,
-              "&:hover": {
-                animation: "color 0.2s ease-in-out",
-                color: theme.palette.primary.main,
-              },
-            },
-          }}
-        >
-          <ListItemIcon>
-            <EventAvailableIcon color="primary" />
-          </ListItemIcon>
-          <ListItemText primary="Gestión de Reservas" />
-        </ListItemButton>
-
-        <Divider variant="middle" />
-
-        <ListItemButton
-          onClick={() => { setActiveComponent('availabilityManagement'); onNavigate && onNavigate(); }}
-          sx={{
-            pl: 4,
-            "&:hover": { color: theme.palette.primary.main },
-            "& .MuiListItemText-primary": {
-              fontWeight: "bold",
-              fontSize: 16,
-              color: theme.palette.secondary.main,
-              "&:hover": {
-                animation: "color 0.2s ease-in-out",
-                color: theme.palette.primary.main,
-              },
-            },
-          }}
-        >
-          <ListItemIcon>
-            <CalendarTodayIcon color="primary" />
-          </ListItemIcon>
-          <ListItemText primary="Modificar Disponibilidad" />
-        </ListItemButton>
-
-        <Divider variant="middle" />
-
-        <ListItemButton
-          onClick={() => { setActiveComponent('userManagement'); onNavigate && onNavigate(); }}
-          sx={{
-            pl: 4,
-            "&:hover": { color: theme.palette.primary.main },
-            "& .MuiListItemText-primary": {
-              fontWeight: "bold",
-              fontSize: 16,
-              color: theme.palette.secondary.main,
-              "&:hover": {
-                animation: "color 0.2s ease-in-out",
-                color: theme.palette.primary.main,
-              },
-            },
-          }}
-        >
-          <ListItemIcon>
-            <PeopleIcon color="primary" />
-          </ListItemIcon>
-          <ListItemText primary="Gestión de Usuarios" />
-        </ListItemButton>
-
-        <Divider variant="middle" />
-
-        <ListItemButton
-          onClick={() => { setActiveComponent('plansManagement'); onNavigate && onNavigate(); }}
-          sx={{
-            pl: 4,
-            "&:hover": { color: theme.palette.primary.main },
-            "& .MuiListItemText-primary": {
-              fontWeight: "bold",
-              fontSize: 16,
-              color: theme.palette.secondary.main,
-              "&:hover": {
-                animation: "color 0.2s ease-in-out",
-                color: theme.palette.primary.main,
-              },
-            },
-          }}
-        >
-          <ListItemIcon>
-            <LocalActivityIcon color="primary" />
-          </ListItemIcon>
-          <ListItemText primary="Gestión de Planes" />
-        </ListItemButton>
-
-        <Divider variant="middle" />
-
-        <ListItemButton
-          onClick={() => { setActiveComponent('extraServicesManagement'); onNavigate && onNavigate(); }}
-          sx={{
-            pl: 4,
-            "&:hover": { color: theme.palette.primary.main },
-            "& .MuiListItemText-primary": {
-              fontWeight: "bold",
-              fontSize: 16,
-              color: theme.palette.secondary.main,
-              "&:hover": {
-                animation: "color 0.2s ease-in-out",
-                color: theme.palette.primary.main,
-              },
-            },
-          }}
-        >
-          <ListItemIcon>
-            <RoomServiceIcon color="primary" />
-          </ListItemIcon>
-          <ListItemText primary="Servicios Extra" />
-        </ListItemButton>
-
-        <Divider />
+    <div style={{ height: '100%', display: 'flex', flexDirection: 'column', backgroundColor: 'var(--alice-blue)' }}>
+      <List sx={{ flex: 1, padding: '8px' }}>
+        {menuItems.map((item, index) => {
+          const IconComponent = item.icon;
+          const isActive = activeComponent === item.id;
+          
+          return (
+            <React.Fragment key={item.id}>
+              <ListItemButton
+                selected={isActive}
+                onClick={() => { 
+                  setActiveComponent(item.id); 
+                  onNavigate && onNavigate(); 
+                }}
+                sx={{
+                  borderRadius: '8px',
+                  margin: '2px 0',
+                  transition: 'all 0.3s ease',
+                  backgroundColor: isActive ? 'rgba(75, 172, 53, 0.15)' : 'transparent',
+                  borderLeft: isActive ? '3px solid var(--forest-green)' : '3px solid transparent',
+                  '&:hover': {
+                    backgroundColor: 'rgba(75, 172, 53, 0.1)',
+                    transform: 'translateX(4px)',
+                  },
+                  '& .MuiListItemText-primary': {
+                    fontWeight: isActive ? 700 : 500,
+                    fontSize: '0.9rem',
+                    color: isActive ? 'var(--forest-green)' : 'var(--rich-black)',
+                  },
+                }}
+              >
+                <ListItemIcon>
+                  <IconComponent 
+                    sx={{ 
+                      color: isActive ? 'var(--forest-green)' : 'var(--text-color-secondary)',
+                      transition: 'all 0.3s ease',
+                    }} 
+                  />
+                </ListItemIcon>
+                <ListItemText primary={item.label} />
+              </ListItemButton>
+              {index < menuItems.length - 1 && (
+                <Divider 
+                  variant="middle" 
+                  sx={{ 
+                    margin: '4px 16px',
+                    borderColor: 'rgba(26, 24, 27, 0.08)'
+                  }} 
+                />
+              )}
+            </React.Fragment>
+          );
+        })}
       </List>
 
-      <div className="perfil-change-wrapper" style={{ textAlign: 'center', marginTop: '20px' }}>
-        <Link to="/" className="perfil-change-password" onClick={handleLogout}>
-          Cerrar sesión
-        </Link>
+      <div style={{ 
+        padding: '16px', 
+        borderTop: '1px solid var(--border-color-light)',
+        background: 'linear-gradient(135deg, var(--alice-blue), rgba(75, 172, 53, 0.05))'
+      }}>
+        <ListItemButton
+          onClick={handleLogout}
+          className="btnlog"
+          sx={{
+            borderRadius: '25px',
+            background: 'linear-gradient(135deg, var(--forest-green), var(--golden-yellow))',
+            color: 'white !important',
+            fontWeight: 700,
+            padding: '8px 16px',
+            transition: 'all 0.3s ease',
+            '&:hover': {
+              background: 'linear-gradient(135deg, #3d9129, #e6b412)',
+              transform: 'translateY(-2px)',
+              boxShadow: '0 4px 15px rgba(75, 172, 53, 0.4)',
+            },
+            '& .MuiListItemText-primary': {
+              color: 'white',
+              fontWeight: 700,
+              textAlign: 'center',
+            },
+          }}
+        >
+          <ListItemIcon>
+            <LogoutIcon sx={{ color: 'white' }} />
+          </ListItemIcon>
+          <ListItemText primary="Cerrar Sesión" />
+        </ListItemButton>
       </div>
     </div>
   );

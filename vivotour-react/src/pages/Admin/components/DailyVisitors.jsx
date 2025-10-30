@@ -9,7 +9,6 @@ function DailyVisitors() {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
 
-    // Función para obtener datos de reservas diarias
     const fetchDailyStats = async () => {
         try {
             const token = localStorage.getItem('token');
@@ -81,24 +80,41 @@ function DailyVisitors() {
             display: "flex",
             justifyContent: "space-between",
             alignItems: "center",
-            padding: "1em",
-            borderBottom: "1px solid var(--border-color-light)",
+            padding: "1.2rem",
+            borderBottom: "1px solid var(--input-border)",
+            background: "linear-gradient(135deg, var(--alice-blue) 0%, rgba(75, 172, 53, 0.05) 100%)",
         },
         title: {
-            filter: 'drop-shadow(0 0 0.25rem rgba(0,0,0,0.05))',
-            fontSize: '16px',
+            fontSize: '1.1rem',
             fontWeight: '600',
             color: "var(--rich-black)",
+            textShadow: "0 1px 2px var(--shadow-light)",
         },
         selectContainer: {
             display: "flex",
-            justifyContent: "flex-end",
+            gap: "0.8rem",
+            alignItems: "center",
         },
-        selectPaddingRight: {
-            paddingRight: "0",
+        loadingContainer: {
+            padding: '2rem',
+            textAlign: 'center',
+            color: 'var(--rich-black)',
+            fontSize: '1rem',
         },
-        selectPaddingLeft: {
-            paddingLeft: "0",
+        errorContainer: {
+            padding: '2rem',
+            textAlign: 'center',
+            color: 'var(--error-color)',
+            background: 'var(--error-bg)',
+            border: '1px solid var(--error-border)',
+            borderRadius: '8px',
+            margin: '1rem',
+        },
+        noDataContainer: {
+            padding: '2rem',
+            textAlign: 'center',
+            color: 'var(--input-placeholder)',
+            fontSize: '1rem',
         }
     };
 
@@ -107,20 +123,20 @@ function DailyVisitors() {
             <header style={styles.header}>
                 <p style={styles.title}>Llegadas de Huéspedes por Día</p>
                 <div style={styles.selectContainer}>
-                    <CustomSelect style={styles.selectPaddingRight} data={data_1} setMonth={setMonth}/>
-                    <CustomSelect style={styles.selectPaddingLeft} data={data_2} setYear={setYear} />
+                    <CustomSelect data={data_1} setMonth={setMonth}/>
+                    <CustomSelect data={data_2} setYear={setYear} />
                 </div>
             </header>
             {loading ? (
-                <div style={{ padding: '2rem', textAlign: 'center' }}>Cargando...</div>
+                <div style={styles.loadingContainer}>Cargando...</div>
             ) : error ? (
-                <div style={{ padding: '2rem', textAlign: 'center', color: 'red' }}>
+                <div style={styles.errorContainer}>
                     Error: {error}
                     <br />
                     <small>Verifica que el servidor esté funcionando y la base de datos conectada</small>
                 </div>
             ) : dailyData.length === 0 ? (
-                <div style={{ padding: '2rem', textAlign: 'center' }}>
+                <div style={styles.noDataContainer}>
                     No hay reservas en el rango de fechas seleccionado
                 </div>
             ) : (

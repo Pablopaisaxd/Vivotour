@@ -11,76 +11,83 @@
   box-sizing: border-box;
 }
 
+html {
+  font-size: 16px;
+}
+
 body {
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   background: linear-gradient(135deg, var(--alice-blue) 0%, #e8f4fd 100%);
   color: var(--rich-black);
   line-height: 1.6;
+  overflow-x: hidden;
+  min-height: 100vh;
 }
 
-/* --- Sección Presentación --- */
 .presentacion {
-  min-height: 100vh;
-  padding: 4rem 2rem;
+  padding: 1rem;
+  min-height: calc(100vh - 60px);
   background: linear-gradient(135deg, var(--alice-blue) 0%, rgba(75, 172, 53, 0.05) 100%);
   display: flex;
-  align-items: center;
-  gap: 4rem;
+  flex-direction: column;
+  gap: 1.5rem;
 }
 
 .somos {
-  flex: 1;
+  width: 100%;
   display: flex;
   flex-direction: column;
-  gap: 3rem;
+  gap: 1.5rem;
 }
 
 .quesomos, .servicios {
   background: white;
-  padding: 2.5rem;
-  border-radius: 20px;
-  box-shadow: 0 10px 30px rgba(26, 24, 27, 0.1);
-  max-width: 100%;
+  padding: 1.25rem;
+  border-radius: 12px;
+  box-shadow: 0 5px 15px rgba(26, 24, 27, 0.08);
+  width: 100%;
   word-wrap: break-word;
-  transition: all 0.3s ease;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
 .quesomos {
-  border-top: 5px solid var(--forest-green);
+  border-top: 4px solid var(--forest-green);
 }
+
 .quesomos:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 15px 40px rgba(26, 24, 27, 0.15);
+  transform: translateY(-3px);
+  box-shadow: 0 8px 20px rgba(26, 24, 27, 0.12);
 }
 
 .hsomos {
-  font-size: 2.2rem;
+  font-size: 1.5rem;
   color: var(--forest-green);
-  margin-bottom: 1.5rem;
+  margin-bottom: 1rem;
   font-weight: 700;
   position: relative;
 }
 
 .contentp {
-  font-size: 1.1rem;
+  font-size: 1rem;
   color: var(--rich-black);
-  margin-bottom: 1.5rem;
-  text-align: justify;
+  margin-bottom: 1rem;
+  text-align: left;
   opacity: 0.9;
+  line-height: 1.5;
 }
 
 .pfinal {
-  font-size: 1.2rem;
+  font-size: 1.1rem;
   font-weight: 600;
   color: var(--rich-black);
   text-align: center;
-  padding: 1rem;
+  padding: 0.75rem;
   background: linear-gradient(135deg, var(--golden-yellow), rgba(255, 207, 50, 0.268));
-  border-radius: 15px;
-  margin-top: 1rem;
+  border-radius: 12px;
+  margin-top: 0.75rem;
+  width: calc(100% - 1rem);
+  margin-left: 0.5rem;
+  margin-right: 0.5rem;
 }
-
-/* --- Servicios --- */
 .servicios {
   border-top: 4px solid var(--golden-yellow);
   overflow: hidden;
@@ -106,31 +113,28 @@ body {
   margin: 2rem 0;
 }
 
-/* Nuevo: viewport que recorta lo que sobra */
 .servicios-viewport {
   overflow: hidden;
-  width: 600px; /* espacio visible (ajústalo según cuántos quieras mostrar) */
+  width: 600px;
 }
 
-/* El track se desplaza dentro del viewport */
 .servicios-track {
   display: flex;
-  transition: transform 0.2s ease; /* animación suave */
+  transition: transform 0.2s ease;
 }
 
-/* Cada tarjeta con ancho fijo */
 .servicio-card {
-  width: 150px; /* ancho estándar */
+  width: 150px;
   flex-shrink: 0;
   display: flex;
-  flex-direction: column; /* icono arriba, texto abajo */
-  align-items: center;    /* centrado horizontal */
-  justify-content: center;/* centrado vertical si tienen misma altura */
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
   text-align: center;
   cursor: pointer;
   padding: 0.5rem;
   box-sizing: border-box;
-  gap: 10px;;
+  gap: 10px;
 }
 
 .arrow-btn:hover:not(:disabled) {
@@ -210,7 +214,6 @@ body {
   background: linear-gradient(135deg, #3d9129, #e6b412);
 }
 
-/* --- Imagen principal --- */
 .imgsomos {
   flex: 1;
   display: flex;
@@ -220,13 +223,14 @@ body {
 
 .imgprin {
   position: relative;
-  width: 100%;
-  max-width: 650px;
-  height: 500px;
+  width: 90vw;
+  max-width: 25rem;
+  height: 12.5rem;
   border-radius: 20px;
   overflow: hidden;
   box-shadow: 0 2px 10px rgb(0, 0, 0);
 }
+
 .imgprin img {
   position: absolute;
   top: 0;
@@ -238,27 +242,27 @@ body {
   opacity: 1;
   transform: scale(1);
 }
+
 .imgprinactive {
   opacity: 0 !important;
   transform: scale(1.1) !important;
 }
 
-/* --- MODAL CON ANIMACIONES --- */
 .servicios-modal-overlay {
   position: fixed;
   inset: 0;
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 20px;
+  padding: 10px;
   background: rgba(0, 0, 0, 0.55);
   z-index: 9999;
 }
 
 .servicios-modal-content {
   display: inline-block;
-  width: auto;
-  max-width: fit-content;
+  width: 100%;
+  max-width: 320px;
   background: none;
   padding: 0;
   margin: 0;
@@ -268,7 +272,6 @@ body {
   vertical-align: middle;
 }
 
-/* Animaciones del modal */
 .slide-in-center {
   animation: slideInCenter 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 }
@@ -280,8 +283,6 @@ body {
 .slide-out-right {
   animation: slideOutRight 0.35s ease forwards;
 }
-
-/* Animación solo para el contenido al abrir el modal */
 @keyframes slideInCenter {
   from { 
     opacity: 0;
@@ -338,11 +339,9 @@ body {
   transform: scale(1.1);
 }
 
-/* --- CAMBIO 2: Contenedor de imagen con tamaño fijo --- */
 .servicios-postal-img-container {
-  /* Tamaño fijo exacto para consistencia */
-  width: 450px;
-  height: 480px;
+  width: 100%;
+  height: 280px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -350,7 +349,7 @@ body {
   border-radius: 8px;
   background: #eee;
   margin-bottom: 8px;
-  flex-shrink: 0; /* Evita que se reduzca */
+  flex-shrink: 0;
 }
 
 .servicios-postal-img-container img {
@@ -360,18 +359,17 @@ body {
   display: block;
 }
 
-/* --- CAMBIO 1: Modal con tamaño fijo para consistencia --- */
 .servicios-postal {
   display: flex;
   flex-direction: column;
   align-items: center;
   background: #fff;
-  padding: 25px 30px 25px;
+  padding: 15px;
   border-radius: 12px;
   border: 1px solid #e6e6e6;
   box-shadow: 0 12px 40px rgba(0,0,0,0.35);
-  width: 500px;
-  min-height: 600px;
+  width: 100%;
+  min-height: 450px;
   box-sizing: border-box;
   overflow: hidden;
 }
@@ -380,12 +378,14 @@ body {
   padding: 10px 10px 0;
   text-align: center;
 }
+
 .servicios-postal-text h2 { 
   margin: 0 0 12px 0; 
   font-size: 1.5rem;
   color: var(--rich-black);
   font-weight: 700;
 }
+
 .servicios-postal-text p { 
   margin: 0; 
   font-size: 1.05rem; 
@@ -393,7 +393,6 @@ body {
   line-height: 1.6;
 }
 
-/* Indicadores de página del modal */
 .modal-page-indicators {
   display: flex;
   justify-content: center;
@@ -414,7 +413,6 @@ body {
   transform: scale(1.2);
 }
 
-/* --- Botones de navegación del modal --- */
 .servicios-modal-nav-btn {
   position: absolute;
   top: 50%;
@@ -423,9 +421,9 @@ body {
   color: #fff;
   border: none;
   border-radius: 50%;
-  width: 50px;
-  height: 50px;
-  font-size: 1.8rem;
+  width: 40px;
+  height: 40px;
+  font-size: 1.4rem;
   cursor: pointer;
   z-index: 10001;
   box-shadow: 0 4px 12px rgba(0,0,0,0.3);
@@ -435,20 +433,17 @@ body {
   justify-content: center;
 }
 
-/* --- CAMBIO 3: Mover botones de navegación más lejos para evitar superposición con modal más ancha --- */
 .servicios-modal-nav-prev {
-  /* Ajustado para modal menos ancha */
-  left: -110px; 
-  padding-right: 5px;
-  padding-bottom: 3px;
+  left: -20px;
+  padding-right: 3px;
+  padding-bottom: 2px;
 }
+
 .servicios-modal-nav-next {
-  /* Ajustado para modal menos ancha */
-  right: -110px; 
-  padding-left: 5px;
-  padding-bottom: 3px;
+  right: -20px;
+  padding-left: 3px;
+  padding-bottom: 2px;
 }
-/* ------------------------------------------------------------------------------------------------------ */
 
 
 .servicios-modal-nav-btn:disabled {
@@ -461,8 +456,6 @@ body {
   transform: translateY(-50%) scale(1.1);
   box-shadow: 0 6px 16px rgba(75, 172, 53, 0.4);
 }
-
-/* --- Arrow Buttons (servicios) --- */
 
 .servicios-arrow-btnder {
   background: linear-gradient(135deg, var(--forest-green), var(--golden-yellow));
@@ -506,119 +499,238 @@ body {
   transform: scale(1.15);
   box-shadow: 0 8px 20px rgba(75, 172, 53, 0.3);
 }
+
 .servicios-arrow-btn:disabled {
   opacity: 0.4;
   cursor: not-allowed;
 }
-
-/* --- Responsivo --- */
-
-
-@media (max-width: 600px) {
-  /* Ajustar posición de botones para modal de tamaño fijo */
-  .servicios-modal-nav-prev { left: calc(50% - 320px); }
-  .servicios-modal-nav-next { right: calc(50% - 320px); }
-  .servicios-modal-nav-btn {
-    width: 40px;
-    height: 40px;
-    font-size: 1.5rem;
-  }
-  /* Reducir modal en pantallas intermedias */
-  .servicios-postal {
-    width: 420px;
-    min-height: 520px;
-    padding: 20px 30px 20px;
-  }
-  .servicios-postal-img-container {
-    width: 350px;
-    height: 400px;
-  }
-}
-
-@media (max-width: 400px) {
-  .servicios-modal-nav-prev { left: 20px; }
-  .servicios-modal-nav-next { right: 20px; }
-}
-
-@media (max-width: 420px) {
-  .servicios-modal-overlay { padding: 12px; }
-  .servicios-postal { 
-    padding: 15px 20px 18px;
-    /* En móviles pequeños, mantener proporción pero reducir tamaño */
-    width: 320px;
-    min-height: 480px;
-  }
-  .servicios-postal-img-container { 
-    width: 290px;
-    height: 320px;
-  } 
-}
-
-@media (max-width: 1024px) {
+@media (min-width: 480px) {
   .presentacion {
-    flex-direction: column;
+    padding: 1.5rem;
     gap: 2rem;
-    padding: 2rem 1rem;
   }
-  .imgprin {
-    max-width: 90%;
+
+  .servicios-modal-content {
+    max-width: 400px;
+  }
+
+  .servicios-postal {
+    padding: 20px;
+    min-height: 500px;
+  }
+
+  .servicios-postal-img-container {
+    height: 320px;
+  }
+
+  .servicios-modal-nav-btn {
+    width: 45px;
+    height: 45px;
+    font-size: 1.6rem;
+  }
+
+  .servicios-modal-nav-prev {
+    left: -30px;
+  }
+
+  .servicios-modal-nav-next {
+    right: -30px;
+  }
+
+  .hsomos {
+    font-size: 1.75rem;
+    margin-bottom: 1.25rem;
+  }
+
+  .contentp {
+    font-size: 1.1rem;
+    text-align: justify;
+  }
+
+  .pfinal {
+    font-size: 1.15rem;
+    padding: 1rem;
+  }
+
+  .quesomos, .servicios {
+    padding: 1.5rem;
+  }
+
+  .servicios-viewport {
+    width: 300px;
+  }
+
+  .servicio-card {
+    width: 110px;
+  }
+
+  .circle {
+    width: 65px;
+    height: 65px;
+  }
+
+  .servicios-postal {
+    width: 360px;
+    min-height: 500px;
+  }
+
+  .servicios-postal-img-container {
+    width: 320px;
+    height: 360px;
+  }
+}
+
+@media (min-width: 768px) {
+  .presentacion {
+    padding: 2rem;
+    gap: 2.5rem;
+    flex-direction: row;
+    align-items: center;
+  }
+
+  .servicios-modal-content {
+    max-width: 500px;
+  }
+
+  .servicios-postal {
+    padding: 25px;
+    min-height: 550px;
+  }
+
+  .servicios-postal-img-container {
     height: 380px;
   }
-  .hsomos { font-size: 1.8rem; }
-  .pservicios { font-size: 1.5rem; }
-  .servicios-viewport { width: 450px; }
+
+  .servicios-modal-nav-btn {
+    width: 50px;
+    height: 50px;
+    font-size: 1.8rem;
+  }
+
+  .servicios-modal-nav-prev {
+    left: -60px;
+  }
+
+  .servicios-modal-nav-next {
+    right: -60px;
+  }
+
+  .somos {
+    flex: 1;
+    max-width: 600px;
+  }
+
+  .hsomos {
+    font-size: 2rem;
+  }
+
+  .quesomos, .servicios {
+    padding: 2rem;
+  }
+
+  .servicios-viewport {
+    width: 400px;
+  }
+
+  .servicio-card {
+    width: 130px;
+  }
+
+  .circle {
+    width: 75px;
+    height: 75px;
+  }
+
+  .imgprin {
+    width: 100%;
+    max-width: 500px;
+    height: 400px;
+  }
+
+  .servicios-postal {
+    width: 450px;
+    min-height: 550px;
+  }
+
+  .servicios-postal-img-container {
+    width: 400px;
+    height: 420px;
+  }
 }
 
-@media (max-width: 768px) {
-  .presentacion { padding: 1rem; }
-  .quesomos, .servicios { padding: 1.5rem; }
-  .circle { width: 60px; height: 60px; }
-  .hsomos { font-size: 1.6rem; }
-  .contentp { font-size: 1rem; }
-  .pfinal { font-size: 1.1rem; }
-  .imgprin { height: 300px; max-width: 100%; }
-  .servicios-viewport { width: 300px; }
-  .servicio-card { width: 120px; }
-}
-
-@media (max-width: 480px) {
+@media (min-width: 1024px) {
   .presentacion {
-    min-height: auto;
-    height: auto;
-    padding: 1rem;
-    margin: 0;
-  }
-
-  .nuestro{
-    gap: 0;
-  }
-
-  .imgprin { display: none; }
-  .quesomos, .servicios { padding: 0.1rem; }
-  .contentp{
-    margin: 0rem 0.5rem;
-  }
-  .pfinal{
-    margin: 0.5rem;
-    padding: 0.5rem;
-  }
-  .hsomos { font-size: 1.4rem;
-  margin-bottom: 0;
-  }
-  .pservicios { font-size: 1.2rem;
-  margin-top: 15px;
+    padding: 3rem 4rem;
+    gap: 4rem;
   }
 
 
-  .sservicios{
-    margin-top: 0rem;
-    margin-bottom: 1rem;
+  .servicios-postal {
+    padding: 30px;
+    min-height: 600px;
   }
 
-  .ps { font-size: 0.9rem; }
-  .servicios-viewport { width: 240px; }
-  .servicio-card { width: 100px; }
-  .somos{
-    gap: 2rem;
+  .servicios-postal-img-container {
+    height: 420px;
+  }
+
+  .servicios-modal-nav-prev {
+    left: -80px;
+  }
+
+  .servicios-modal-nav-next {
+    right: -80px;
+  }
+
+  .somos {
+    max-width: 700px;
+  }
+
+  .hsomos {
+    font-size: 2.2rem;
+  }
+
+  .quesomos, .servicios {
+    padding: 2.5rem;
+  }
+
+  .servicios-viewport {
+    width: 600px;
+  }
+
+  .servicio-card {
+    width: 150px;
+  }
+
+  .circle {
+    width: 80px;
+    height: 80px;
+  }
+
+  .imgprin {
+    width: 100%;
+    max-width: 650px;
+    height: 500px;
+  }
+
+  .servicios-postal {
+    width: 500px;
+    min-height: 600px;
+  }
+
+  .servicios-postal-img-container {
+    width: 450px;
+    height: 480px;
+  }
+}
+
+@media (min-width: 1440px) {
+  .presentacion {
+    padding: 4rem 6rem;
+    gap: 6rem;
+  }
+
+  .somos {
+    max-width: 800px;
   }
 }

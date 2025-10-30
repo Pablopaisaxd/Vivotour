@@ -15,15 +15,13 @@ const UserManagement = () => {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
 
-    // Cargar usuarios cuando cambia la búsqueda - reinicia a página 1
     useEffect(() => {
         if (token) {
             console.log('[USERMANAGEMENT] searchTerm cambió a:', searchTerm);
-            setCurrentPage(1); // Volver a página 1 cuando busca
+            setCurrentPage(1);
         }
     }, [searchTerm, token]);
 
-    // Cargar usuarios cuando cambia la página
     useEffect(() => {
         if (token) {
             console.log('[USERMANAGEMENT] currentPage cambió a:', currentPage, 'searchTerm:', searchTerm);
@@ -38,7 +36,6 @@ const UserManagement = () => {
             console.log('[USERMANAGEMENT] Token:', token);
             console.log('[USERMANAGEMENT] API_BASE_URL:', API_BASE_URL);
             
-            // Construir URL con parámetros de búsqueda
             const params = new URLSearchParams();
             params.append('page', page);
             if (searchTerm) {
@@ -78,12 +75,10 @@ const UserManagement = () => {
         }
     };
 
-    // Ya no necesitamos filtrar localmente - el servidor lo hace
     const filteredUsers = users;
 
     const handleAddUser = async (newUser) => {
         try {
-            // Por ahora, agregar usuario es local. Si quieres persistencia, necesitarías un endpoint POST
             setUsers([...users, { ...newUser, id: users.length > 0 ? Math.max(...users.map(u => u.id)) + 1 : 1 }]);
             setShowAddUserModal(false);
         } catch (err) {
@@ -115,7 +110,6 @@ const UserManagement = () => {
             
             const data = await response.json();
             if (data.success) {
-                // Actualizar la lista local
                 setUsers(users.map(user => user.id === updatedUser.id ? updatedUser : user));
                 setShowEditUserModal(false);
             } else {
@@ -161,79 +155,99 @@ const UserManagement = () => {
 
     const styles = {
         container: {
-            padding: '20px',
-            backgroundColor: 'var(--card-background)',
-            borderRadius: '8px',
-            boxShadow: '0 5px 15px var(--shadow-light)',
+            padding: '1.5rem',
+            background: 'linear-gradient(135deg, var(--alice-blue) 0%, rgba(75, 172, 53, 0.05) 100%)',
+            borderRadius: '12px',
+            boxShadow: '0 8px 25px var(--shadow-medium)',
             gridColumn: '1 / -1',
             display: 'flex',
             width: '100%', 
             height: '100vh',
             flexDirection: 'column',
-            gap: '20px',
+            gap: '1.5rem',
         },
         title: {
-            fontSize: '1.5rem',
+            fontSize: '1.8rem',
             color: 'var(--rich-black)',
-            marginBottom: '15px',
-            fontWeight: '600',
+            marginBottom: '1rem',
+            fontWeight: '700',
+            textShadow: '0 2px 4px var(--shadow-light)',
         },
         headerControls: {
             display: 'flex',
             justifyContent: 'space-between',
             alignItems: 'center',
-            marginBottom: '20px',
+            marginBottom: '1.5rem',
             flexWrap: 'wrap',
-            gap: '10px',
+            gap: '1rem',
         },
         searchInput: {
-            padding: '10px',
-            border: '1px solid var(--border-color-light)',
-            borderRadius: '5px',
-            width: '300px',
+            padding: '0.8rem 1rem',
+            border: '2px solid var(--input-border)',
+            borderRadius: '8px',
+            width: '350px',
             color: 'var(--rich-black)',
+            background: 'var(--input-bg)',
+            fontSize: '0.95rem',
+            transition: 'var(--transition)',
         },
         addButton: {
-            backgroundColor: 'var(--forest-green)',
+            background: 'linear-gradient(135deg, var(--forest-green), #3d9129)',
             color: 'white',
-            padding: '10px 15px',
-            borderRadius: '5px',
+            padding: '0.8rem 1.5rem',
+            borderRadius: '8px',
             border: 'none',
             cursor: 'pointer',
+            fontWeight: '600',
+            fontSize: '0.95rem',
+            boxShadow: '0 4px 15px var(--shadow-strong)',
+            transition: 'var(--transition)',
         },
         userTable: {
             width: '100%',
             borderCollapse: 'collapse',
-            backgroundColor: 'var(--alice-blue)',
-            borderRadius: '8px',
+            background: 'var(--alice-blue)',
+            borderRadius: '12px',
             overflow: 'hidden',
+            boxShadow: '0 4px 15px var(--shadow-light)',
         },
         tableHeader: {
-            backgroundColor: 'var(--forest-green)',
+            background: 'linear-gradient(135deg, var(--forest-green), #3d9129)',
             color: 'white',
             textAlign: 'left',
-            padding: '12px 15px',
+            padding: '1rem 1.2rem',
+            fontWeight: '600',
+            fontSize: '0.9rem',
+            textTransform: 'uppercase',
+            letterSpacing: '0.5px',
         },
         tableRow: {
-            borderBottom: '1px solid var(--border-color-light)',
+            borderBottom: '1px solid var(--input-border)',
+            transition: 'var(--transition)',
         },
         tableCell: {
-            padding: '12px 15px',
+            padding: '1rem 1.2rem',
             color: 'var(--rich-black)',
+            fontSize: '0.9rem',
         },
         actionButton: {
-            padding: '6px 10px',
-            borderRadius: '5px',
+            padding: '0.5rem 1rem',
+            borderRadius: '6px',
             border: 'none',
             cursor: 'pointer',
-            marginRight: '5px',
+            marginRight: '0.5rem',
             color: 'white',
+            fontWeight: '500',
+            fontSize: '0.85rem',
+            transition: 'var(--transition)',
         },
         editButton: {
-            backgroundColor: 'var(--golden-yellow)',
+            background: 'linear-gradient(135deg, var(--golden-yellow), #e6b412)',
+            boxShadow: '0 2px 8px rgba(255, 201, 20, 0.3)',
         },
         deleteButton: {
-            backgroundColor: 'var(--error-main)',
+            background: 'linear-gradient(135deg, var(--error-color), #c82333)',
+            boxShadow: '0 2px 8px var(--error-border)',
         },
         modalOverlay: {
             position: 'fixed',
@@ -241,56 +255,64 @@ const UserManagement = () => {
             left: 0,
             right: 0,
             bottom: 0,
-            backgroundColor: 'rgba(0, 0, 0, 0.5)',
+            background: 'rgba(26, 24, 27, 0.7)',
             display: 'flex',
             justifyContent: 'center',
             alignItems: 'center',
             zIndex: 1000,
+            backdropFilter: 'blur(4px)',
         },
         modalContent: {
-            backgroundColor: 'white',
-            padding: '30px',
-            borderRadius: '8px',
-            boxShadow: '0 5px 15px rgba(0, 0, 0, 0.3)',
-            width: '400px',
+            background: 'var(--alice-blue)',
+            padding: '2rem',
+            borderRadius: '12px',
+            boxShadow: '0 15px 35px rgba(26, 24, 27, 0.3)',
+            width: '450px',
             display: 'flex',
             flexDirection: 'column',
-            gap: '15px',
+            gap: '1.2rem',
         },
         modalInput: {
-            padding: '10px',
-            border: '1px solid var(--border-color-light)',
-            borderRadius: '5px',
+            padding: '0.8rem 1rem',
+            border: '2px solid var(--input-border)',
+            borderRadius: '8px',
             color: 'var(--rich-black)',
+            background: 'var(--input-bg)',
+            fontSize: '0.95rem',
+            transition: 'var(--transition)',
         },
         modalSelect: {
-            padding: '10px',
-            border: '1px solid var(--border-color-light)',
-            borderRadius: '5px',
+            padding: '0.8rem 1rem',
+            border: '2px solid var(--input-border)',
+            borderRadius: '8px',
             color: 'var(--rich-black)',
-            backgroundColor: 'white',
+            background: 'var(--input-bg)',
+            fontSize: '0.95rem',
         },
         modalButtonContainer: {
             display: 'flex',
             justifyContent: 'flex-end',
-            gap: '10px',
-            marginTop: '10px',
+            gap: '1rem',
+            marginTop: '1rem',
         },
         modalSaveButton: {
-            backgroundColor: 'var(--forest-green)',
+            background: 'linear-gradient(135deg, var(--forest-green), #3d9129)',
             color: 'white',
-            padding: '10px 15px',
-            borderRadius: '5px',
+            padding: '0.8rem 1.5rem',
+            borderRadius: '8px',
             border: 'none',
             cursor: 'pointer',
+            fontWeight: '600',
+            boxShadow: '0 4px 15px var(--shadow-strong)',
         },
         modalCancelButton: {
-            backgroundColor: 'var(--error-main)',
+            background: 'linear-gradient(135deg, var(--error-color), #c82333)',
             color: 'white',
-            padding: '10px 15px',
-            borderRadius: '5px',
+            padding: '0.8rem 1.5rem',
+            borderRadius: '8px',
             border: 'none',
             cursor: 'pointer',
+            fontWeight: '600',
         },
     };
 
@@ -310,7 +332,9 @@ const UserManagement = () => {
         return (
             <div style={styles.modalOverlay}>
                 <form style={styles.modalContent} onSubmit={handleSubmit}>
-                    <h3>{initialData ? 'Editar Usuario' : 'Agregar Nuevo Usuario'}</h3>
+                    <h3 style={{ color: 'var(--rich-black)', fontWeight: '700', fontSize: '1.3rem' }}>
+                        {initialData ? 'Editar Usuario' : 'Agregar Nuevo Usuario'}
+                    </h3>
                     <input
                         type="text"
                         name="name"
@@ -368,22 +392,25 @@ const UserManagement = () => {
             display: 'flex',
             justifyContent: 'center',
             alignItems: 'center',
-            gap: '10px',
-            marginTop: '20px',
+            gap: '1rem',
+            marginTop: '1.5rem',
             flexWrap: 'wrap'
         },
         button: {
-            padding: '8px 12px',
-            border: '1px solid var(--border-color-light)',
-            borderRadius: '5px',
-            backgroundColor: 'var(--alice-blue)',
+            padding: '0.6rem 1.2rem',
+            border: '2px solid var(--input-border)',
+            borderRadius: '8px',
+            background: 'var(--alice-blue)',
             color: 'var(--rich-black)',
             cursor: 'pointer',
-            fontSize: '0.9rem'
+            fontSize: '0.9rem',
+            fontWeight: '500',
+            transition: 'var(--transition)',
         },
         buttonActive: {
-            backgroundColor: 'var(--forest-green)',
-            color: 'white'
+            background: 'var(--forest-green)',
+            color: 'white',
+            borderColor: 'var(--forest-green)',
         },
         buttonDisabled: {
             opacity: '0.5',
@@ -391,23 +418,26 @@ const UserManagement = () => {
         },
         info: {
             fontSize: '0.9rem',
-            color: 'var(--rich-black)'
+            color: 'var(--rich-black)',
+            fontWeight: '500',
         }
     };
 
     const errorMessageStyles = {
-        padding: '12px 15px',
-        backgroundColor: '#f8d7da',
-        border: '1px solid #f5c6cb',
-        borderRadius: '5px',
-        color: '#721c24',
-        marginBottom: '15px'
+        padding: '1rem 1.2rem',
+        background: 'var(--error-bg)',
+        border: '2px solid var(--error-border)',
+        borderRadius: '8px',
+        color: 'var(--error-color)',
+        marginBottom: '1rem',
+        fontWeight: '500',
     };
 
     const loadingStyles = {
         textAlign: 'center',
-        padding: '20px',
-        color: 'var(--rich-black)'
+        padding: '2rem',
+        color: 'var(--rich-black)',
+        fontSize: '1.1rem',
     };
 
     return (
@@ -427,8 +457,29 @@ const UserManagement = () => {
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
                     style={styles.searchInput}
+                    onFocus={(e) => {
+                        e.target.style.borderColor = 'var(--forest-green)';
+                        e.target.style.background = 'var(--input-bg-focus)';
+                    }}
+                    onBlur={(e) => {
+                        e.target.style.borderColor = 'var(--input-border)';
+                        e.target.style.background = 'var(--input-bg)';
+                    }}
                 />
-                <button onClick={() => setShowAddUserModal(true)} style={styles.addButton}>Agregar Usuario</button>
+                <button 
+                    onClick={() => setShowAddUserModal(true)} 
+                    style={styles.addButton}
+                    onMouseEnter={(e) => {
+                        e.target.style.transform = 'translateY(-2px)';
+                        e.target.style.boxShadow = '0 6px 20px var(--shadow-hover)';
+                    }}
+                    onMouseLeave={(e) => {
+                        e.target.style.transform = 'translateY(0)';
+                        e.target.style.boxShadow = '0 4px 15px var(--shadow-strong)';
+                    }}
+                >
+                    Agregar Usuario
+                </button>
             </div>
 
             {loading ? (
@@ -448,7 +499,14 @@ const UserManagement = () => {
                         <tbody>
                             {filteredUsers.length > 0 ? (
                                 filteredUsers.map(user => (
-                                    <tr key={user.id} style={styles.tableRow}>
+                                    <tr key={user.id} style={styles.tableRow}
+                                        onMouseEnter={(e) => {
+                                            e.currentTarget.style.background = 'var(--input-bg)';
+                                        }}
+                                        onMouseLeave={(e) => {
+                                            e.currentTarget.style.background = 'transparent';
+                                        }}
+                                    >
                                         <td style={styles.tableCell} data-label="Nombre">{user.name}</td>
                                         <td style={styles.tableCell} data-label="Email">{user.email}</td>
                                         <td style={styles.tableCell} data-label="Teléfono">{user.phone}</td>
@@ -457,12 +515,24 @@ const UserManagement = () => {
                                             <button
                                                 onClick={() => openEditModal(user)}
                                                 style={{ ...styles.actionButton, ...styles.editButton }}
+                                                onMouseEnter={(e) => {
+                                                    e.target.style.transform = 'translateY(-1px)';
+                                                }}
+                                                onMouseLeave={(e) => {
+                                                    e.target.style.transform = 'translateY(0)';
+                                                }}
                                             >
                                                 Editar
                                             </button>
                                             <button
                                                 onClick={() => handleDeleteUser(user.id)}
                                                 style={{ ...styles.actionButton, ...styles.deleteButton }}
+                                                onMouseEnter={(e) => {
+                                                    e.target.style.transform = 'translateY(-1px)';
+                                                }}
+                                                onMouseLeave={(e) => {
+                                                    e.target.style.transform = 'translateY(0)';
+                                                }}
                                             >
                                                 Eliminar
                                             </button>
@@ -471,7 +541,7 @@ const UserManagement = () => {
                                 ))
                             ) : (
                                 <tr>
-                                    <td colSpan="5" style={{ ...styles.tableCell, textAlign: 'center' }}>
+                                    <td colSpan="5" style={{ ...styles.tableCell, textAlign: 'center', color: 'var(--input-placeholder)' }}>
                                         No hay usuarios disponibles
                                     </td>
                                 </tr>
@@ -479,7 +549,6 @@ const UserManagement = () => {
                         </tbody>
                     </table>
 
-                    {/* Controles de paginación */}
                     <div style={paginationStyles.container}>
                         <button
                             onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
@@ -487,6 +556,18 @@ const UserManagement = () => {
                             style={{
                                 ...paginationStyles.button,
                                 ...(currentPage === 1 ? paginationStyles.buttonDisabled : {})
+                            }}
+                            onMouseEnter={(e) => {
+                                if (currentPage !== 1) {
+                                    e.target.style.background = 'var(--forest-green)';
+                                    e.target.style.color = 'white';
+                                }
+                            }}
+                            onMouseLeave={(e) => {
+                                if (currentPage !== 1) {
+                                    e.target.style.background = 'var(--alice-blue)';
+                                    e.target.style.color = 'var(--rich-black)';
+                                }
                             }}
                         >
                             ← Anterior
@@ -502,6 +583,18 @@ const UserManagement = () => {
                             style={{
                                 ...paginationStyles.button,
                                 ...(currentPage === totalPages ? paginationStyles.buttonDisabled : {})
+                            }}
+                            onMouseEnter={(e) => {
+                                if (currentPage !== totalPages) {
+                                    e.target.style.background = 'var(--forest-green)';
+                                    e.target.style.color = 'white';
+                                }
+                            }}
+                            onMouseLeave={(e) => {
+                                if (currentPage !== totalPages) {
+                                    e.target.style.background = 'var(--alice-blue)';
+                                    e.target.style.color = 'var(--rich-black)';
+                                }
                             }}
                         >
                             Siguiente →
