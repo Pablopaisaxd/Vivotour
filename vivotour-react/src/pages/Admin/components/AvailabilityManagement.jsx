@@ -384,7 +384,7 @@ const AvailabilityManagement = () => {
                                                 }}
                                                 style={styles.removeButton}
                                             >
-                                                🗑️ Eliminar
+                                                 Eliminar
                                             </button>
                                         </div>
                                     ))}

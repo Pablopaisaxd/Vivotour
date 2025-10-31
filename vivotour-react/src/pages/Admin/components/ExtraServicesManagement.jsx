@@ -670,7 +670,7 @@ const ExtraServicesManagement = () => {
                 e.target.style.boxShadow = '0 4px 15px var(--shadow-strong)';
               }}
             >
-              {loading ? 'Guardando...' : editingId ? '💾 Actualizar Servicio' : '➕ Crear Servicio'}
+              {loading ? 'Guardando...' : editingId ? ' Actualizar Servicio' : ' Crear Servicio'}
             </button>
             {editingId && (
               <button
@@ -686,7 +686,7 @@ const ExtraServicesManagement = () => {
                   e.target.style.boxShadow = '0 4px 12px var(--shadow-light)';
                 }}
               >
-                ✕ Cancelar
+                 Cancelar
               </button>
             )}
           </div>
@@ -702,7 +702,7 @@ const ExtraServicesManagement = () => {
         fontWeight: '600',
         textAlign: 'center'
       }}>
-        📋 Servicios Actuales
+         Servicios Actuales
       </h3>
       <div style={styles.servicesGrid}>
         {services.length === 0 ? (
@@ -746,7 +746,7 @@ const ExtraServicesManagement = () => {
                     e.target.style.boxShadow = '0 4px 12px var(--shadow-strong)';
                   }}
                 >
-                  ✏️ Editar
+                   Editar
                 </button>
                 <button
                   onClick={() => handleDeleteClick(service)}
@@ -760,7 +760,7 @@ const ExtraServicesManagement = () => {
                     e.target.style.boxShadow = '0 4px 12px rgba(220, 53, 69, 0.3)';
                   }}
                 >
-                  🗑️ Eliminar
+                   Eliminar
                 </button>
               </div>
             </div>
@@ -771,7 +771,7 @@ const ExtraServicesManagement = () => {
       {showDeleteModal && serviceToDelete && (
         <div style={styles.modalOverlay} onClick={handleCancelDelete}>
           <div style={styles.modalContent} onClick={(e) => e.stopPropagation()}>
-            <h3 style={styles.modalTitle}>⚠️ Confirmar Eliminación</h3>
+            <h3 style={styles.modalTitle}> Confirmar Eliminación</h3>
             <p style={styles.modalMessage}>
               ¿Estás seguro que deseas eliminar el servicio <strong>{serviceToDelete.name}</strong>?
             </p>
@@ -812,7 +812,7 @@ const ExtraServicesManagement = () => {
                   e.target.style.boxShadow = '0 4px 12px rgba(220, 53, 69, 0.3)';
                 }}
               >
-                {loading ? 'Eliminando...' : '🗑️ Eliminar'}
+                {loading ? 'Eliminando...' : ' Eliminar'}
               </button>
             </div>
           </div>
