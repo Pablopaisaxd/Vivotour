@@ -575,12 +575,12 @@ const GalleryManagement = () => {
   return (
     <div className="gallery-management-full" style={styles.container}>
       <div style={styles.header}>
-        <h2 style={styles.title}>🖼️ Gestión de Galería</h2>
+        <h2 style={styles.title}> Gestión de Galería</h2>
       </div>
       
       {error && (
         <div style={styles.errorAlert}>
-          ⚠️ {error}
+           {error}
         </div>
       )}
       
@@ -644,7 +644,7 @@ const GalleryManagement = () => {
                 onMouseEnter={(e) => { e.currentTarget.style.opacity = '1'; }}
                 onMouseLeave={(e) => { e.currentTarget.style.opacity = '0'; }}
               >
-                <span>📸 Gestionar Imágenes</span>
+                <span> Gestionar Imágenes</span>
               </div>
             </div>
           </div>
@@ -657,7 +657,7 @@ const GalleryManagement = () => {
             
             <div style={styles.modalHeader}>
               <h3 style={styles.modalTitle}>
-                📸 Gestionar: {categoryTexts[selectedCategory.IdCategoria] || selectedCategory.NombreCategoria}
+                 Gestionar: {categoryTexts[selectedCategory.IdCategoria] || selectedCategory.NombreCategoria}
               </h3>
               <div style={styles.modalActions}>
                 <label 
@@ -711,7 +711,7 @@ const GalleryManagement = () => {
 
             {loading && (
               <div style={styles.loadingText}>
-                🔄 Cargando...
+                 Cargando...
               </div>
             )}
 
@@ -783,7 +783,7 @@ const GalleryManagement = () => {
                 </div>
               ) : (
                 <div style={styles.emptyState}>
-                  <p style={{ fontSize: '1.2rem', marginBottom: '0.5rem' }}>📷 No hay imágenes en esta categoría</p>
+                  <p style={{ fontSize: '1.2rem', marginBottom: '0.5rem' }}> No hay imágenes en esta categoría</p>
                   <p style={{ fontSize: '1rem', fontStyle: 'italic' }}>Haz clic en "Agregar Imágenes" para subir nuevas fotos</p>
                 </div>
               )}
@@ -825,7 +825,7 @@ const GalleryManagement = () => {
 
             <div style={styles.modalFooter}>
               <p style={{ margin: 0, fontSize: '0.95rem' }}>
-                📊 Total de imágenes: {categoryImages.length}
+                 Total de imágenes: {categoryImages.length}
               </p>
             </div>
           </div>

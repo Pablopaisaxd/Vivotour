@@ -329,11 +329,11 @@ const HomePageSettings = () => {
 
     return (
         <div style={styles.container}>
-            <h2 style={styles.title}>🏠 Configuración de Página de Inicio</h2>
+            <h2 style={styles.title}> Configuración de Página de Inicio</h2>
             
             {error && (
                 <div style={{ ...styles.alert, ...styles.errorAlert }}>
-                    ⚠️ Error: {error}
+                     Error: {error}
                 </div>
             )}
             
@@ -344,7 +344,7 @@ const HomePageSettings = () => {
             )}
             
             <div style={styles.section}>
-                <h3 style={styles.sectionTitle}>📸 Imágenes de Presentación</h3>
+                <h3 style={styles.sectionTitle}> Imágenes de Presentación</h3>
                 <div style={styles.imagesGrid}>
                     {getPadded(presentationImages).map((img, i) => (
                         <div 
@@ -376,7 +376,7 @@ const HomePageSettings = () => {
                                     e.target.style.boxShadow = '0 4px 12px var(--shadow-strong)';
                                 }}
                             >
-                                📷 Cambiar
+                                 Cambiar
                                 <input 
                                     type='file' 
                                     accept='image/*' 
@@ -390,7 +390,7 @@ const HomePageSettings = () => {
             </div>
 
             <div style={styles.section}>
-                <h3 style={styles.sectionTitle}>💭 Imágenes de Opinión</h3>
+                <h3 style={styles.sectionTitle}> Imágenes de Opinión</h3>
                 <div style={styles.imagesGrid}>
                     {getPadded(opinionImages).map((img, i) => (
                         <div 
@@ -422,7 +422,7 @@ const HomePageSettings = () => {
                                     e.target.style.boxShadow = '0 4px 12px var(--shadow-strong)';
                                 }}
                             >
-                                📷 Cambiar
+                                 Cambiar
                                 <input 
                                     type='file' 
                                     accept='image/*' 

@@ -110,7 +110,7 @@ function TotalVisits() {
             <div className="total-visits">
                 <p className="metric-title">RESERVAS ESTE MES</p>
                 <p className="metric-value" style={{ color: 'var(--error-color)', fontSize: '16px' }}>
-                    ⚠️ Error
+                     Error
                 </p>
                 <small style={{ color: 'var(--text-color-secondary)' }}>
                     {error}
@@ -124,7 +124,7 @@ function TotalVisits() {
             <p className="metric-title">RESERVAS ESTE MES</p>
             <p className="metric-value">{stats.reservasMesActual.toLocaleString()}</p>
             <p className={`metric-percentage ${change.isPositive ? 'up' : 'down'}`}>
-                {change.isPositive ? '📈' : '📉'} {change.isPositive ? '+' : '-'}{change.percentage}% 
+                {change.isPositive ? '' : ''} {change.isPositive ? '+' : '-'}{change.percentage}% 
                 <span className="metric-launch">
                     <LaunchIcon sx={{ 
                         fontSize: 14,
