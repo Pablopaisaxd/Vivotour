@@ -12,6 +12,50 @@ import {
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
 
+// Resolve CSS variables at runtime and set ChartJS defaults for consistent theme
+let RESOLVED_CHART_COLORS = {
+  richBlack: '#1A181B',
+  aliceBlue: '#F0F8FF',
+  forestGreen: '#4BAC35',
+};
+
+if (typeof window !== 'undefined' && window.getComputedStyle) {
+  try {
+    const root = window.getComputedStyle(document.documentElement);
+    const richBlack = (root.getPropertyValue('--rich-black') || RESOLVED_CHART_COLORS.richBlack).trim();
+    const aliceBlue = (root.getPropertyValue('--alice-blue') || RESOLVED_CHART_COLORS.aliceBlue).trim();
+    const forestGreen = (root.getPropertyValue('--forest-green') || RESOLVED_CHART_COLORS.forestGreen).trim();
+    RESOLVED_CHART_COLORS = { richBlack, aliceBlue, forestGreen };
+
+    ChartJS.defaults.color = richBlack;
+    ChartJS.defaults.plugins.tooltip.backgroundColor = 'rgba(240, 248, 255, 0.95)';
+    ChartJS.defaults.plugins.tooltip.titleColor = richBlack;
+    ChartJS.defaults.plugins.tooltip.bodyColor = richBlack;
+    ChartJS.defaults.plugins.tooltip.borderColor = forestGreen;
+    ChartJS.defaults.plugins.tooltip.borderWidth = 2;
+  } catch (e) {
+    // ignore failures silently
+  }
+}
+
+// small helper to darken a hex color by percent (0-100)
+function darkenColor(hex, percent) {
+  try {
+    const cleaned = hex.replace('#', '');
+    const num = parseInt(cleaned.length === 3 ? cleaned.split('').map(c => c + c).join('') : cleaned, 16);
+    const r = (num >> 16) & 0xFF;
+    const g = (num >> 8) & 0xFF;
+    const b = num & 0xFF;
+    const factor = (100 - percent) / 100;
+    const nr = Math.max(0, Math.min(255, Math.round(r * factor)));
+    const ng = Math.max(0, Math.min(255, Math.round(g * factor)));
+    const nb = Math.max(0, Math.min(255, Math.round(b * factor)));
+    return `#${(nr << 16 | ng << 8 | nb).toString(16).padStart(6, '0')}`;
+  } catch (e) {
+    return hex;
+  }
+}
+
 const MyChart = ({ month, year, dailyData }) => {
   const [chartData, setChartData] = useState({
     labels: [],
@@ -19,6 +63,9 @@ const MyChart = ({ month, year, dailyData }) => {
   });
 
   useEffect(() => {
+    const fg = RESOLVED_CHART_COLORS.forestGreen;
+    const fgDark = darkenColor(fg, 12);
+
     if (!dailyData || dailyData.length === 0) {
       setChartData({
         labels: [],
@@ -26,8 +73,8 @@ const MyChart = ({ month, year, dailyData }) => {
           {
             label: "Llegadas",
             data: [],
-            backgroundColor: "var(--forest-green)",
-            hoverBackgroundColor: "#3d9129",
+            backgroundColor: fg,
+            hoverBackgroundColor: fgDark,
             barThickness: 9,
             minBarLength: 1,
           },
@@ -44,8 +91,8 @@ const MyChart = ({ month, year, dailyData }) => {
         {
           label: "Llegadas",
           data: processedData.data,
-          backgroundColor: "var(--forest-green)",
-          hoverBackgroundColor: "#3d9129",
+          backgroundColor: fg,
+          hoverBackgroundColor: fgDark,
           barThickness: 9,
           minBarLength: 1,
         },
@@ -134,16 +181,16 @@ const MyChart = ({ month, year, dailyData }) => {
               }
             },
             tooltip: {
-              backgroundColor: "rgba(240, 248, 255, 0.95)",
-              borderColor: "var(--forest-green)",
+              backgroundColor: RESOLVED_CHART_COLORS.aliceBlue,
+              borderColor: RESOLVED_CHART_COLORS.forestGreen,
               borderWidth: 2,
-              titleColor: "var(--rich-black)",
+              titleColor: RESOLVED_CHART_COLORS.richBlack,
               titleAlign: "center",
               titleFont: {
                 size: 14,
                 weight: '600'
               },
-              bodyColor: "var(--rich-black)",
+              bodyColor: RESOLVED_CHART_COLORS.richBlack,
               bodyFont: {
                 size: 13
               },
@@ -165,9 +212,6 @@ const MyChart = ({ month, year, dailyData }) => {
                   label += count === 1 ? " reserva" : " reservas";
                   return label;
                 },
-                labelTextColor: function(tooltipItem, chart) {
-                    return 'var(--rich-black)';
-                }
               },
             },
           },

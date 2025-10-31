@@ -22,6 +22,48 @@ ChartJS.register(
   Legend,
   Filler
 );
+// Resolve CSS variables once and set ChartJS defaults for tooltip/readability
+let RESOLVED_LINE_COLORS = {
+  richBlack: '#1A181B',
+  aliceBlue: '#F0F8FF',
+  forestGreen: '#4BAC35',
+};
+
+if (typeof window !== 'undefined' && window.getComputedStyle) {
+  try {
+    const root = window.getComputedStyle(document.documentElement);
+    const richBlack = (root.getPropertyValue('--rich-black') || RESOLVED_LINE_COLORS.richBlack).trim();
+    const aliceBlue = (root.getPropertyValue('--alice-blue') || RESOLVED_LINE_COLORS.aliceBlue).trim();
+    const forestGreen = (root.getPropertyValue('--forest-green') || RESOLVED_LINE_COLORS.forestGreen).trim();
+    RESOLVED_LINE_COLORS = { richBlack, aliceBlue, forestGreen };
+
+    ChartJS.defaults.color = richBlack;
+    ChartJS.defaults.plugins.tooltip.backgroundColor = 'rgba(240, 248, 255, 0.95)';
+    ChartJS.defaults.plugins.tooltip.titleColor = richBlack;
+    ChartJS.defaults.plugins.tooltip.bodyColor = richBlack;
+    ChartJS.defaults.plugins.tooltip.borderColor = forestGreen;
+    ChartJS.defaults.plugins.tooltip.borderWidth = 2;
+  } catch (e) {
+    // noop
+  }
+}
+
+function resolveColorValue(val, fallback) {
+  if (!val) return fallback;
+  if (typeof val === 'string' && val.includes('var(')) {
+    try {
+      const match = val.match(/--[a-zA-Z0-9-_]+/);
+      if (match) {
+        const computed = window.getComputedStyle(document.documentElement).getPropertyValue(match[0]);
+        if (computed) return computed.trim();
+      }
+    } catch (e) {
+      return fallback;
+    }
+    return fallback;
+  }
+  return val;
+}
 
 const MyLine = ({ color, height, width, data: chartInputData }) => {
   const [data, setData] = useState({
@@ -31,20 +73,22 @@ const MyLine = ({ color, height, width, data: chartInputData }) => {
 
   useEffect(() => {
     if (chartInputData && chartInputData.labels && chartInputData.data) {
+      const resolvedBorder = resolveColorValue(color.borderColor, RESOLVED_LINE_COLORS.forestGreen);
+      const resolvedBg = resolveColorValue(color.backgroundColor, 'rgba(75, 172, 53, 0.08)');
       setData({
         labels: chartInputData.labels,
         datasets: [
           {
             data: chartInputData.data,
             fill: true,
-            backgroundColor: color.backgroundColor,
-            borderColor: color.borderColor,
+            backgroundColor: resolvedBg,
+            borderColor: resolvedBorder,
             borderWidth: 2.5,
-            pointBorderColor: color.borderColor,
-            pointBackgroundColor: "var(--alice-blue)",
+            pointBorderColor: resolvedBorder,
+            pointBackgroundColor: RESOLVED_LINE_COLORS.aliceBlue,
             pointHoverRadius: 6,
-            pointHoverBackgroundColor: color.borderColor,
-            pointHoverBorderColor: "rgba(75, 172, 53, 0.3)",
+            pointHoverBackgroundColor: resolvedBorder,
+            pointHoverBorderColor: 'rgba(75, 172, 53, 0.3)',
             pointHoverBorderWidth: 8,
             pointRadius: 0,
             pointHitRadius: 35,
@@ -53,20 +97,22 @@ const MyLine = ({ color, height, width, data: chartInputData }) => {
         ],
       });
     } else {
+      const resolvedBorder = resolveColorValue(color.borderColor, RESOLVED_LINE_COLORS.forestGreen);
+      const resolvedBg = resolveColorValue(color.backgroundColor, 'rgba(75, 172, 53, 0.08)');
       setData({
         labels: ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10"],
         datasets: [
           {
             data: [3, 2, 3, 2, 2, 3, 1, 2, 2, 4],
             fill: true,
-            backgroundColor: color.backgroundColor,
-            borderColor: color.borderColor,
+            backgroundColor: resolvedBg,
+            borderColor: resolvedBorder,
             borderWidth: 2.5,
-            pointBorderColor: color.borderColor,
-            pointBackgroundColor: "var(--alice-blue)",
+            pointBorderColor: resolvedBorder,
+            pointBackgroundColor: RESOLVED_LINE_COLORS.aliceBlue,
             pointHoverRadius: 6,
-            pointHoverBackgroundColor: color.borderColor,
-            pointHoverBorderColor: "rgba(75, 172, 53, 0.3)",
+            pointHoverBackgroundColor: resolvedBorder,
+            pointHoverBorderColor: 'rgba(75, 172, 53, 0.3)',
             pointHoverBorderWidth: 8,
             pointRadius: 0,
             pointHitRadius: 35,

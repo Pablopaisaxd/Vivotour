@@ -12,8 +12,8 @@ export const Login = () => {
   const { register, handleSubmit, formState: { errors } } = useForm();
   const navigate = useNavigate();
   const { login } = useContext(AuthContext);
-
   const [showPassword, setShowPassword] = useState(false);
+  const [serverError, setServerError] = useState("");
   const location = useLocation();
   const from = location.state?.from || "/";
 
@@ -24,34 +24,31 @@ export const Login = () => {
       console.log('[FRONTEND LOGIN] Respuesta del servidor:', res.data);
       
       if (res.data.success) {
-        // Usar los datos del usuario que devuelve el backend
         const userData = res.data.user || {};
         console.log('[FRONTEND LOGIN] Datos de usuario recibidos:', userData);
-        
         login(res.data.token, userData);
+        setServerError("");
         navigate(from, { replace: true });
       } else {
         console.error('[FRONTEND LOGIN] Error del servidor:', res.data.mensaje);
-        alert(res.data.mensaje);
+        setServerError(res.data.mensaje || 'Error en el servidor');
       }
     } catch (error) {
       console.error('Error en login:', error);
       if (error.response) {
         console.error('Respuesta del servidor:', error.response.data);
-        alert(`Error del servidor: ${error.response.data.mensaje || 'Error desconocido'}`);
+        setServerError(`Error del servidor: ${error.response.data.mensaje || 'Error desconocido'}`);
       } else {
-        alert('Error de conexión con el servidor');
+        setServerError('Error de conexión con el servidor');
       }
     }
   };
 
-  // Procesar token recibido vía redirect OAuth (query param)
   useEffect(() => {
     const params = new URLSearchParams(location.search);
     const token = params.get('token');
     const error = params.get('error');
     if (token) {
-      // Guardar token y decidir si falta completar perfil
       try {
         const decoded = jwtDecode(token);
         login(token, {
@@ -73,9 +70,7 @@ export const Login = () => {
       }
     } else if (error) {
       console.error('Google OAuth error:', error);
-      // Podrías mostrar un mensaje más amigable
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [location.search]);
 
   const handleGoogleLogin = () => {
@@ -96,6 +91,11 @@ export const Login = () => {
 
           <h1>Iniciar Sesión</h1>
           <form className="login-form" onSubmit={handleSubmit(Submit)} noValidate>
+            {serverError && (
+              <div className="login-error" role="alert">
+                <p>{serverError}</p>
+              </div>
+            )}
             
             <div className="login-input-group">
               <input

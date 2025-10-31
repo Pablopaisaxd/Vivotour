@@ -137,7 +137,7 @@
 .total-visits,
 .most-visited,
 .social-media {
-  background: var(--card-background);
+  background: linear-gradient(135deg, var(--alice-blue) 0%, rgba(75,172,53,0.03) 40%, rgba(255,201,20,0.06) 100%);
   border-radius: 12px;
   box-shadow: 0 4px 15px var(--shadow-light);
   transition: var(--transition);
@@ -606,4 +606,11 @@ html {
   clip: rect(0,0,0,0); 
   white-space: nowrap; 
   border: 0; 
+}
+
+/* Ensure the orientation warning is hidden on desktop / large screens */
+@media (min-width: 769px) {
+  .orientation-warning {
+    display: none !important;
+  }
 }
