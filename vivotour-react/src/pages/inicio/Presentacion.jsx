@@ -285,7 +285,7 @@ const Presentacion = ({ cambiarvista }) => {
             </button>
 
             {/* Botón cerrar */}
-            <button className="servicios-close-btn" onClick={() => setSelectedServicio(null)}>✕</button>
+            <button className="servicios-close-btn" onClick={() => setSelectedServicio(null)}>Cerrar</button>
 
             {/* Botón siguiente */}
             <button

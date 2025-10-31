@@ -86,7 +86,7 @@ function TotalVisits() {
         return (
             <div className="total-visits">
                 <p className="metric-title">RESERVAS ESTE MES</p>
-                <p className="metric-value">⏳</p>
+                <p className="metric-value">—</p>
                 <div style={{ 
                     width: '100%', 
                     height: '4px', 

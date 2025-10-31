@@ -205,6 +205,9 @@ const CheckoutForm = ({ reservaDetails, onPaymentSuccess, onPaymentError }) => {
     },
   };
 
+  // Formato COP usado en la pasarela
+  const formatCOP = (n) => new Intl.NumberFormat('es-CO', { style: 'currency', currency: 'COP', maximumFractionDigits: 0 }).format(Number(n || 0));
+
   return (
     <div style={{ 
       maxWidth: '500px', 
@@ -214,20 +217,7 @@ const CheckoutForm = ({ reservaDetails, onPaymentSuccess, onPaymentError }) => {
       borderRadius: '10px',
       boxShadow: '0 4px 6px rgba(0,0,0,0.1)'
     }}>
-      {/* Bandera de modo desarrollo */}
-      {mockMode && (
-        <div style={{
-          backgroundColor: '#fff3cd',
-          border: '1px solid #ffeaa7',
-          borderRadius: '6px',
-          padding: '10px',
-          marginBottom: '20px',
-          textAlign: 'center',
-          color: '#856404'
-        }}>
-          🔧 <strong>Modo Desarrollo:</strong> Los pagos están simulados para pruebas
-        </div>
-      )}
+      {/* Nota: el banner de modo desarrollo se ha removido de la UI por petición. (mockMode sigue funcionando internamente) */}
 
       {/* Resumen de la reserva */}
       {reservaDetails && (
@@ -245,9 +235,7 @@ const CheckoutForm = ({ reservaDetails, onPaymentSuccess, onPaymentError }) => {
           }}>
             Resumen de Reserva
           </h3>
-          <div style={{ marginBottom: '10px' }}>
-            <strong>Reserva #:</strong> {reservaDetails.IdReserva}
-          </div>
+          {/* Reservar: ya no mostramos el número de reserva en la pasarela por privacidad */}
           <div style={{ marginBottom: '10px' }}>
             <strong>Check-in:</strong> {new Date(reservaDetails.FechaIngreso).toLocaleDateString()}
           </div>
@@ -264,7 +252,7 @@ const CheckoutForm = ({ reservaDetails, onPaymentSuccess, onPaymentError }) => {
             backgroundColor: '#e8f5e8',
             borderRadius: '5px'
           }}>
-            Total: ${reservaDetails.total} USD
+            Total: {formatCOP(reservaDetails.total)}
           </div>
         </div>
       )}
@@ -368,7 +356,7 @@ const CheckoutForm = ({ reservaDetails, onPaymentSuccess, onPaymentError }) => {
           ) : succeeded ? (
             'Pago Completado ✓'
           ) : (
-            `Pagar $${reservaDetails?.total || 0} USD`
+            `Pagar ${formatCOP(reservaDetails?.total || 0)}`
           )}
         </button>
       </form>

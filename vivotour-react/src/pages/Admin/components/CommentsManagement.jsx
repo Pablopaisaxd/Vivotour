@@ -14,11 +14,22 @@ const CommentsManagement = () => {
   useEffect(() => {
     const fetchComments = async () => {
       try {
-        const response = await fetch('http://localhost:5000/opiniones');
+        const token = localStorage.getItem('token');
+        const headers = token ? { 'Authorization': `Bearer ${token}`, 'Accept': 'application/json' } : { 'Accept': 'application/json' };
+        const response = await fetch('http://localhost:5000/opiniones', { headers });
         if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
         const data = await response.json();
-        if (data.success) {
-          setComments(data.opiniones);
+        if (data.success && Array.isArray(data.opiniones)) {
+          // Normalize opinion objects to use `id` and consistent keys
+          const normalized = data.opiniones.map(o => ({
+            id: o.IdOpinion || o.id || o.IdOpinion || null,
+            nombre: o.nombre || o.Nombre || o.nombre_usuario || 'Anónimo',
+            email: o.email || o.Email || '',
+            opinion: o.opinion || o.Opinion || '',
+            id_usuario: o.id_usuario || null,
+            IdAccount: o.IdAccount || null,
+          }));
+          setComments(normalized);
         } else {
           setError(data.mensaje || 'Error al cargar los comentarios.');
         }
@@ -38,9 +49,11 @@ const CommentsManagement = () => {
   const handleDeleteComment = async (id) => {
     try {
       setDeletingId(id);
+      const token = localStorage.getItem('token');
+      const headers = token ? { Accept: 'application/json', Authorization: `Bearer ${token}` } : { Accept: 'application/json' };
       const response = await fetch(`http://localhost:5000/opiniones/${id}`, {
         method: 'DELETE',
-        headers: { Accept: 'application/json' },
+        headers,
       });
 
       if (response.status === 204) {
@@ -48,8 +61,11 @@ const CommentsManagement = () => {
         return;
       }
 
-      const data = await response.json();
-      if (!response.ok || !data.success) throw new Error(data.mensaje);
+      const text = await response.text();
+      let body = null;
+      try { body = text ? JSON.parse(text) : null; } catch (e) { body = { message: text }; }
+      if (!response.ok) throw new Error(body?.mensaje || body?.message || `HTTP ${response.status}`);
+      if (body && 'success' in body && !body.success) throw new Error(body.mensaje || 'El servidor rechazó la operación');
       setComments((prev) => prev.filter((comment) => comment.id !== id));
     } catch (err) {
       setError(err.message);

@@ -79,7 +79,7 @@ const upload = multer({
 const JWT_SECRET = process.env.JWT_SECRET || "clave_super_secreta"; 
 
 // Middleware para autenticar token JWT
-const autenticarToken = (req, res, next) => {
+const autenticarToken = async (req, res, next) => {
   try {
     const auth = req.headers.authorization || "";
     if (!auth.startsWith("Bearer ")) {
@@ -87,6 +87,22 @@ const autenticarToken = (req, res, next) => {
     }
     const token = auth.slice("Bearer ".length);
     const payload = jwt.verify(token, JWT_SECRET);
+
+    // Si el token no incluye IdAccount pero sí email, intentar resolverlo desde la BD
+    if ((!payload.IdAccount || payload.IdAccount === undefined) && payload.email) {
+      try {
+        const [rows] = await db.query('SELECT IdAccount, IdRol, avatar FROM accounts WHERE email = ? LIMIT 1', [payload.email]);
+        if (rows && rows.length > 0) {
+          payload.IdAccount = rows[0].IdAccount;
+          // Enriquecer con rol y avatar si existen
+          if (!payload.IdRol && rows[0].IdRol) payload.IdRol = rows[0].IdRol;
+          if (!payload.avatar && rows[0].avatar) payload.avatar = getAvatarUrl(rows[0].avatar);
+        }
+      } catch (dbErr) {
+        console.warn('No se pudo resolver IdAccount desde email en autenticarToken:', dbErr && dbErr.message ? dbErr.message : dbErr);
+      }
+    }
+
     req.user = payload;
     next();
   } catch (e) {
@@ -155,7 +171,7 @@ function asignarRolPorEmail(email) {
 }
 
 // Middleware simple para verificar JWT en endpoints protegidos
-function requireAuth(req, res, next) {
+async function requireAuth(req, res, next) {
   try {
     const auth = req.headers.authorization || "";
     if (!auth.startsWith("Bearer ")) {
@@ -163,6 +179,21 @@ function requireAuth(req, res, next) {
     }
     const token = auth.slice("Bearer ".length);
     const payload = jwt.verify(token, JWT_SECRET);
+
+    // Si el token no incluye IdAccount pero sí email, intentar resolverlo desde la BD
+    if ((!payload.IdAccount || payload.IdAccount === undefined) && payload.email) {
+      try {
+        const [rows] = await db.query('SELECT IdAccount, IdRol, avatar FROM accounts WHERE email = ? LIMIT 1', [payload.email]);
+        if (rows && rows.length > 0) {
+          payload.IdAccount = rows[0].IdAccount;
+          if (!payload.IdRol && rows[0].IdRol) payload.IdRol = rows[0].IdRol;
+          if (!payload.avatar && rows[0].avatar) payload.avatar = getAvatarUrl(rows[0].avatar);
+        }
+      } catch (dbErr) {
+        console.warn('No se pudo resolver IdAccount desde email en requireAuth:', dbErr && dbErr.message ? dbErr.message : dbErr);
+      }
+    }
+
     req.user = payload; // { nombre, email, numeroDocumento, tipoDocumento, ... }
     next();
   } catch (e) {
@@ -514,6 +545,7 @@ app.get('/auth/google/config-check', (req, res) => {
         CantidadAdultos INT DEFAULT 0,
         CantidadNinos INT DEFAULT 0,
         InformacionReserva TEXT,
+        Monto DECIMAL(12,0) DEFAULT 0,
         IdAccount INT,
         createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         INDEX (IdAlojamiento),
@@ -533,6 +565,16 @@ app.get('/auth/google/config-check', (req, res) => {
       await db.query(`ALTER TABLE reservas ADD COLUMN CantidadNinos INT DEFAULT 0`);
     } catch (err) {
       // Column already exists, silently continue
+    }
+
+    // Asegurar columna Monto en reservas (valor numérico del monto de la reserva)
+    try {
+      const [colsMonto] = await db.query("SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME='reservas' AND COLUMN_NAME='Monto'");
+      if (!colsMonto || colsMonto.length === 0) {
+        await db.query("ALTER TABLE reservas ADD COLUMN Monto DECIMAL(12,0) DEFAULT 0 AFTER InformacionReserva");
+      }
+    } catch (err) {
+      // Si falla, continuar (no crítico)
     }
 
   } catch (e) {
@@ -1214,11 +1256,34 @@ app.delete('/reservas/:id', requireAuth, async (req, res) => {
   try {
     const IdAccount = req.user.IdAccount;
     const { id } = req.params;
-    const [result] = await db.query("DELETE FROM reservas WHERE IdReserva = ? AND IdAccount = ?", [id, IdAccount]);
-    if (result.affectedRows === 0) {
-      return res.status(404).json({ success: false, mensaje: 'Reserva no encontrada o no pertenece al usuario' });
+    // Para evitar errores de FK (por ejemplo en la tabla pagos), eliminamos
+    // los pagos asociados a la reserva antes de eliminarla. Hacemos esto
+    // dentro de una transacción para mantener consistencia.
+    const conn = await db.getConnection();
+    try {
+      await conn.beginTransaction();
+
+      // Eliminar pagos asociados a la reserva
+      await conn.query('DELETE FROM pagos WHERE IdReserva = ?', [id]);
+
+      // Intentar eliminar la reserva (solo si pertenece al usuario)
+      const [result] = await conn.query('DELETE FROM reservas WHERE IdReserva = ? AND IdAccount = ?', [id, IdAccount]);
+      if (result.affectedRows === 0) {
+        await conn.rollback();
+        conn.release();
+        return res.status(404).json({ success: false, mensaje: 'Reserva no encontrada o no pertenece al usuario' });
+      }
+
+      await conn.commit();
+      conn.release();
+      res.json({ success: true, mensaje: 'Reserva y pagos asociados eliminados correctamente' });
+    } catch (txErr) {
+      try { await conn.rollback(); } catch (er) { /* ignore */ }
+      conn.release();
+      console.error('Error en transacción eliminando reserva:', txErr);
+      // Si el error es por FK u otra restricción, devolver mensaje útil
+      return res.status(500).json({ success: false, mensaje: 'Error al eliminar reserva: ' + (txErr.message || txErr) });
     }
-    res.json({ success: true, mensaje: 'Reserva eliminada' });
   } catch (e) {
     console.error('Error eliminando reserva:', e);
     res.status(500).json({ success: false, mensaje: 'Error del servidor' });
@@ -1229,12 +1294,22 @@ app.delete('/reservas/:id', requireAuth, async (req, res) => {
 app.get('/api/reserva/:id', autenticarToken, async (req, res) => {
   try {
     const { id } = req.params;
-    const IdAccount = req.user.IdAccount;
+
+    const userId = (req.user && (req.user.IdAccount ?? req.user.id ?? req.user.IdCliente)) || null;
+    if (!userId) {
+      return res.status(401).json({ success: false, mensaje: 'Usuario no autenticado' });
+    }
+
+    const params = [id, userId];
+    if (params.some(p => p === undefined)) {
+      console.error('Parametros undefined en /api/reserva/:id', { params, user: req.user });
+      return res.status(400).json({ success: false, mensaje: 'Parámetros inválidos' });
+    }
 
     const [rows] = await db.execute(`
       SELECT * FROM reservas 
       WHERE IdReserva = ? AND IdAccount = ?
-    `, [id, IdAccount]);
+    `, params);
 
     if (rows.length === 0) {
       return res.status(404).json({ 
@@ -1243,17 +1318,10 @@ app.get('/api/reserva/:id', autenticarToken, async (req, res) => {
       });
     }
 
-    res.json({
-      success: true,
-      reserva: rows[0]
-    });
-
+    res.json({ success: true, reserva: rows[0] });
   } catch (error) {
     console.error('Error obteniendo reserva:', error);
-    res.status(500).json({ 
-      success: false, 
-      mensaje: 'Error del servidor' 
-    });
+    res.status(500).json({ success: false, mensaje: 'Error del servidor' });
   }
 });
 
@@ -2308,13 +2376,23 @@ app.post('/api/payment/create-intent', autenticarToken, async (req, res) => {
       });
     }
 
+    // Usar Monto almacenado en la reserva si existe (fuente de verdad)
+    let amountToUse = Number(amount || 0);
+    try {
+      if (reservaResults && reservaResults.length > 0 && reservaResults[0].Monto) {
+        amountToUse = Number(reservaResults[0].Monto);
+      }
+    } catch (err) {
+      // ignore
+    }
+
     // MODO DE DESARROLLO: Simular PaymentIntent mientras configuramos Stripe
     if (process.env.NODE_ENV === 'development' || !process.env.STRIPE_SECRET_KEY || process.env.STRIPE_SECRET_KEY.includes('sk_test_51QKT')) {
       // Crear un PaymentIntent simulado
       const mockPaymentIntent = {
         id: `pi_mock_${Date.now()}`,
         client_secret: `pi_mock_${Date.now()}_secret_test123`,
-        amount: amount,
+        amount: amountToUse,
         currency: currency,
         status: 'requires_payment_method'
       };
@@ -2331,7 +2409,7 @@ app.post('/api/payment/create-intent', autenticarToken, async (req, res) => {
         req.user.IdAccount,
         reservaId,
         1, // Estado pendiente
-        amount,
+        amountToUse,
         currency,
         'Stripe_Mock',
         mockPaymentIntent.id,
@@ -2348,8 +2426,8 @@ app.post('/api/payment/create-intent', autenticarToken, async (req, res) => {
     }
 
     // Crear Payment Intent en Stripe
-    // Para COP, el amount ya viene en pesos, necesitamos convertir a centavos
-    const stripeAmount = currency === 'cop' ? Math.round(amount) : Math.round(amount * 100);
+  // Para COP, el amount ya viene en pesos, necesitamos convertir a centavos
+  const stripeAmount = currency === 'cop' ? Math.round(amountToUse) : Math.round(amountToUse * 100);
     
     const paymentIntent = await stripe.paymentIntents.create({
       amount: stripeAmount,
@@ -2372,7 +2450,7 @@ app.post('/api/payment/create-intent', autenticarToken, async (req, res) => {
       req.user.IdAccount,
       reservaId,
       1, // Estado pendiente
-      amount,
+      amountToUse,
       currency,
       'Stripe',
       paymentIntent.id,
@@ -2430,11 +2508,22 @@ app.post('/api/payment/confirm', autenticarToken, async (req, res) => {
       `, [paymentId]);
 
       if (pagoResult.length > 0) {
-        await db.execute(`
-          UPDATE reservas 
-          SET EstadoReserva = 'Confirmada' 
-          WHERE IdReserva = ?
-        `, [pagoResult[0].IdReserva]);
+        // Solo intentar actualizar una columna de estado si existe
+        try {
+          const [cols] = await db.query("SHOW COLUMNS FROM reservas LIKE 'EstadoReserva'");
+          if (cols && cols.length > 0) {
+            await db.execute(`
+              UPDATE reservas 
+              SET EstadoReserva = 'Confirmada' 
+              WHERE IdReserva = ?
+            `, [pagoResult[0].IdReserva]);
+          } else {
+            // Si no existe la columna, no hacemos nada (la información se guarda en pagos)
+            console.log('Columna EstadoReserva no encontrada, omitiendo actualización en reservas');
+          }
+        } catch (colErr) {
+          console.warn('Error comprobando/actualizando EstadoReserva:', colErr && colErr.message ? colErr.message : colErr);
+        }
       }
 
       return res.json({
@@ -2627,6 +2716,17 @@ app.get('/api/reserva/:reservaId', autenticarToken, async (req, res) => {
   try {
     const { reservaId } = req.params;
 
+    const userId = (req.user && (req.user.IdAccount ?? req.user.id ?? req.user.IdCliente)) || null;
+    if (!userId) {
+      return res.status(401).json({ success: false, mensaje: 'Usuario no autenticado' });
+    }
+
+    const params = [reservaId, userId];
+    if (params.some(p => p === undefined)) {
+      console.error('Parametros undefined en /api/reserva/:reservaId', { params, user: req.user });
+      return res.status(400).json({ success: false, mensaje: 'Parámetros inválidos' });
+    }
+
     const [reserva] = await db.execute(`
       SELECT 
         r.*,
@@ -2635,26 +2735,16 @@ app.get('/api/reserva/:reservaId', autenticarToken, async (req, res) => {
       FROM reservas r
       LEFT JOIN accounts a ON r.IdAccount = a.IdAccount
       WHERE r.IdReserva = ? AND r.IdAccount = ?
-    `, [reservaId, req.user.IdAccount]);
+    `, params);
 
     if (reserva.length === 0) {
-      return res.status(404).json({ 
-        success: false, 
-        mensaje: 'Reserva no encontrada o no autorizada' 
-      });
+      return res.status(404).json({ success: false, mensaje: 'Reserva no encontrada o no autorizada' });
     }
 
-    res.json({
-      success: true,
-      reserva: reserva[0]
-    });
-
+    res.json({ success: true, reserva: reserva[0] });
   } catch (error) {
     console.error('Error obteniendo detalles de reserva:', error);
-    res.status(500).json({ 
-      success: false, 
-      mensaje: 'Error obteniendo detalles de reserva' 
-    });
+    res.status(500).json({ success: false, mensaje: 'Error obteniendo detalles de reserva' });
   }
 });
 
@@ -2675,28 +2765,50 @@ app.get('/api/test-auth', autenticarToken, async (req, res) => {
 // Crear nueva reserva (endpoint alternativo con autenticarToken)
 app.post('/api/reservas', autenticarToken, async (req, res) => {
   try {
-    const { IdAlojamiento, FechaIngreso, FechaSalida, InformacionReserva } = req.body;
-    
+    const { IdAlojamiento, FechaIngreso, FechaSalida, InformacionReserva, Monto } = req.body || {};
+
+    // Validar campos obligatorios
     if (!IdAlojamiento || !FechaIngreso || !FechaSalida) {
-      return res.status(400).json({ 
-        success: false, 
-        mensaje: 'IdAlojamiento, FechaIngreso y FechaSalida son requeridos' 
+      return res.status(400).json({
+        success: false,
+        mensaje: 'IdAlojamiento, FechaIngreso y FechaSalida son requeridos'
       });
     }
 
+    // Asegurar que ningún parámetro que se pase a la consulta sea undefined.
+    // Si algún valor no existe, pasamos explicitamente null para que mysql2 acepte el bind.
+    const idAlojamientoVal = IdAlojamiento ?? null;
+    const idClienteVal = req.user && req.user.IdAccount ? req.user.IdAccount : null;
+    const idAccountVal = req.user && req.user.IdAccount ? req.user.IdAccount : null;
+    const fechaIngresoVal = FechaIngreso ?? null;
+    const fechaSalidaVal = FechaSalida ?? null;
+  const infoReservaVal = InformacionReserva ?? null;
+  const montoVal = (Monto !== undefined && Monto !== null) ? Number(Monto) : 0;
+
     const query = `
-      INSERT INTO reservas (IdAlojamiento, IdCliente, IdAccount, FechaReserva, FechaIngreso, FechaSalida, InformacionReserva)
-      VALUES (?, ?, ?, NOW(), ?, ?, ?)
+      INSERT INTO reservas (IdAlojamiento, IdCliente, IdAccount, FechaReserva, FechaIngreso, FechaSalida, InformacionReserva, Monto)
+      VALUES (?, ?, ?, NOW(), ?, ?, ?, ?)
     `;
-    
-    const [result] = await db.execute(query, [
-      IdAlojamiento,
-      req.user.IdAccount, // IdCliente (usando el mismo ID del usuario)
-      req.user.IdAccount, // IdAccount
-      FechaIngreso,
-      FechaSalida,
-      InformacionReserva || null
-    ]);
+
+    // Construir parámetros garantizando que ninguno es undefined
+    const params = [
+      idAlojamientoVal,
+      idClienteVal,
+      idAccountVal,
+      fechaIngresoVal,
+      fechaSalidaVal,
+      infoReservaVal,
+      montoVal
+    ];
+
+    // Log breve si hay valores inesperados (útil para debug en desarrollo)
+    const hasUndefined = params.some(p => p === undefined);
+    if (hasUndefined) {
+      console.error('Parametros con undefined al crear reserva:', { params, body: req.body, user: req.user });
+      return res.status(400).json({ success: false, mensaje: 'Datos de reserva incompletos (undefined detected)' });
+    }
+
+    const [result] = await db.execute(query, params);
 
     res.json({
       success: true,
@@ -2706,10 +2818,10 @@ app.post('/api/reservas', autenticarToken, async (req, res) => {
 
   } catch (error) {
     console.error('Error creando reserva:', error);
-    res.status(500).json({ 
-      success: false, 
+    res.status(500).json({
+      success: false,
       mensaje: 'Error creando reserva',
-      error: error.message 
+      error: error.message
     });
   }
 });
@@ -2837,17 +2949,126 @@ app.delete('/admin/usuarios/:id', requireAuth, async (req, res) => {
       return res.status(400).json({ success: false, mensaje: 'No puedes eliminar tu propia cuenta' });
     }
 
-    // Eliminar usuario
-    const [result] = await db.query('DELETE FROM accounts WHERE IdAccount = ?', [userId]);
+    // Eliminar usuario y dependencias en una transacción para evitar errores por FK
+    const conn = await db.getConnection();
+    try {
+      await conn.beginTransaction();
 
-    if (result.affectedRows === 0) {
-      return res.status(404).json({ success: false, mensaje: 'Usuario no encontrado' });
+      // Eliminar pagos asociados directamente al usuario
+      await conn.query('DELETE FROM pagos WHERE IdAccount = ?', [userId]);
+
+      // Eliminar pagos asociados a reservas del usuario (por si quedan)
+      await conn.query(
+        'DELETE p FROM pagos p INNER JOIN reservas r ON p.IdReserva = r.IdReserva WHERE r.IdAccount = ?',
+        [userId]
+      );
+
+      // Eliminar reservas del usuario
+      await conn.query('DELETE FROM reservas WHERE IdAccount = ?', [userId]);
+
+      // Eliminar opiniones asociadas al account
+      await conn.query('DELETE FROM opiniones WHERE IdAccount = ?', [userId]);
+
+      // Finalmente eliminar la cuenta
+      const [result] = await conn.query('DELETE FROM accounts WHERE IdAccount = ?', [userId]);
+
+      if (result.affectedRows === 0) {
+        await conn.rollback();
+        conn.release();
+        return res.status(404).json({ success: false, mensaje: 'Usuario no encontrado' });
+      }
+
+      await conn.commit();
+      conn.release();
+
+      res.json({ success: true, mensaje: 'Usuario y dependencias eliminadas correctamente' });
+    } catch (txErr) {
+      try { await conn.rollback(); } catch (er) { /* ignore */ }
+      conn.release();
+      console.error('Error en transacción eliminando usuario:', txErr);
+      res.status(500).json({ success: false, mensaje: 'Error al eliminar usuario: ' + txErr.message });
     }
-
-    res.json({ success: true, mensaje: 'Usuario eliminado correctamente' });
   } catch (e) {
     console.error('Error eliminando usuario:', e);
+    res.status(500).json({ success: false, mensaje: 'Error del servidor: ' + e.message });
+  }
+});
+
+// ===== ENDPOINTS PARA GESTIÓN DE PLANES (ADMIN) =====
+
+// Obtener todos los planes
+app.get('/admin/planes', requireAuth, async (req, res) => {
+  try {
+    if (req.user.IdRol !== 1) {
+      return res.status(403).json({ success: false, mensaje: 'Acceso denegado. Solo administradores.' });
+    }
+
+    const [rows] = await db.query(`SELECT id, name, description, price, duration, maxPersons, IdAlojamiento, created_at, updated_at FROM plans ORDER BY id DESC`);
+    res.json({ success: true, planes: rows });
+  } catch (e) {
+    console.error('[ADMIN/PLANES] Error obteniendo planes:', e);
     res.status(500).json({ success: false, mensaje: 'Error del servidor' });
+  }
+});
+
+// Crear plan
+app.post('/admin/planes', requireAuth, async (req, res) => {
+  try {
+    if (req.user.IdRol !== 1) {
+      return res.status(403).json({ success: false, mensaje: 'Acceso denegado. Solo administradores.' });
+    }
+
+    const { name, description, price, duration = 1, maxPersons = 6, IdAlojamiento = null } = req.body;
+    if (!name || price == null) {
+      return res.status(400).json({ success: false, mensaje: 'name y price son requeridos' });
+    }
+
+    const [result] = await db.query(`
+      INSERT INTO plans (name, description, price, duration, maxPersons, IdAlojamiento, created_at, updated_at)
+      VALUES (?, ?, ?, ?, ?, ?, NOW(), NOW())
+    `, [name, description || '', price, duration, maxPersons, IdAlojamiento]);
+
+    const [rows] = await db.query('SELECT * FROM plans WHERE id = ?', [result.insertId]);
+    res.json({ success: true, mensaje: 'Plan creado', plan: rows[0] });
+  } catch (e) {
+    console.error('[ADMIN/PLANES] Error creando plan:', e);
+    res.status(500).json({ success: false, mensaje: 'Error creando plan: ' + e.message });
+  }
+});
+
+// Actualizar plan
+app.put('/admin/planes/:id', requireAuth, async (req, res) => {
+  try {
+    if (req.user.IdRol !== 1) {
+      return res.status(403).json({ success: false, mensaje: 'Acceso denegado. Solo administradores.' });
+    }
+    const id = req.params.id;
+    const { name, description, price, duration, maxPersons, IdAlojamiento } = req.body;
+    const [result] = await db.query(
+      `UPDATE plans SET name = ?, description = ?, price = ?, duration = ?, maxPersons = ?, IdAlojamiento = ?, updated_at = NOW() WHERE id = ?`,
+      [name, description, price, duration, maxPersons, IdAlojamiento, id]
+    );
+    if (result.affectedRows === 0) return res.status(404).json({ success: false, mensaje: 'Plan no encontrado' });
+    res.json({ success: true, mensaje: 'Plan actualizado' });
+  } catch (e) {
+    console.error('[ADMIN/PLANES] Error actualizando plan:', e);
+    res.status(500).json({ success: false, mensaje: 'Error actualizando plan' });
+  }
+});
+
+// Eliminar plan
+app.delete('/admin/planes/:id', requireAuth, async (req, res) => {
+  try {
+    if (req.user.IdRol !== 1) {
+      return res.status(403).json({ success: false, mensaje: 'Acceso denegado. Solo administradores.' });
+    }
+    const id = req.params.id;
+    const [result] = await db.query('DELETE FROM plans WHERE id = ?', [id]);
+    if (result.affectedRows === 0) return res.status(404).json({ success: false, mensaje: 'Plan no encontrado' });
+    res.json({ success: true, mensaje: 'Plan eliminado' });
+  } catch (e) {
+    console.error('[ADMIN/PLANES] Error eliminando plan:', e);
+    res.status(500).json({ success: false, mensaje: 'Error eliminando plan' });
   }
 });
 

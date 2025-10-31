@@ -575,7 +575,7 @@ const ExtraServicesManagement = () => {
             e.target.style.boxShadow = '0 4px 15px var(--shadow-strong)';
           }}
         >
-          {showForm ? '✕ Cerrar formulario' : '➕ Crear Nuevo Servicio'}
+          {showForm ? 'Cerrar formulario' : 'Crear nuevo servicio'}
         </button>
       </div>
 
@@ -588,7 +588,7 @@ const ExtraServicesManagement = () => {
           fontWeight: '600',
           textAlign: 'center'
         }}>
-          {editingId ? '✏️ Editar Servicio' : '➕ Nuevo Servicio Extra'}
+          {editingId ? 'Editar Servicio' : 'Nuevo servicio extra'}
         </h3>
 
         <form onSubmit={handleSubmit}>

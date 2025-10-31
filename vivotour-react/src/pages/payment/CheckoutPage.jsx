@@ -59,24 +59,31 @@ const CheckoutPage = () => {
       
       console.log('Respuesta reserva:', data);
 
-      if (data.success) {
-        // Calcular el total basado en días y precio por noche
+        if (data.success) {
+        // Calcular el total basado en el Monto almacenado en la reserva si existe
         const checkIn = new Date(data.reserva.FechaIngreso);
         const checkOut = new Date(data.reserva.FechaSalida);
         const nights = Math.ceil((checkOut - checkIn) / (1000 * 60 * 60 * 24));
-        const pricePerNight = 120000; // Precio base por noche en COP
-        const total = nights * pricePerNight;
 
-        console.log('Detalles calculados - Noches:', nights, 'Total:', total);
+        // Preferir Monto guardado en la reserva (numérico). Si no existe, caer a 0.
+        const montoFromReserva = data.reserva.Monto !== undefined && data.reserva.Monto !== null ? Number(data.reserva.Monto) : null;
+        const total = montoFromReserva !== null ? montoFromReserva : 0;
+        // Calcular pricePerNight aproximado para mostrar (si nights > 0)
+        const pricePerNight = nights > 0 ? Math.round(total / nights) : 0;
 
-        setReservaDetails({
-          ...data.reserva,
-          total: total,
-          nights: nights,
-          pricePerNight: pricePerNight,
-          nombreCliente: user.nombre,
-          emailCliente: user.email
-        });
+          // Sanitizar la información adicional para evitar 'undefined'/'NaN' que vengan del servidor
+          const rawInfo = data.reserva.InformacionReserva || data.reserva.informacion || '';
+          const safeInfo = String(rawInfo).replace(/\bundefined\b/g, '—').replace(/NaN/g, '—');
+
+          setReservaDetails({
+            ...data.reserva,
+            InformacionReserva: safeInfo,
+            total: total,
+            nights: nights,
+            pricePerNight: pricePerNight,
+            nombreCliente: user.nombre,
+            emailCliente: user.email
+          });
       } else {
         console.error('Error del servidor:', data.mensaje);
         setError(data.mensaje || 'Error obteniendo detalles de reserva');
@@ -352,7 +359,7 @@ const CheckoutPage = () => {
           <div style={styles.successIcon}>✅</div>
           <h2>¡Pago Completado!</h2>
           <p>Tu reserva ha sido confirmada exitosamente.</p>
-          <p>Reserva #{reservaId}</p>
+          {/* No mostramos el número de reserva en la pantalla de éxito por privacidad */}
           <p style={{ fontSize: '14px', color: '#666' }}>
             Serás redirigido en {redirectCountdown} segundo{redirectCountdown !== 1 ? 's' : ''}...
           </p>

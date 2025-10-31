@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { API_BASE_URL } from '../../../config/apiConfig';
 
 const PlansManagement = () => {
     const [plans, setPlans] = useState([
@@ -10,33 +11,6 @@ const PlansManagement = () => {
             capacity: { min: 1, max: 6 },
             fixedNights: 1,
             description: 'Incluye reserva y seguro, cena del día de llegada, desayuno y fiambre al día siguiente, transporte en mula para entrar (1.5h aprox) y tour al río Melcocho con guía al día siguiente.',
-        },
-        {
-            id: 'cabana-fenix',
-            title: 'Cabaña Fénix (pareja)',
-            price: 600000,
-            priceType: 'perCouple',
-            capacity: { min: 2, max: 2 },
-            fixedNights: 1,
-            description: 'Incluye reserva y seguro, tres comidas (cena, desayuno y fiambre), transporte en mula para entrar y salir, tour al río Melcocho.',
-        },
-        {
-            id: 'cabana-aventureros',
-            title: 'Cabaña de los Aventureros',
-            price: 200000,
-            priceType: 'perPerson',
-            capacity: { min: 1, max: 8 },
-            fixedNights: 1,
-            description: '2 días, 1 noche. Incluye reserva, seguro, transporte en mula a la finca, cena de bienvenida, desayuno, fiambre y excursión guiada al río Melcocho.',
-        },
-        {
-            id: 'dia-de-sol',
-            title: 'Día de sol en el Río Melcocho',
-            price: 40000,
-            priceType: 'perPerson',
-            capacity: { min: 1, max: 12 },
-            fixedNights: 0,
-            description: 'Incluye reserva, seguro y fiambre. Caminata de 20 a 60 minutos según el charco elegido.',
         },
     ]);
 
@@ -52,36 +26,149 @@ const PlansManagement = () => {
         priceType: 'perPerson',
         capacity: { min: 1, max: 6 },
         fixedNights: 1,
+        IdAlojamiento: '',
     });
 
     const handleEdit = (plan) => {
+        // Ensure formData has all fields defined to avoid controlled/uncontrolled warnings
         setEditingId(plan.id);
-        setFormData(plan);
+        setFormData({
+            id: plan.id || '',
+            title: plan.title || plan.name || '',
+            description: plan.description || '',
+            price: plan.price ?? '',
+            priceType: plan.priceType || 'perPerson',
+            capacity: plan.capacity || { min: 1, max: plan.maxPersons || 6 },
+            fixedNights: plan.fixedNights ?? plan.duration ?? 1,
+            IdAlojamiento: plan.IdAlojamiento ?? ''
+        });
         setShowForm(true);
     };
 
-    const handleSave = () => {
-        if (editingId) {
-            setPlans(plans.map(plan => 
-                plan.id === editingId ? { ...formData } : plan
-            ));
-        } else {
-            const newPlan = {
-                ...formData,
-                id: formData.title.toLowerCase().replace(/\s+/g, '-'),
+    const handleSave = async () => {
+        const token = localStorage.getItem('token');
+        setLoading(true);
+        try {
+            const payload = {
+                name: formData.title || formData.name,
+                description: formData.description || '',
+                price: Number(formData.price) || 0,
+                duration: formData.fixedNights ?? 1,
+                maxPersons: formData.capacity?.max ?? (formData.maxPersons || 1),
+                IdAlojamiento: formData.IdAlojamiento || null
             };
-            setPlans([...plans, newPlan]);
+
+            if (editingId) {
+                const res = await fetch(`${API_BASE_URL}/admin/planes/${editingId}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        ...(token ? { Authorization: `Bearer ${token}` } : {})
+                    },
+                    body: JSON.stringify(payload)
+                });
+                if (!res.ok) {
+                    const text = await res.text().catch(() => '');
+                    throw new Error(`Error HTTP ${res.status} ${text}`);
+                }
+                setPlans(plans.map(plan => plan.id === editingId ? { ...plan, ...formData } : plan));
+            } else {
+                const res = await fetch(`${API_BASE_URL}/admin/planes`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        ...(token ? { Authorization: `Bearer ${token}` } : {})
+                    },
+                    body: JSON.stringify(payload)
+                });
+
+                if (!res.ok) {
+                    let errText = '';
+                    try { errText = JSON.stringify(await res.json()); } catch (e) { errText = await res.text().catch(() => ''); }
+                    throw new Error(`Error HTTP ${res.status} ${errText}`);
+                }
+
+                const data = await res.json();
+                if (data && data.plan) {
+                    const p = data.plan;
+                    const mapped = {
+                        id: p.id || String(p.id || Date.now()),
+                        title: p.name || p.title || '',
+                        description: p.description || '',
+                        price: Number(p.price) || 0,
+                        priceType: p.priceType || 'perPerson',
+                        capacity: { min: 1, max: p.maxPersons || 6 },
+                        fixedNights: p.duration || 1,
+                        IdAlojamiento: p.IdAlojamiento || null
+                    };
+                    setPlans([mapped, ...plans]);
+                } else {
+                    const newPlan = { ...formData, id: (formData.title || 'plan').toLowerCase().replace(/\s+/g, '-') };
+                    setPlans([newPlan, ...plans]);
+                }
+            }
+        } catch (err) {
+            console.error('Error guardando plan:', err);
+            alert('Error guardando plan: ' + err.message);
+        } finally {
+            setShowForm(false);
+            setEditingId(null);
+            resetForm();
+            setLoading(false);
         }
-        setShowForm(false);
-        setEditingId(null);
-        resetForm();
     };
 
     const handleDelete = (planId) => {
-        if (window.confirm('¿Estás seguro de que deseas eliminar este plan?')) {
-            setPlans(plans.filter(plan => plan.id !== planId));
-        }
+        if (!window.confirm('¿Estás seguro de que deseas eliminar este plan?')) return;
+        const token = localStorage.getItem('token');
+        (async () => {
+            try {
+                const res = await fetch(`${API_BASE_URL}/admin/planes/${planId}`, {
+                    method: 'DELETE',
+                    headers: {
+                        ...(token ? { Authorization: `Bearer ${token}` } : {})
+                    }
+                });
+                if (!res.ok) throw new Error(`Error HTTP ${res.status}`);
+                setPlans(plans.filter(plan => plan.id !== planId));
+            } catch (err) {
+                console.error('Error eliminando plan:', err);
+                alert('Error eliminando plan: ' + err.message);
+            }
+        })();
     };
+
+    // Load plans from server if available
+    useEffect(() => {
+        const token = localStorage.getItem('token');
+        (async () => {
+            try {
+                const res = await fetch(`${API_BASE_URL}/admin/planes`, {
+                    headers: {
+                        ...(token ? { Authorization: `Bearer ${token}` } : {})
+                    }
+                });
+                if (!res.ok) return; // keep local defaults if unauthenticated
+                const data = await res.json();
+                if (data && data.success && Array.isArray(data.planes)) {
+                    // Map backend plan rows to the client shape expected by this component
+                    const mapped = data.planes.map(p => ({
+                        id: p.id || (p.name ? p.name.toLowerCase().replace(/\s+/g, '-') : String(p.id)),
+                        title: p.name || p.title || '',
+                        description: p.description || '',
+                        price: Number(p.price) || 0,
+                        priceType: p.priceType || 'perPerson',
+                        capacity: p.capacity || { min: 1, max: (p.maxPersons ? Number(p.maxPersons) : 6) },
+                        fixedNights: p.duration ?? p.fixedNights ?? 1,
+                        IdAlojamiento: p.IdAlojamiento ?? p.IdAlojamiento ?? null
+                    }));
+                    setPlans(mapped);
+                }
+            } catch (err) {
+                console.warn('No se pudieron cargar planes del servidor:', err.message);
+            }
+        })();
+    }, []);
 
     const resetForm = () => {
         setFormData({
@@ -92,6 +179,7 @@ const PlansManagement = () => {
             priceType: 'perPerson',
             capacity: { min: 1, max: 6 },
             fixedNights: 1,
+            IdAlojamiento: '',
         });
     };
 
@@ -310,7 +398,7 @@ const PlansManagement = () => {
 
     return (
         <div style={styles.container}>
-            <h2 style={styles.title}>📋 Gestión de Planes</h2>
+            <h2 style={styles.title}>Gestión de Planes</h2>
             
             <button 
                 style={styles.addButton}
@@ -328,13 +416,13 @@ const PlansManagement = () => {
                     e.target.style.boxShadow = '0 4px 15px var(--shadow-strong)';
                 }}
             >
-                ➕ Agregar Nuevo Plan
+                Agregar Nuevo Plan
             </button>
 
             <div style={styles.plansList}>
                 {plans.map(plan => (
                     <div 
-                        key={plan.id} 
+                        key={plan.id}
                         style={styles.planCard}
                         onMouseEnter={(e) => {
                             e.currentTarget.style.transform = 'translateY(-5px)';
@@ -353,8 +441,8 @@ const PlansManagement = () => {
                         </p>
                         <p style={styles.planDescription}>{plan.description}</p>
                         <div style={styles.planDetails}>
-                            <span>👥 Capacidad: {plan.capacity.min}-{plan.capacity.max} personas</span>
-                            <span>🌙 Noches: {plan.fixedNights}</span>
+                            <span>Capacidad: {plan.capacity?.min ?? 1}-{plan.capacity?.max ?? 'N/A'} personas</span>
+                            <span>Noches: {plan.fixedNights ?? plan.duration ?? 'N/A'}</span>
                         </div>
                         <div style={styles.buttonGroup}>
                             <button 
@@ -369,7 +457,7 @@ const PlansManagement = () => {
                                     e.target.style.boxShadow = '0 4px 12px rgba(255, 201, 20, 0.3)';
                                 }}
                             >
-                                ✏️ Editar
+                                Editar
                             </button>
                             <button 
                                 style={styles.deleteButton}
@@ -383,7 +471,7 @@ const PlansManagement = () => {
                                     e.target.style.boxShadow = '0 4px 12px rgba(220, 53, 69, 0.3)';
                                 }}
                             >
-                                🗑️ Eliminar
+                                Eliminar
                             </button>
                         </div>
                     </div>
@@ -394,7 +482,7 @@ const PlansManagement = () => {
                 <div style={styles.modal}>
                     <div style={styles.modalContent}>
                         <h3 style={styles.modalTitle}>
-                            {editingId ? '✏️ Editar Plan' : '➕ Agregar Nuevo Plan'}
+                            {editingId ? 'Editar Plan' : 'Agregar Nuevo Plan'}
                         </h3>
                         
                         <div style={styles.formGroup}>
@@ -492,6 +580,25 @@ const PlansManagement = () => {
                             />
                         </div>
 
+                        <div style={styles.formGroup}>
+                            <label style={styles.label}>Id del Alojamiento (IdAlojamiento)</label>
+                            <input
+                                type="text"
+                                style={styles.input}
+                                value={formData.IdAlojamiento}
+                                onChange={(e) => setFormData({...formData, IdAlojamiento: e.target.value})}
+                                placeholder="IdAlojamiento (número entero o identificador)"
+                                onFocus={(e) => {
+                                    e.target.style.borderColor = 'var(--forest-green)';
+                                    e.target.style.background = 'var(--input-bg-focus)';
+                                }}
+                                onBlur={(e) => {
+                                    e.target.style.borderColor = 'var(--input-border)';
+                                    e.target.style.background = 'var(--input-bg)';
+                                }}
+                            />
+                        </div>
+
                         <div style={styles.modalButtons}>
                             <button 
                                 style={styles.cancelButton}
@@ -509,7 +616,7 @@ const PlansManagement = () => {
                                     e.target.style.boxShadow = '0 2px 8px var(--shadow-light)';
                                 }}
                             >
-                                ✕ Cancelar
+                                Cancelar
                             </button>
                             <button 
                                 style={styles.saveButton}
@@ -523,7 +630,7 @@ const PlansManagement = () => {
                                     e.target.style.boxShadow = '0 4px 15px var(--shadow-strong)';
                                 }}
                             >
-                                {editingId ? '💾 Actualizar' : '➕ Guardar'}
+                                {editingId ? 'Actualizar' : 'Guardar'}
                             </button>
                         </div>
                     </div>

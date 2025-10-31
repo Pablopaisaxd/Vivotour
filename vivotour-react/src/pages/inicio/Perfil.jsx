@@ -56,8 +56,27 @@ export const Perfil = () => {
     }
   };
 
+  // Cargar imagen como dataURL para jsPDF (helper local)
+  const fetchImageAsDataURL = async (url) => {
+    try {
+      const res = await fetch(url);
+      const blob = await res.blob();
+      const dataUrl = await new Promise((resolve) => {
+        const reader = new FileReader();
+        reader.onloadend = () => resolve(reader.result);
+        reader.readAsDataURL(blob);
+      });
+      let format = 'JPEG';
+      if (blob.type.includes('png') || url.toLowerCase().endsWith('.png')) format = 'PNG';
+      return { dataUrl, format };
+    } catch (e) {
+      console.warn('fetchImageAsDataURL fallo:', e);
+      return null;
+    }
+  };
+
   // Función para generar PDF de una reserva específica con diseño mejorado
-  const generarPDFReserva = (reserva) => {
+  const generarPDFReserva = async (reserva) => {
     const doc = new jsPDF();
     const pageWidth = doc.internal.pageSize.width;
     const pageHeight = doc.internal.pageSize.height;
@@ -70,10 +89,33 @@ export const Perfil = () => {
     const colorSubtitulo = [100, 100, 100]; // Gris medio
     
     try {
-      // Cargar y agregar logo (como imagen base64 o directamente)
       // Header con fondo verde
       doc.setFillColor(colorPrimario[0], colorPrimario[1], colorPrimario[2]);
       doc.rect(0, 0, pageWidth, 35, 'F');
+
+      // Intentar añadir logo en esquina superior derecha (no bloquear si falla)
+      try {
+        const logoObj = await fetchImageAsDataURL(logoVivoTour);
+        if (logoObj && logoObj.dataUrl) {
+          const getImageDimensions = (dataUrl) => new Promise((resolve) => {
+            const img = new Image();
+            img.onload = () => resolve({ w: img.naturalWidth, h: img.naturalHeight });
+            img.onerror = () => resolve(null);
+            img.src = dataUrl;
+          });
+          const dims = await getImageDimensions(logoObj.dataUrl);
+          if (dims) {
+            const desiredW = 36;
+            const scale = desiredW / dims.w;
+            const desiredH = dims.h * scale;
+            const xPos = pageWidth - 15 - desiredW;
+            const yLogo = Math.max(4, (35 - desiredH) / 2);
+            doc.addImage(logoObj.dataUrl, logoObj.format, xPos, yLogo, desiredW, desiredH);
+          }
+        }
+      } catch (e) {
+        console.warn('No se pudo cargar logo en PDF:', e);
+      }
       
       // Título principal en blanco
       doc.setTextColor(255, 255, 255);
@@ -89,21 +131,8 @@ export const Perfil = () => {
       // Reset color para el contenido
       doc.setTextColor(colorTexto[0], colorTexto[1], colorTexto[2]);
       
-      // Sección de información del cliente
-      doc.setFillColor(255, 249, 230);
-      doc.rect(15, yPos - 5, pageWidth - 30, 35, 'F');
-      
-      doc.setFontSize(14);
-      doc.setFont("helvetica", "bold");
-      doc.setTextColor(colorSecundario[0], colorSecundario[1], colorSecundario[2]);
-      doc.text("FECHAS DE LA RESERVA", 20, yPos + 5);
-      
-      doc.setFontSize(11);
-      doc.setFont("helvetica", "normal");
-      doc.setTextColor(colorTexto[0], colorTexto[1], colorTexto[2]);
-      doc.text(`Fecha de reserva: ${formatDateForPDF(reserva.fechaReserva)}`, 20, yPos + 15);
-      doc.text(`Check-in: ${formatDateForPDF(reserva.fechaIngreso)}`, 20, yPos + 22);
-      doc.text(`Check-out: ${formatDateForPDF(reserva.fechaSalida)}`, 20, yPos + 29);
+      // Se omite la sección de "FECHAS DE LA RESERVA" por solicitud del cliente.
+      // En su lugar dejamos espacio para el contenido siguiente.
       
       // Sección de alojamiento
       yPos += 50;
@@ -135,12 +164,15 @@ export const Perfil = () => {
       // Información adicional (manejo seguro)
       if (reserva.informacion && reserva.informacion.trim()) {
         yPos += 10;
-        
         doc.setFillColor(255, 245, 238);
-        
+
+        // Sanitizar la información para evitar 'undefined' o 'NaN' y patrones raros
+        let safeInfo = String(reserva.informacion || '');
+        safeInfo = safeInfo.replace(/\bundefined\b/g, '—').replace(/NaN/g, '—').replace(/\+\$?—/g, '');
+
         // Calcular altura necesaria para la información adicional
         const maxWidth = pageWidth - 40;
-        const infoLines = doc.splitTextToSize(reserva.informacion, maxWidth);
+        const infoLines = doc.splitTextToSize(safeInfo, maxWidth);
         const altoInfo = Math.max(25, (infoLines.length * 5) + 15);
         
         // Verificar si necesitamos una nueva página

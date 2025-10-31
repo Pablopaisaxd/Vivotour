@@ -292,8 +292,8 @@ const ReservationManagement = () => {
                     </div>
                 ) : (
                     <div style={styles.reservationList}>
-                        {filteredReservations.map(res => (
-                            <div key={res.id} style={styles.reservationItem}
+                        {filteredReservations.map((res, idx) => (
+                            <div key={`res-${res.id ?? 'na'}-${idx}`} style={styles.reservationItem}
                                 onMouseEnter={(e) => {
                                     e.currentTarget.style.transform = 'translateY(-2px)';
                                     e.currentTarget.style.boxShadow = '0 6px 20px var(--shadow-medium)';
@@ -306,7 +306,7 @@ const ReservationManagement = () => {
                                 }}
                             >
                                 <p style={styles.reservationDetail}><strong>Usuario:</strong> {res.user} ({res.email})</p>
-                                <p style={styles.reservationDetail}><strong>Fechas:</strong> {new Date(res.dateS).toLocaleDateString()} - {new Date(res.dateE).toLocaleDateString()}</p>
+                                <p style={styles.reservationDetail}><strong>Fechas:</strong> {res.dateS ? new Date(res.dateS).toLocaleDateString() : 'N/A'}{res.dateE ? ` - ${new Date(res.dateE).toLocaleDateString()}` : ''}</p>
                                 <p style={styles.reservationDetail}><strong>Alojamiento:</strong> {res.accommodation}</p>
                                 {res.informacion && (
                                     <p style={styles.reservationDetail}><strong>Información:</strong> {res.informacion}</p>

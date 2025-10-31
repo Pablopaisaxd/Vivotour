@@ -343,7 +343,7 @@ const HomePageSettings = () => {
             
             {success && (
                 <div style={{ ...styles.alert, ...styles.successAlert }}>
-                    ✅ Cambios guardados exitosamente
+                    Cambios guardados exitosamente
                 </div>
             )}
             
@@ -458,7 +458,7 @@ const HomePageSettings = () => {
                     e.target.style.boxShadow = '0 6px 20px var(--shadow-strong)';
                 }}
             >
-                {loading ? '⏳ Guardando...' : '💾 Guardar Cambios'}
+                {loading ? 'Guardando...' : 'Guardar cambios'}
             </button>
         </div>
     );

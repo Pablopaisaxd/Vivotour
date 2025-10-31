@@ -102,7 +102,7 @@ const Nav = () => {
       <div className={`mobile-menu ${isMenuOpen ? 'open' : ''}`}>
         <div className="mobile-menu-header">
           <img src={logo} alt="logoVentana" className="main-logo" onClick={() => handleNavigation(handleLogoClick)} />
-          <button className="mobile-menu-close" onClick={closeMenu}>✕</button>
+          <button className="mobile-menu-close" onClick={closeMenu}>Cerrar</button>
         </div>
         
         <nav className="mobile-menu-nav">

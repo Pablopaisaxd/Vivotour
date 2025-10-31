@@ -89,7 +89,7 @@ const GalleryManagement = () => {
         }
       }
     } catch (error) {
-      console.error('❌ Error inicializando galería:', error);
+  console.error('Error inicializando galería:', error);
       setError(`Error: ${error.message}`);
       alert('Error al inicializar la galería');
     } finally {
@@ -194,7 +194,7 @@ const GalleryManagement = () => {
         alert('Portada actualizada correctamente');
       }
     } catch (error) {
-      console.error('❌ Error actualizando portada:', error);
+  console.error('Error actualizando portada:', error);
       setError(`Error: ${error.message}`);
       alert('Error al actualizar la portada');
     } finally {
@@ -212,12 +212,12 @@ const GalleryManagement = () => {
   const handleAddImages = async (event) => {
     const files = Array.from(event.target.files || []);
     if (files.length === 0) {
-      console.warn('❌ No se seleccionaron archivos');
+  console.warn('No se seleccionaron archivos');
       return;
     }
 
     if (!selectedCategory) {
-      console.error('❌ No hay categoría seleccionada');
+  console.error('No hay categoría seleccionada');
       alert('Por favor selecciona una categoría primero');
       return;
     }
@@ -289,7 +289,7 @@ const GalleryManagement = () => {
         await fetchCategoryImages(selectedCategory.IdCategoria);
       }
     } catch (error) {
-      console.error('❌ Error eliminando imagen:', error);
+  console.error('Error eliminando imagen:', error);
       setError(`Error: ${error.message}`);
     } finally {
       setLoading(false);
@@ -690,7 +690,7 @@ const GalleryManagement = () => {
                     <circle cx="12" cy="12" r="10"/>
                     <path d="M12 8v8M8 12h8"/>
                   </svg>
-                  {loading ? 'Subiendo...' : '➕ Agregar Imágenes'}
+                  {loading ? 'Subiendo...' : 'Agregar Imágenes'}
                 </label>
                 <button 
                   style={styles.closeButton}
@@ -704,7 +704,7 @@ const GalleryManagement = () => {
                     e.target.style.boxShadow = '0 2px 8px var(--shadow-light)';
                   }}
                 >
-                  ✕
+                  Cerrar
                 </button>
               </div>
             </div>
@@ -758,7 +758,7 @@ const GalleryManagement = () => {
                         alt={`Imagen ${imageId}`}
                         style={styles.modalImage}
                         onError={(e) => {
-                          console.warn('❌ Error loading image:', image.RutaImagen, '| Final URL:', imageUrl);
+                          console.warn('Error loading image:', image.RutaImagen, '| Final URL:', imageUrl);
                           e.target.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTUwIiBoZWlnaHQ9IjE1MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjZjhmOWZhIi8+PHRleHQgeD0iNTAlIiB5PSI1MCUiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC1zaXplPSIxMiIgZmlsbD0iIzZjNzU3ZCIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZHk9Ii4zZW0iPkVycm9yPC90ZXh0Pjwvc3ZnPg==';
                         }}
                       />
@@ -775,7 +775,7 @@ const GalleryManagement = () => {
                           e.target.style.boxShadow = '0 2px 8px rgba(220, 53, 69, 0.3)';
                         }}
                       >
-                        🗑️
+                        Eliminar
                       </button>
                     </div>
                     );

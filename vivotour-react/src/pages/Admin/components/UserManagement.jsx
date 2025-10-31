@@ -130,20 +130,26 @@ const UserManagement = () => {
                         'Authorization': `Bearer ${token}`
                     }
                 });
-                
+
+                const text = await response.text();
+                let body = null;
+                try { body = text ? JSON.parse(text) : null; } catch (e) { body = { message: text }; }
+
                 if (!response.ok) {
-                    throw new Error('Error al eliminar usuario');
+                    const serverMsg = body && (body.mensaje || body.message || body.error) ? (body.mensaje || body.message || body.error) : `HTTP ${response.status}`;
+                    throw new Error(`Error al eliminar usuario: ${serverMsg}`);
                 }
-                
-                const data = await response.json();
-                if (data.success) {
-                    setUsers(users.filter(user => user.id !== id));
-                } else {
-                    setError(data.mensaje);
+
+                // If API returns JSON with success flag, honor it
+                if (body && typeof body === 'object' && 'success' in body && !body.success) {
+                    throw new Error(body.mensaje || 'El servidor rechazó la operación');
                 }
+
+                // Success: remove locally
+                setUsers(users.filter(user => user.id !== id));
             } catch (err) {
                 console.error('Error eliminando usuario:', err);
-                setError('Error al eliminar usuario');
+                setError(err.message || 'Error al eliminar usuario');
             }
         }
     };

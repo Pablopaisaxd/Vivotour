@@ -474,12 +474,14 @@ const Reserva = () => {
 
         // Validar capacidad
         const people = adults + children;
-        if (selectedPlan.capacity?.min && people < selectedPlan.capacity.min) {
-            setFormError(`El mínimo para este plan es ${selectedPlan.capacity.min} persona(s).`);
+        const minCap = selectedPlan?.capacity?.min ?? 1;
+        const maxCap = selectedPlan?.capacity?.max ?? selectedPlan?.maxPersons ?? null;
+        if (minCap && people < minCap) {
+            setFormError(`El mínimo para este plan es ${minCap} persona(s).`);
             return;
         }
-        if (selectedPlan.capacity?.max && people > selectedPlan.capacity.max) {
-            setFormError(`El máximo para este plan es ${selectedPlan.capacity.max} persona(s).`);
+        if (maxCap && people > maxCap) {
+            setFormError(`El máximo para este plan es ${maxCap} persona(s).`);
             return;
         }
 
@@ -518,9 +520,13 @@ const Reserva = () => {
             }
         });
 
-        const subtotal = planBase + addonsTotal; // Comidas ya incluidas en plan, desayuno extra via addon
-        const insurance = Math.round(subtotal * 0.10); // 10%
-        const total = subtotal + insurance;
+        // Asegurarnos de que todos los valores son números (no strings con formato)
+        const subtotalRaw = Number(planBase || 0) + Number(addonsTotal || 0);
+        const insuranceRaw = Math.round(Number(subtotalRaw) * 0.10);
+        const totalRaw = Number(subtotalRaw) + Number(insuranceRaw);
+
+        const planBaseNum = Number(planBase || 0);
+        const addonsTotalNum = Number(addonsTotal || 0);
 
         setSummaryData({
             dateS: fechaInicio.toISOString().split('T')[0],
@@ -531,11 +537,11 @@ const Reserva = () => {
             nights,
             addons: addonsDetailed,
             totals: {
-                planBase,
-                addonsTotal,
-                insurance,
-                subtotal,
-                total,
+                planBase: planBaseNum,
+                addonsTotal: addonsTotalNum,
+                insurance: insuranceRaw,
+                subtotal: subtotalRaw,
+                total: totalRaw,
             }
         });
     };
@@ -568,8 +574,8 @@ Niños: ${summaryData.children}
 Noches: ${summaryData.nights}
 Fecha inicio: ${formatDateForDisplay(summaryData.dateS)}
 Fecha fin: ${formatDateForDisplay(summaryData.dateE)}
-Addons: ${summaryData.addons?.map(a => `${a.name} (+$${a.price})`).join(', ') || 'Ninguno'}
-Total: $${summaryData.totals?.total || 0}
+Addons: ${summaryData.addons && summaryData.addons.length > 0 ? summaryData.addons.map(a => `${a.label} (${formatCOP(a.unit)} x ${a.persons}) = ${formatCOP(a.total)}`).join(' • ') : 'Ninguno'}
+Total: ${formatCOP(summaryData.totals?.total || 0)}
             `.trim();
 
             const payload = {
@@ -578,7 +584,8 @@ Total: $${summaryData.totals?.total || 0}
                 FechaSalida: summaryData.dateE,
                 CantidadAdultos: summaryData.adults,
                 CantidadNinos: summaryData.children,
-                InformacionReserva: informacionReserva
+                InformacionReserva: informacionReserva,
+                Monto: summaryData.totals?.total || 0
             };
 
             console.log('Enviando reserva:', payload);
@@ -625,7 +632,33 @@ Total: $${summaryData.totals?.total || 0}
             // Header con fondo verde
             doc.setFillColor(colorPrimario[0], colorPrimario[1], colorPrimario[2]);
             doc.rect(0, 0, pageWidth, 35, 'F');
-            
+            // Intentar cargar y dibujar el logo en la esquina superior derecha
+            try {
+                const logoObj = await fetchImageAsDataURL(logoVivoTour);
+                // Obtener dimensiones reales de la imagen para mantener proporción
+                const getImageDimensions = (dataUrl) => new Promise((resolve) => {
+                    const img = new Image();
+                    img.onload = () => resolve({ w: img.naturalWidth, h: img.naturalHeight });
+                    img.onerror = () => resolve(null);
+                    img.src = dataUrl;
+                });
+
+                if (logoObj && logoObj.dataUrl) {
+                    const dims = await getImageDimensions(logoObj.dataUrl);
+                    if (dims) {
+                        const desiredW = 36; // ancho en puntos
+                        const scale = desiredW / dims.w;
+                        const desiredH = dims.h * scale;
+                        const xPos = pageWidth - 15 - desiredW; // margen derecho 15
+                        const yPos = Math.max(4, (35 - desiredH) / 2); // centrar vertical dentro del header
+                        doc.addImage(logoObj.dataUrl, logoObj.format, xPos, yPos, desiredW, desiredH);
+                    }
+                }
+            } catch (logoErr) {
+                // No bloquear la generación del PDF si falla el logo
+                console.warn('No se pudo cargar el logo para el PDF:', logoErr);
+            }
+
             // Título principal en blanco
             doc.setTextColor(255, 255, 255);
             doc.setFontSize(22);
@@ -669,8 +702,7 @@ Total: $${summaryData.totals?.total || 0}
             doc.setFontSize(11);
             doc.setFont("helvetica", "normal");
             doc.setTextColor(colorTexto[0], colorTexto[1], colorTexto[2]);
-            doc.text(`Check-in: ${formatDateForPDF(summaryData.dateS)}`, 20, yPos + 15);
-            doc.text(`Check-out: ${formatDateForPDF(summaryData.dateE)}`, 20, yPos + 22);
+            // Se quitan las líneas de Check-in/Check-out por petición
             doc.text(`Noches: ${summaryData.nights}`, 20, yPos + 29);
             doc.text(`Huéspedes: ${summaryData.adults} adulto(s), ${summaryData.children} niño(s)`, 20, yPos + 36);
             
@@ -845,7 +877,7 @@ Total: $${summaryData.totals?.total || 0}
                                         <p>
                                             {p.priceType === 'perPerson' ? `${formatCOP(p.price)} por persona` : `${formatCOP(p.price)} por pareja`}
                                         </p>
-                                        <p>Capacidad: {p.capacity.min} - {p.capacity.max} personas</p>
+                                        <p>Capacidad: {p.capacity?.min ?? 1} - {p.capacity?.max ?? p.maxPersons ?? 'N/A'} personas</p>
                                         <div className="plan-actions">
                                             <button type="button" className="btn-secondary" onClick={() => { setModalPlan(p); setPlanModalOpen(true); setCarouselIndex(0); }} disabled={!!reservedAlojamientos[p.id]}>Ver detalles</button>
                                             <button type="button" className="btn-primary" onClick={() => setSelectedPlan(p)} disabled={!!reservedAlojamientos[p.id]}>Seleccionar</button>
@@ -971,7 +1003,7 @@ Total: $${summaryData.totals?.total || 0}
                                 </div>
                                 <div className="plan-meta">
                                     <div><strong>Precio:</strong> {modalPlan.priceType === 'perPerson' ? `${formatCOP(modalPlan.price)} por persona` : `${formatCOP(modalPlan.price)} por pareja`}</div>
-                                    <div><strong>Capacidad:</strong> {modalPlan.capacity.min} - {modalPlan.capacity.max} personas</div>
+                                    <div><strong>Capacidad:</strong> {modalPlan.capacity?.min ?? 1} - {modalPlan.capacity?.max ?? modalPlan.maxPersons ?? 'N/A'} personas</div>
                                 </div>
                                 <div className="reserva-modal-buttons">
                                     <button className="btn-secondary" onClick={() => { setPlanModalOpen(false); setModalPlan(null); }}>Cerrar</button>
