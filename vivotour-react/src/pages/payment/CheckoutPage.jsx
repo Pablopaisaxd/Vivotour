@@ -45,7 +45,7 @@ const CheckoutPage = () => {
         return;
       }
       
-      console.log('Obteniendo detalles de reserva:', reservaId);
+  // debug: removed console.log for production
       
       const response = await fetch(apiConfig.endpoints.reserva(reservaId), {
         method: 'GET',
@@ -57,7 +57,7 @@ const CheckoutPage = () => {
 
       const data = await response.json();
       
-      console.log('Respuesta reserva:', data);
+  // debug: removed console.log for production
 
         if (data.success) {
         // Calcular el total basado en el Monto almacenado en la reserva si existe
@@ -97,7 +97,7 @@ const CheckoutPage = () => {
   };
 
   const handlePaymentSuccess = (paymentIntent) => {
-    console.log('Pago exitoso:', paymentIntent);
+  // debug: removed console.log for production
     setPaymentCompleted(true);
     setRedirectCountdown(3);
     

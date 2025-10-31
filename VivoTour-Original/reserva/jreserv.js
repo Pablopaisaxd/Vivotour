@@ -120,14 +120,6 @@
                 
                 bookingSummary.scrollIntoView({ behavior: 'smooth' });
                 
-                console.log('Booking submitted:', {
-                    dateS,
-                    dateE,
-                    adults,
-                    children,
-                    accommodation,
-                    activities: allInclusive ? ['all-inclusive'] : activities,
-                    meals
-                });
+                // debug: removed console.log for production
             });
         });

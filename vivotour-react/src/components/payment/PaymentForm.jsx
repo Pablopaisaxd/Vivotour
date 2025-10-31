@@ -39,7 +39,7 @@ const CheckoutForm = ({ reservaDetails, onPaymentSuccess, onPaymentError }) => {
         return;
       }
       
-      console.log('Creando Payment Intent para reserva:', reservaDetails.IdReserva, 'Monto:', reservaDetails.total);
+      
       
       const response = await fetch(apiConfig.endpoints.createPaymentIntent, {
         method: 'POST',
@@ -56,14 +56,13 @@ const CheckoutForm = ({ reservaDetails, onPaymentSuccess, onPaymentError }) => {
 
       const data = await response.json();
       
-      console.log('Respuesta del servidor:', data);
+      
 
       if (data.success) {
         setClientSecret(data.clientSecret);
         setPaymentId(data.paymentId);
         setMockMode(data.mockMode || false);
-        console.log('Payment Intent creado exitosamente:', data.paymentIntentId);
-        console.log('Modo mock activado:', data.mockMode);
+        
       } else {
         console.error('Error del servidor:', data.mensaje);
         setError(data.mensaje || 'Error creando intención de pago');
@@ -87,7 +86,7 @@ const CheckoutForm = ({ reservaDetails, onPaymentSuccess, onPaymentError }) => {
     try {
       // MODO MOCK: Simular pago exitoso
       if (mockMode) {
-        console.log('Simulando pago en modo desarrollo...');
+        
         
         // Simular delay de procesamiento
         await new Promise(resolve => setTimeout(resolve, 2000));
@@ -162,7 +161,7 @@ const CheckoutForm = ({ reservaDetails, onPaymentSuccess, onPaymentError }) => {
     try {
       const token = localStorage.getItem('token');
       
-      console.log('Confirmando pago:', paymentIntentId, 'PaymentId:', paymentId);
+      
       
       const response = await fetch(apiConfig.endpoints.confirmPayment, {
         method: 'POST',
@@ -178,7 +177,7 @@ const CheckoutForm = ({ reservaDetails, onPaymentSuccess, onPaymentError }) => {
 
       const data = await response.json();
       
-      console.log('Respuesta confirmación:', data);
+      
       
       if (!data.success) {
         throw new Error(data.mensaje || 'Error confirmando pago');

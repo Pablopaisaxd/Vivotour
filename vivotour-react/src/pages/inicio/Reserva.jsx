@@ -185,7 +185,7 @@ const Reserva = () => {
                     // Si no hay alojamiento asociado, no marcar como reservado
                     // (esto permite que planes "extra" no se marquen)
                     if (!alojamientoId) {
-                        console.log(`Plan ${plan.id} (${plan.name}) no tiene alojamiento asociado, omitiendo verificación`);
+                        // debug: removed console.log for production
                         return;
                     }
                     
@@ -204,7 +204,7 @@ const Reserva = () => {
                         const reservasData = await reservasResponse.json();
                         if (reservasData.reservas && reservasData.reservas.length > 0) {
                             reserved[plan.id] = { status: 'reserved', razon: 'RESERVADO' };
-                            console.log(`Plan ${plan.id} ${plan.name} tiene ${reservasData.reservas.length} reserva(s)`);
+                            // debug: removed console.log for production
                         }
                     }
 
@@ -221,9 +221,8 @@ const Reserva = () => {
 
                     if (unavailResponse.ok) {
                         const unavailData = await unavailResponse.json();
-                        if (unavailData.unavailablePeriods && unavailData.unavailablePeriods.length > 0) {
-                            console.log(`Verificando plan ${plan.id} (${plan.name}): fechas ${startDate} a ${endDate}`);
-                            console.log(`  Periodos no disponibles recibidos:`, unavailData.unavailablePeriods);
+                            if (unavailData.unavailablePeriods && unavailData.unavailablePeriods.length > 0) {
+                            
                             
                             // Función para comparar fechas en formato YYYY-MM-DD
                             const dateComparison = (dateStr1, dateStr2) => {
@@ -232,20 +231,19 @@ const Reserva = () => {
                             };
                             
                             for (const period of unavailData.unavailablePeriods) {
-                                console.log(`  Comparando: ${startDate} a ${endDate} vs periodo ${period.fecha_inicio} a ${period.fecha_fin}`);
+                                
                                 
                                 // Solapamiento: start <= periodEnd AND end >= periodStart
                                 const startsBeforeOrOn = dateComparison(startDate, period.fecha_fin) <= 0;
                                 const endsOnOrAfter = dateComparison(endDate, period.fecha_inicio) >= 0;
                                 
-                                console.log(`    startsBeforeOrOn: ${startsBeforeOrOn}, endsOnOrAfter: ${endsOnOrAfter}`);
+                                
                                 
                                 if (startsBeforeOrOn && endsOnOrAfter) {
                                     if (!reserved[plan.id] || reserved[plan.id].status !== 'reserved') {
                                         // Usar la razón de no disponibilidad si existe
                                         const razon = period.razon || 'NO DISPONIBLE TEMPORALMENTE';
                                         reserved[plan.id] = { status: 'unavailable', razon };
-                                        console.log(`  ✓ SOLAPAMIENTO DETECTADO: Plan ${plan.id} NO DISPONIBLE - Razón: ${razon}`);
                                     }
                                     break;
                                 }
@@ -312,7 +310,7 @@ const Reserva = () => {
                                     if (legacyResponse.ok) {
                                         const legacyData = await legacyResponse.json();
                                         if (legacyData.images && Array.isArray(legacyData.images)) {
-                                            console.log(`Plan ${plan.id}: Received ${legacyData.images.length} images from server`);
+                                            
                                             // Convertir imágenes legacy y nuevas
                                             images = legacyData.images.map(img => {
                                                 // Si es una URL de assets, devolverla tal cual para que el frontend la resuelva
@@ -325,10 +323,10 @@ const Reserva = () => {
                                                 }
                                                 return img.url || img.filename;
                                             });
-                                            console.log(`Plan ${plan.id}: Processed images:`, images);
+                                            
                                         } else {
                                             // Si el servidor retorna array vacío, usar imágenes antiguas como fallback
-                                            console.log(`Plan ${plan.id}: No images from server, using defaults`);
+                                            
                                             images = imagenesAntiguas;
                                         }
                                     } else {
@@ -588,7 +586,7 @@ Total: ${formatCOP(summaryData.totals?.total || 0)}
                 Monto: summaryData.totals?.total || 0
             };
 
-            console.log('Enviando reserva:', payload);
+            
 
             const res = await fetch('http://localhost:5000/api/reservas', {
                 method: 'POST',

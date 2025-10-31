@@ -127,7 +127,6 @@ const HomePageSettings = () => {
 
             const hasPresentationChanges = presentationChanged.some(c => c);
             if (hasPresentationChanges) {
-                console.log('Saving presentation images...');
                 const presentationForm = new FormData();
                 
                 for (let i = 0; i < presentationImages.length; i++) {
@@ -156,13 +155,12 @@ const HomePageSettings = () => {
                     headers: { 'Authorization': `Bearer ${token}` },
                     body: presentationForm
                 });
-                console.log('Presentation response:', res.status);
+                
                 if (res.ok) ok = true;
             }
 
             const hasOpinionChanges = opinionChanged.some(c => c);
             if (hasOpinionChanges) {
-                console.log('Saving opinion images...');
                 const opinionForm = new FormData();
                 
                 for (let i = 0; i < opinionImages.length; i++) {
@@ -191,7 +189,7 @@ const HomePageSettings = () => {
                     headers: { 'Authorization': `Bearer ${token}` },
                     body: opinionForm
                 });
-                console.log('Opinion response:', res.status);
+                
                 if (res.ok) ok = true;
             }
 
@@ -222,12 +220,10 @@ const HomePageSettings = () => {
             display: 'flex',
             flexDirection: 'column',
             alignItems: 'center',
-            width: '100%',
-            minHeight: '100vh',
             boxSizing: 'border-box',
             borderRadius: '12px',
             border: '1px solid var(--input-border)',
-            boxShadow: '0 8px 32px var(--shadow-light)',
+            boxShadow: '0 8px 32px var(--shadow-light)'
         },
         title: {
             fontSize: '1.75rem',
@@ -251,12 +247,12 @@ const HomePageSettings = () => {
         errorAlert: {
             background: 'linear-gradient(135deg, #f8d7da, #f5c6cb)',
             color: '#721c24',
-            border: '1px solid #dc3545',
+            border: '1px solid #dc3545'
         },
         successAlert: {
             background: 'linear-gradient(135deg, #d4edda, #c3e6cb)',
             color: '#155724',
-            border: '1px solid var(--forest-green)',
+            border: '1px solid var(--forest-green)'
         },
         section: {
             marginBottom: '3rem',
@@ -286,7 +282,7 @@ const HomePageSettings = () => {
         },
         imageCard: {
             textAlign: 'center',
-            display: 'flex',
+            
             flexDirection: 'column',
             alignItems: 'center',
             gap: '1rem',

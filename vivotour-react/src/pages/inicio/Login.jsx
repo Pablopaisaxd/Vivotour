@@ -19,13 +19,10 @@ export const Login = () => {
 
   const Submit = async (data) => {
     try {
-      console.log('[FRONTEND LOGIN] Enviando datos:', data);
-      const res = await axios.post("http://localhost:5000/Login", data);
-      console.log('[FRONTEND LOGIN] Respuesta del servidor:', res.data);
+  const res = await axios.post("http://localhost:5000/Login", data);
       
       if (res.data.success) {
-        const userData = res.data.user || {};
-        console.log('[FRONTEND LOGIN] Datos de usuario recibidos:', userData);
+  const userData = res.data.user || {};
         login(res.data.token, userData);
         setServerError("");
         navigate(from, { replace: true });

@@ -25,7 +25,7 @@ const TestPayment = () => {
         auth: data
       }));
       
-      console.log('Test Auth:', data);
+  // debug: removed console.log for production
     } catch (error) {
       console.error('Error testing auth:', error);
       setTestResults(prev => ({
@@ -64,7 +64,7 @@ const TestPayment = () => {
         reserva: data
       }));
       
-      console.log('Test Reserva:', data);
+  // debug: removed console.log for production
     } catch (error) {
       console.error('Error creating test reserva:', error);
       setTestResults(prev => ({
@@ -104,7 +104,7 @@ const TestPayment = () => {
         payment: data
       }));
       
-      console.log('Test Payment Intent:', data);
+  // debug: removed console.log for production
     } catch (error) {
       console.error('Error testing payment intent:', error);
       setTestResults(prev => ({

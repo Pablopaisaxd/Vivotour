@@ -18,14 +18,13 @@ db.connect((err) => {
   if (err) {
     console.error('Error al conectar a la base de datos:', err);
   } else {
-    console.log('Conectado a MySQL');
   }
 });
 
 // Ruta para recibir el registro
 app.post('/registro', (req, res) => {
   const { Nombre, Email, Contraseña, Celular, NumeroDocumento, TipoDocumento } = req.body;
-  console.log("Datos recibidos:", req.body);
+  // debug: removed console.log for production
 
   const query = 'INSERT INTO registros (Nombre, Email, Contraseña, Celular, NumeroDocumento, TipoDocumento) VALUES (?, ?, ?, ?, ?, ?)';
   db.query(query, [Nombre, Email, Contraseña, Celular, NumeroDocumento, TipoDocumento], (err, resultado) => {
@@ -61,5 +60,4 @@ app.post('/login', (req, res) => {
 
 // Iniciar servidor
 app.listen(3000, () => {
-  console.log('Servidor corriendo en http://localhost:3000');
 });

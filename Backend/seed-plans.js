@@ -15,7 +15,7 @@ async function seedPlans() {
   try {
     const connection = await db.getConnection();
     
-    console.log('\n🌱 Insertando planes iniciales...\n');
+    
     
     // Planes a insertar
     const plans = [
@@ -55,24 +55,17 @@ async function seedPlans() {
           'INSERT INTO plans (name, description, price, duration, maxPersons) VALUES (?, ?, ?, ?, ?)',
           [plan.name, plan.description, plan.price, plan.duration, plan.maxPersons]
         );
-        console.log(`✅ Plan creado: "${plan.name}" (ID: ${result.insertId})`);
+        
       } catch (error) {
-        if (error.code === 'ER_DUP_ENTRY') {
-          console.log(`⚠️  Plan ya existe: "${plan.name}"`);
+          if (error.code === 'ER_DUP_ENTRY') {
         } else {
           throw error;
         }
       }
     }
     
-    console.log('\n✅ Planes insertados exitosamente\n');
-    
     // Verificar los planes creados
     const [allPlans] = await connection.execute('SELECT id, name, price, maxPersons FROM plans ORDER BY id');
-    console.log('📋 PLANES EN LA BD:');
-    allPlans.forEach(plan => {
-      console.log(`   ✓ ID: ${plan.id} | ${plan.name} | $${plan.price} | Max: ${plan.maxPersons} personas`);
-    });
     
     connection.release();
     process.exit(0);

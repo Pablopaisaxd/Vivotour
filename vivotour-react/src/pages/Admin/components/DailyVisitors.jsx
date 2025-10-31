@@ -25,9 +25,8 @@ function DailyVisitors() {
                 }
             });
             
-            if (response.ok) {
+                if (response.ok) {
                 const result = await response.json();
-                console.log('Datos del backend:', result.data);
                 setDailyData(result.data || []);
                 setError(null);
             } else {

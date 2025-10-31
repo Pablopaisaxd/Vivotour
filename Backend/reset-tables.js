@@ -15,25 +15,22 @@ async function resetTables() {
   try {
     const connection = await db.getConnection();
     
-    console.log('🧹 Eliminando tablas antiguas...\n');
+    
     
     // Eliminar tablas en el orden correcto (dependencias primero)
-    try {
+      try {
       await connection.execute('DROP TABLE IF EXISTS plan_images');
-      console.log('✓ Tabla "plan_images" eliminada');
     } catch (e) {}
     
     try {
       await connection.execute('DROP TABLE IF EXISTS plan_images_legacy');
-      console.log('✓ Tabla "plan_images_legacy" eliminada');
     } catch (e) {}
     
     try {
       await connection.execute('DROP TABLE IF EXISTS plans');
-      console.log('✓ Tabla "plans" eliminada');
     } catch (e) {}
     
-    console.log('\n📋 Creando tablas nuevas...\n');
+    
     
     // Tabla de planes
     await connection.execute(`
@@ -48,7 +45,7 @@ async function resetTables() {
         updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
       )
     `);
-    console.log('✓ Tabla "plans" creada');
+    
     
     // Tabla de imágenes de planes (nuevas)
     await connection.execute(`
@@ -61,7 +58,7 @@ async function resetTables() {
         FOREIGN KEY (plan_id) REFERENCES plans(id) ON DELETE CASCADE
       )
     `);
-    console.log('✓ Tabla "plan_images" creada');
+    
     
     // Tabla de imágenes legacy
     await connection.execute(`
@@ -74,10 +71,9 @@ async function resetTables() {
         FOREIGN KEY (plan_id) REFERENCES plans(id) ON DELETE CASCADE
       )
     `);
-    console.log('✓ Tabla "plan_images_legacy" creada');
     
-    console.log('\n✅ Tablas recreadas exitosamente');
-    console.log('📊 Estado: Base de datos lista para usar');
+    
+    
     
     connection.release();
     process.exit(0);
