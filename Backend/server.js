@@ -244,7 +244,6 @@ app.get("/auth/google/callback", async (req, res) => {
   try {
     const { code, error } = req.query;
     if (error) {
-      console.error("Google OAuth error:", error);
       return res.redirect(`${allowedOrigin}/Login?error=google_oauth_cancelled`);
     }
     if (!code) return res.redirect(`${allowedOrigin}/Login?error=missing_code`);
@@ -282,7 +281,6 @@ app.get("/auth/google/callback", async (req, res) => {
             [nombre, email, "", "", "", ""]
           );
         } catch (insertErr) {
-          console.error("Error insertando usuario Google (posibles restricciones de la tabla):", insertErr);
         }
       }
       
@@ -314,7 +312,6 @@ app.get("/auth/google/callback", async (req, res) => {
         }
       }
     } catch (dbErr) {
-      console.error("Error consultando usuario Google:", dbErr);
     }
 
       const token = jwt.sign(
@@ -326,7 +323,6 @@ app.get("/auth/google/callback", async (req, res) => {
     // Redirigir al frontend con el token (query param)
     return res.redirect(`${allowedOrigin}/Login?token=${token}`);
   } catch (err) {
-    console.error("Error en callback Google:", err);
     return res.redirect(`${allowedOrigin}/Login?error=google_auth_failed`);
   }
 });
@@ -362,7 +358,6 @@ app.get("/auth/facebook/callback", async (req, res) => {
   try {
     const { code, error } = req.query;
     if (error) {
-      console.error("Facebook OAuth error:", error);
       return res.redirect(`${allowedOrigin}/Login?error=facebook_oauth_cancelled`);
     }
     if (!code) return res.redirect(`${allowedOrigin}/Login?error=missing_code`);
@@ -375,7 +370,6 @@ app.get("/auth/facebook/callback", async (req, res) => {
     const tokenRes = await fetch(`https://graph.facebook.com/v19.0/oauth/access_token?client_id=${clientId}&redirect_uri=${redirectUri}&client_secret=${clientSecret}&code=${encodeURIComponent(code)}`);
     if (!tokenRes.ok) {
       const text = await tokenRes.text();
-      console.error("Facebook token error:", text);
       return res.redirect(`${allowedOrigin}/Login?error=facebook_token_failed`);
     }
     const tokenJson = await tokenRes.json();
@@ -385,7 +379,6 @@ app.get("/auth/facebook/callback", async (req, res) => {
     const profileRes = await fetch(`https://graph.facebook.com/me?fields=id,name,email&access_token=${encodeURIComponent(accessToken)}`);
     if (!profileRes.ok) {
       const text = await profileRes.text();
-      console.error("Facebook profile error:", text);
       return res.redirect(`${allowedOrigin}/Login?error=facebook_profile_failed`);
     }
     const profile = await profileRes.json();
@@ -411,7 +404,6 @@ app.get("/auth/facebook/callback", async (req, res) => {
             [nombre, email, "", "", "", ""]
           );
         } catch (insertErr) {
-          console.error("Error insertando usuario Facebook:", insertErr);
         }
       }
       
@@ -443,7 +435,6 @@ app.get("/auth/facebook/callback", async (req, res) => {
         }
       }
     } catch (dbErr) {
-      console.error("Error consultando usuario Facebook:", dbErr);
     }
 
       const token = jwt.sign(
@@ -454,7 +445,6 @@ app.get("/auth/facebook/callback", async (req, res) => {
 
     return res.redirect(`${allowedOrigin}/Login?token=${token}`);
   } catch (err) {
-    console.error("Error en callback Facebook:", err);
     return res.redirect(`${allowedOrigin}/Login?error=facebook_auth_failed`);
   }
 });
@@ -2519,7 +2509,7 @@ app.post('/api/payment/confirm', autenticarToken, async (req, res) => {
             `, [pagoResult[0].IdReserva]);
           } else {
             // Si no existe la columna, no hacemos nada (la información se guarda en pagos)
-            console.log('Columna EstadoReserva no encontrada, omitiendo actualización en reservas');
+            
           }
         } catch (colErr) {
           console.warn('Error comprobando/actualizando EstadoReserva:', colErr && colErr.message ? colErr.message : colErr);
@@ -3215,14 +3205,14 @@ const homepageUpload = multer({
 // GET - Obtener imágenes de homepage (público, sin autenticación)
 app.get('/api/homepage-images', async (req, res) => {
   try {
-    console.log('GET /api/homepage-images');
+    
     // Obtener imágenes de la base de datos
     const [images] = await db.execute(`
       SELECT * FROM homepage_images ORDER BY tipo ASC, posicion ASC
     `);
 
-    console.log('Total images from DB:', images.length);
-    console.log('Images:', images);
+    
+    
 
     // Agrupar por tipo
     const presentationImages = images
@@ -3248,8 +3238,8 @@ app.get('/api/homepage-images', async (req, res) => {
         return `${process.env.BACKEND_URL || 'http://localhost:5000'}${img.ruta}`;
       });
 
-    console.log('Presentation images:', presentationImages.length);
-    console.log('Opinion images:', opinionImages.length);
+    
+    
 
     res.json({
       success: true,
@@ -3265,9 +3255,9 @@ app.get('/api/homepage-images', async (req, res) => {
 // POST - Guardar/actualizar imágenes de homepage
 app.post('/api/homepage-images', requireAuth, homepageUpload.array('presentationImages', 3), async (req, res) => {
   try {
-    console.log('POST /api/homepage-images - Inicio');
-    console.log('Files:', req.files ? req.files.length : 0);
-    console.log('Existing URLs:', req.body.existingUrls);
+    
+    
+    
     
     // Procesar archivos nuevos
     let newImages = [];
@@ -3285,19 +3275,19 @@ app.post('/api/homepage-images', requireAuth, homepageUpload.array('presentation
       try {
         existingImages = JSON.parse(req.body.existingUrls);
       } catch (e) {
-        console.log('Error parsing existingUrls:', e);
+        
       }
     }
 
-    console.log('New images:', newImages.length);
-    console.log('Existing images:', existingImages.length);
+    
+    
 
     // Eliminar todas las imágenes de presentación actuales
     await db.execute('DELETE FROM homepage_images WHERE tipo = ?', ['presentation']);
 
     // Insertar las imágenes existentes
     for (const img of existingImages) {
-      console.log(`Restoring image at position ${img.posicion}: ${img.ruta}`);
+      
       await db.execute(
         'INSERT INTO homepage_images (tipo, posicion, ruta) VALUES (?, ?, ?)',
         ['presentation', img.posicion, img.ruta]
@@ -3311,7 +3301,7 @@ app.post('/api/homepage-images', requireAuth, homepageUpload.array('presentation
       while (existingImages.some(e => e.posicion === posicion)) {
         posicion++;
       }
-      console.log(`Inserting new image at position ${posicion}: ${img.ruta}`);
+      
       await db.execute(
         'INSERT INTO homepage_images (tipo, posicion, ruta) VALUES (?, ?, ?)',
         ['presentation', posicion, img.ruta]
@@ -3319,7 +3309,7 @@ app.post('/api/homepage-images', requireAuth, homepageUpload.array('presentation
       posicion++;
     }
 
-    console.log('Success');
+    
     res.json({
       success: true,
       mensaje: 'Imágenes guardadas correctamente'
@@ -3333,9 +3323,7 @@ app.post('/api/homepage-images', requireAuth, homepageUpload.array('presentation
 // POST - Guardar/actualizar imágenes de opinión (manejo separado)
 app.post('/api/homepage-images/opinion', requireAuth, homepageUpload.array('opinionImages', 3), async (req, res) => {
   try {
-    console.log('POST /api/homepage-images/opinion - Inicio');
-    console.log('Files:', req.files ? req.files.length : 0);
-    console.log('Existing URLs:', req.body.existingUrls);
+    
     
     // Procesar archivos nuevos
     let newImages = [];
@@ -3353,19 +3341,17 @@ app.post('/api/homepage-images/opinion', requireAuth, homepageUpload.array('opin
       try {
         existingImages = JSON.parse(req.body.existingUrls);
       } catch (e) {
-        console.log('Error parsing existingUrls:', e);
       }
     }
 
-    console.log('New images:', newImages.length);
-    console.log('Existing images:', existingImages.length);
+    
 
     // Eliminar todas las imágenes de opinión actuales
     await db.execute('DELETE FROM homepage_images WHERE tipo = ?', ['opinion']);
 
     // Insertar las imágenes existentes
     for (const img of existingImages) {
-      console.log(`Restoring opinion image at position ${img.posicion}: ${img.ruta}`);
+      
       await db.execute(
         'INSERT INTO homepage_images (tipo, posicion, ruta) VALUES (?, ?, ?)',
         ['opinion', img.posicion, img.ruta]
@@ -3379,7 +3365,7 @@ app.post('/api/homepage-images/opinion', requireAuth, homepageUpload.array('opin
       while (existingImages.some(e => e.posicion === posicion)) {
         posicion++;
       }
-      console.log(`Inserting new opinion image at position ${posicion}: ${img.ruta}`);
+      
       await db.execute(
         'INSERT INTO homepage_images (tipo, posicion, ruta) VALUES (?, ?, ?)',
         ['opinion', posicion, img.ruta]
@@ -3387,7 +3373,7 @@ app.post('/api/homepage-images/opinion', requireAuth, homepageUpload.array('opin
       posicion++;
     }
 
-    console.log('Opinion Success');
+    
     res.json({
       success: true,
       mensaje: 'Imágenes de opinión guardadas correctamente'
@@ -3926,5 +3912,4 @@ app.delete('/api/extra-services/:serviceId', requireAuth, async (req, res) => {
 });
 
 app.listen(5000, () => {
-  console.log(" Servidor corriendo en http://localhost:5000");
 });

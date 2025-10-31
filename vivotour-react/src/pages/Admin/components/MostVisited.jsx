@@ -30,7 +30,6 @@ function MostVisited() {
 
             if (response.ok) {
                 const data = await response.json();
-                console.log('Datos de preferencias del backend:', data.data);
                 const formattedData = data.data.map((item, index) => ({
                     name: item.planTipo,
                     count: item.cantidad,

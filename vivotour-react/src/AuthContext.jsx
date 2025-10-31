@@ -13,13 +13,10 @@ export const AuthProvider = ({ children }) => {
     const token = localStorage.getItem("token");
     if (token) {
       try {
-        const decoded = jwtDecode(token);
-        console.log("Datos decodificados del token:", decoded);
-        console.log("Avatar en token:", decoded.avatar);
+  const decoded = jwtDecode(token);
 
         const currentTime = Date.now() / 1000;
         if (decoded.exp && decoded.exp < currentTime) {
-          console.log("Token expired");
           logout();
           setLoading(false);
           return;
@@ -38,8 +35,7 @@ export const AuthProvider = ({ children }) => {
           avatar: decoded.avatar
         };
         
-        console.log("Usuario establecido en contexto:", userData);
-        setUser(userData);
+  setUser(userData);
       } catch (error) {
         console.error("Token inválido:", error);
         setIsAuthenticated(false);

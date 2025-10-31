@@ -283,7 +283,7 @@ export const Perfil = () => {
         localStorage.setItem('token', result.token);
         setUser(result.user);
         
-        console.log('Avatar actualizado:', result.avatarUrl);
+  // debug: removed console.log for production
       } else {
         setAvatar(user?.avatar || "https://www.w3schools.com/howto/img_avatar.png");
         setFileError(result.mensaje || 'Error al subir la imagen');
@@ -425,26 +425,26 @@ export const Perfil = () => {
                             body: JSON.stringify({ nombre: nombreEdit })
                           });
                           let json;
-                          try {
+                            try {
                             json = await res.json();
-                            console.log('Respuesta del servidor (nombre):', json);
+                            // debug: removed console.log for production
                           } catch {
                             setEditError('No se pudo conectar con el servidor');
                             setSaving(false);
                             return;
                           }
                           if (json.success && json.usuario) {
-                            console.log('Actualizando usuario con:', json.usuario);
+                            // debug: removed console.log for production
                             
                             // Si el servidor envía un nuevo token, actualizarlo
                             if (json.token) {
-                              console.log('Actualizando token JWT');
+                              // debug: removed console.log for production
                               localStorage.setItem('token', json.token);
                             }
                             
                             setUser(prev => {
                               const updated = { ...prev, ...json.usuario };
-                              console.log('Usuario actualizado:', updated);
+                              // debug: removed console.log for production
                               return updated;
                             });
                             setEditField(null);
@@ -512,26 +512,26 @@ export const Perfil = () => {
                             body: JSON.stringify({ email: emailEdit })
                           });
                           let json;
-                          try {
+                            try {
                             json = await res.json();
-                            console.log('Respuesta del servidor (email):', json);
+                            // debug: removed console.log for production
                           } catch {
                             setEditError('No se pudo conectar con el servidor');
                             setSaving(false);
                             return;
                           }
                           if (json.success && json.usuario) {
-                            console.log('Actualizando usuario con:', json.usuario);
+                            // debug: removed console.log for production
                             
                             // Si el servidor envía un nuevo token, actualizarlo
                             if (json.token) {
-                              console.log('Actualizando token JWT');
+                              // debug: removed console.log for production
                               localStorage.setItem('token', json.token);
                             }
                             
                             setUser(prev => {
                               const updated = { ...prev, ...json.usuario };
-                              console.log('Usuario actualizado:', updated);
+                              // debug: removed console.log for production
                               return updated;
                             });
                             setEditField(null);

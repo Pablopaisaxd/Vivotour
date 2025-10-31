@@ -15,7 +15,7 @@ async function createTables() {
   try {
     const connection = await db.getConnection();
     
-    console.log('📋 Creando tablas necesarias...\n');
+    
     
     // Tabla de planes
     await connection.execute(`
@@ -30,7 +30,7 @@ async function createTables() {
         updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
       )
     `);
-    console.log('✓ Tabla "plans" creada/verificada');
+    
     
     // Tabla de imágenes de planes (nuevas)
     await connection.execute(`
@@ -43,7 +43,7 @@ async function createTables() {
         FOREIGN KEY (plan_id) REFERENCES plans(id) ON DELETE CASCADE
       )
     `);
-    console.log('✓ Tabla "plan_images" creada/verificada');
+    
     
     // Tabla de imágenes legacy
     await connection.execute(`
@@ -56,7 +56,7 @@ async function createTables() {
         FOREIGN KEY (plan_id) REFERENCES plans(id) ON DELETE CASCADE
       )
     `);
-    console.log('✓ Tabla "plan_images_legacy" creada/verificada');
+    
     
     // Tabla de servicios extra
     await connection.execute(`
@@ -69,9 +69,9 @@ async function createTables() {
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       )
     `);
-    console.log('✓ Tabla "extra_services" creada/verificada');
     
-    console.log('\n✅ Todas las tablas están listas');
+    
+    
     
     connection.release();
     process.exit(0);

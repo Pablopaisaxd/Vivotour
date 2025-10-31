@@ -17,14 +17,12 @@ const UserManagement = () => {
 
     useEffect(() => {
         if (token) {
-            console.log('[USERMANAGEMENT] searchTerm cambió a:', searchTerm);
             setCurrentPage(1);
         }
     }, [searchTerm, token]);
 
     useEffect(() => {
         if (token) {
-            console.log('[USERMANAGEMENT] currentPage cambió a:', currentPage, 'searchTerm:', searchTerm);
             loadUsers(currentPage);
         }
     }, [currentPage, searchTerm, token]);
@@ -33,8 +31,7 @@ const UserManagement = () => {
         setLoading(true);
         setError('');
         try {
-            console.log('[USERMANAGEMENT] Token:', token);
-            console.log('[USERMANAGEMENT] API_BASE_URL:', API_BASE_URL);
+            
             
             const params = new URLSearchParams();
             params.append('page', page);
@@ -43,7 +40,7 @@ const UserManagement = () => {
             }
             
             const url = `${API_BASE_URL}/admin/usuarios?${params.toString()}`;
-            console.log('[USERMANAGEMENT] URL completa:', url);
+            
             
             const response = await fetch(url, {
                 headers: {
@@ -51,15 +48,14 @@ const UserManagement = () => {
                 }
             });
             
-            console.log('[USERMANAGEMENT] Response status:', response.status);
-            console.log('[USERMANAGEMENT] Response ok:', response.ok);
+            
             
             if (!response.ok) {
                 throw new Error(`Error HTTP ${response.status}`);
             }
             
             const data = await response.json();
-            console.log('[USERMANAGEMENT] Respuesta:', data);
+            
             
             if (data.success) {
                 setUsers(data.usuarios);

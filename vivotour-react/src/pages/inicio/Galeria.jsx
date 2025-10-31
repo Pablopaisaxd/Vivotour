@@ -143,7 +143,6 @@ const Galeria = () => {
             }
           }
         } catch (error) {
-          console.log(`Info: No se cargaron imágenes para categoría ${categoryId}`);
         }
       }
 

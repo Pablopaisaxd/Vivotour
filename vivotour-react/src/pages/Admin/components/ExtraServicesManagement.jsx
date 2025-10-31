@@ -83,7 +83,7 @@ const ExtraServicesManagement = () => {
           'Authorization': `Bearer ${currentToken}`,
           'Content-Type': 'application/json'
         }
-      }).catch(err => console.log('Initialize data call result:', err));
+  }).catch(err => {});
 
       fetchServices();
     } catch (err) {
@@ -151,7 +151,7 @@ const ExtraServicesManagement = () => {
         ? `${apiConfig.baseUrl}/api/extra-services/${editingId}`
         : `${apiConfig.baseUrl}/api/extra-services`;
 
-      console.log(`${method} request to:`, url, 'Data:', formData);
+      
 
       const response = await fetch(url, {
         method,
@@ -162,7 +162,7 @@ const ExtraServicesManagement = () => {
         body: JSON.stringify(formData)
       });
 
-      console.log('Response status:', response.status);
+      
 
       if (response.ok) {
         setSuccess(true);
@@ -214,7 +214,7 @@ const ExtraServicesManagement = () => {
       setLoading(true);
       setError(null);
       
-      console.log(`Eliminando servicio ${serviceToDelete.id}`);
+      
       
       const response = await fetch(`${apiConfig.baseUrl}/api/extra-services/${serviceToDelete.id}`, {
         method: 'DELETE',
@@ -224,7 +224,7 @@ const ExtraServicesManagement = () => {
         }
       });
 
-      console.log('Response status:', response.status);
+      
       
       if (response.ok) {
         setSuccess(true);
