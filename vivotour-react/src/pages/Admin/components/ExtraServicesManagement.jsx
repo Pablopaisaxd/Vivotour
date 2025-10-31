@@ -406,7 +406,7 @@ const ExtraServicesManagement = () => {
     },
     serviceCategory: {
       display: 'inline-block',
-      background: 'linear-gradient(135deg, var(--forest-green), var(--golden-yellow))',
+      background: 'linear-gradient(135deg, var(--golden-yellow), rgba(255, 207, 50, 1))',
       color: 'white',
       padding: '0.5rem 1rem',
       borderRadius: '20px',
@@ -791,7 +791,7 @@ const ExtraServicesManagement = () => {
                   e.target.style.boxShadow = '0 2px 8px var(--shadow-light)';
                 }}
               >
-                ✕ Cancelar
+                 Cancelar
               </button>
               <button
                 onClick={handleConfirmDelete}
