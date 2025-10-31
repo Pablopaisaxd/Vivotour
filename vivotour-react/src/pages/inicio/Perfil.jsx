@@ -17,7 +17,8 @@ export const Perfil = () => {
   const [opiniones, setOpiniones] = useState([]);
   const [loadingData, setLoadingData] = useState(true);
   const [error, setError] = useState("");
-  // Estados para edición de nombre y email
+  const [fileError, setFileError] = useState("");
+  const [confirmState, setConfirmState] = useState(null);
   const [editField, setEditField] = useState(null); // 'nombre' | 'email' | null
   const [nombreEdit, setNombreEdit] = useState(user?.nombre || "");
   const [emailEdit, setEmailEdit] = useState(user?.email || "");
@@ -192,7 +193,7 @@ export const Perfil = () => {
       
     } catch (error) {
       console.error('Error generando PDF:', error);
-      alert('Error al generar el PDF. Por favor, inténtalo de nuevo.');
+      setError('Error al generar el PDF. Por favor, inténtalo de nuevo.');
     }
   };
 
@@ -210,13 +211,12 @@ export const Perfil = () => {
     if (!file) return;
 
     if (!file.type.startsWith("image/")) {
-      alert("Por favor selecciona un archivo de imagen válido (png, jpg, jpeg, gif).");
+      setFileError("Por favor selecciona un archivo de imagen válido (png, jpg, jpeg, gif).");
       return;
     }
 
-    // Verificar tamaño (máximo 5MB)
     if (file.size > 5 * 1024 * 1024) {
-      alert("La imagen no puede ser mayor a 5MB");
+      setFileError("La imagen no puede ser mayor a 5MB");
       return;
     }
 
@@ -253,15 +253,14 @@ export const Perfil = () => {
         
         console.log('Avatar actualizado:', result.avatarUrl);
       } else {
-        // Si falla, revertir al avatar anterior
         setAvatar(user?.avatar || "https://www.w3schools.com/howto/img_avatar.png");
-        alert(result.mensaje || 'Error al subir la imagen');
+        setFileError(result.mensaje || 'Error al subir la imagen');
       }
     } catch (error) {
       // Si falla, revertir al avatar anterior
       setAvatar(user?.avatar || "https://www.w3schools.com/howto/img_avatar.png");
       console.error('Error al subir avatar:', error);
-      alert('Error de conexión al subir la imagen');
+      setFileError('Error de conexión al subir la imagen');
     }
   };
 
@@ -298,40 +297,39 @@ export const Perfil = () => {
   }, []);
 
   const eliminarReserva = async (id) => {
-    if (!confirm('¿Eliminar esta reserva?')) return;
-    try {
-      const token = localStorage.getItem('token');
-      const res = await fetch(`http://localhost:5000/reservas/${id}`, {
-        method: 'DELETE',
-        headers: { Authorization: `Bearer ${token}` }
-      });
-      const json = await res.json();
-      if (json.success) {
-        setReservas(prev => prev.filter(r => r.id !== id));
-      } else {
-        alert(json.mensaje || 'No se pudo eliminar');
-      }
-    } catch (e) {
-      alert('Error del servidor');
-    }
+    setConfirmState({ action: 'eliminarReserva', id, message: '¿Eliminar esta reserva?' });
   };
 
   const eliminarOpinion = async (id) => {
-    if (!confirm('¿Eliminar esta opinión?')) return;
+    setConfirmState({ action: 'eliminarOpinion', id, message: '¿Eliminar esta opinión?' });
+  };
+
+  const handleConfirm = async (confirm) => {
+    if (!confirmState) return setConfirmState(null);
+    const { action, id } = confirmState;
+    setConfirmState(null);
     try {
       const token = localStorage.getItem('token');
-      const res = await fetch(`http://localhost:5000/mis-opiniones/${id}`, {
-        method: 'DELETE',
-        headers: { Authorization: `Bearer ${token}` }
-      });
-      const json = await res.json();
-      if (json.success) {
-        setOpiniones(prev => prev.filter(o => o.id !== id));
-      } else {
-        alert(json.mensaje || 'No se pudo eliminar');
+      if (action === 'eliminarReserva') {
+        const res = await fetch(`http://localhost:5000/reservas/${id}`, { method: 'DELETE', headers: { Authorization: `Bearer ${token}` } });
+        const json = await res.json();
+        if (json.success) {
+          setReservas(prev => prev.filter(r => r.id !== id));
+        } else {
+          setError(json.mensaje || 'No se pudo eliminar');
+        }
+      }
+      if (action === 'eliminarOpinion') {
+        const res = await fetch(`http://localhost:5000/mis-opiniones/${id}`, { method: 'DELETE', headers: { Authorization: `Bearer ${token}` } });
+        const json = await res.json();
+        if (json.success) {
+          setOpiniones(prev => prev.filter(o => o.id !== id));
+        } else {
+          setError(json.mensaje || 'No se pudo eliminar');
+        }
       }
     } catch (e) {
-      alert('Error del servidor');
+      setError('Error del servidor');
     }
   };
 
@@ -362,6 +360,9 @@ export const Perfil = () => {
               style={{ display: "none" }}
             />
           </div>
+          {fileError && (
+            <div className="perfil-edit-error" role="alert" style={{ marginTop: '0.6rem' }}>{fileError}</div>
+          )}
 
           <div className="perfil-info">
             {/* NOMBRE */}
@@ -634,6 +635,17 @@ export const Perfil = () => {
         </div>
       </div>
       <Footer />
+      {confirmState && (
+        <div className="overlay">
+          <div className="confirm-modal">
+            <p>{confirmState.message}</p>
+            <div className="confirm-buttons">
+              <button className="btn-confirm" onClick={() => handleConfirm(true)}>Sí</button>
+              <button className="btn-cancel" onClick={() => setConfirmState(null)}>No</button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

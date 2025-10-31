@@ -10,14 +10,12 @@ import imgR2 from '../../assets/Fondos/refcamping.jpg';
 import logoVivoTour from "../../assets/Logos/new vivo contorno2.png";
 import { AuthContext } from '../../AuthContext';
 import apiConfig from '../../config/apiConfig';
-// Carga de imágenes para los modales (carruseles)
 const imgsRio = Object.values(import.meta.glob('../../assets/imgs/rio/*.{jpg,jpeg,png}', { eager: true, as: 'url' }));
 const imgsCabanaFenix = Object.values(import.meta.glob('../../assets/imgs/cabañas/Cabaña_fenix/*.{jpg,jpeg,png}', { eager: true, as: 'url' }));
 const imgsCabanaAventureros = Object.values(import.meta.glob('../../assets/imgs/cabañas/Cabaña_los_aventureros/*.{jpg,jpeg,png}', { eager: true, as: 'url' }));
 const imgsCamping = Object.values(import.meta.glob('../../assets/imgs/zona_camping/*.{jpg,jpeg,png}', { eager: true, as: 'url' }));
 
 
-// Planes disponibles
 const PLANS = [
     {
         id: 'ventana-rio',
@@ -37,7 +35,7 @@ const PLANS = [
     {
         id: 'cabana-fenix',
         title: 'Cabaña Fénix (pareja)',
-        price: 600000, // por pareja
+        price: 600000,
         priceType: 'perCouple',
         capacity: { min: 2, max: 2 },
         fixedNights: 1,
@@ -51,7 +49,7 @@ const PLANS = [
     {
         id: 'cabana-aventureros',
         title: 'Cabaña de los Aventureros',
-        price: 200000, // por persona
+        price: 200000,
         priceType: 'perPerson',
         capacity: { min: 1, max: 8 },
         fixedNights: 1,
@@ -65,7 +63,7 @@ const PLANS = [
     {
         id: 'dia-de-sol',
         title: 'Día de sol en el Río Melcocho',
-        price: 40000, // por persona
+        price: 40000,
         priceType: 'perPerson',
         capacity: { min: 1, max: 12 },
         fixedNights: 0,
@@ -116,6 +114,7 @@ const Reserva = () => {
     const [extraServices, setExtraServices] = useState([]); // Servicios extra desde BD
     const [reservedAlojamientos, setReservedAlojamientos] = useState({}); // { [planId]: { status, razon } }
     const [selectedDateRange, setSelectedDateRange] = useState({ start: null, end: null });
+    const [formError, setFormError] = useState(null);
 
     // Cargar servicios extra desde la API
     useEffect(() => {
@@ -434,24 +433,39 @@ const Reserva = () => {
 
     const handleBookNow = (e) => {
         e.preventDefault();
-
+        setFormError(null);
         const dateS = e.target.elements["reservation-date-start"].value;
         const dateE = e.target.elements["reservation-date-end"].value;
         const adults = Number(e.target.elements['adults'].value);
         const children = Number(e.target.elements['children'].value);
 
-        if (!selectedPlan) return alert('Seleccione un plan.');
+        if (!selectedPlan) {
+            setFormError('Seleccione un plan.');
+            return;
+        }
 
-        if (!dateS) return alert('Seleccione una fecha de inicio de reserva');
-        if (!dateE && selectedPlan.fixedNights !== 0) return alert('Seleccione una fecha de fin de reserva');
+        if (!dateS) {
+            setFormError('Seleccione una fecha de inicio de reserva');
+            return;
+        }
+        if (!dateE && selectedPlan.fixedNights !== 0) {
+            setFormError('Seleccione una fecha de fin de reserva');
+            return;
+        }
 
         const fechaInicio = normalizarFecha(dateS);
         const fechaFinal = selectedPlan.fixedNights === 0 && !dateE ? fechaInicio : normalizarFecha(dateE);
         const hoy = new Date();
         hoy.setHours(0, 0, 0, 0);
 
-        if (fechaInicio < hoy) return alert('La fecha de inicio no puede ser anterior al día actual');
-        if (selectedPlan.fixedNights !== 0 && fechaFinal <= fechaInicio) return alert('La fecha de salida debe ser posterior a la de entrada');
+        if (fechaInicio < hoy) {
+            setFormError('La fecha de inicio no puede ser anterior al día actual');
+            return;
+        }
+        if (selectedPlan.fixedNights !== 0 && fechaFinal <= fechaInicio) {
+            setFormError('La fecha de salida debe ser posterior a la de entrada');
+            return;
+        }
 
         // Calcular noches
         const nights = selectedPlan.fixedNights !== undefined
@@ -461,10 +475,12 @@ const Reserva = () => {
         // Validar capacidad
         const people = adults + children;
         if (selectedPlan.capacity?.min && people < selectedPlan.capacity.min) {
-            return alert(`El mínimo para este plan es ${selectedPlan.capacity.min} persona(s).`);
+            setFormError(`El mínimo para este plan es ${selectedPlan.capacity.min} persona(s).`);
+            return;
         }
         if (selectedPlan.capacity?.max && people > selectedPlan.capacity.max) {
-            return alert(`El máximo para este plan es ${selectedPlan.capacity.max} persona(s).`);
+            setFormError(`El máximo para este plan es ${selectedPlan.capacity.max} persona(s).`);
+            return;
         }
 
         // Calcular costos base según tipo de plan
@@ -540,7 +556,7 @@ const Reserva = () => {
             // Obtener token de autenticación
             const token = localStorage.getItem('token');
             if (!token) {
-                alert('Debe iniciar sesión para realizar una reserva');
+                setFormError('Debe iniciar sesión para realizar una reserva');
                 return;
             }
 
@@ -585,7 +601,7 @@ Total: $${summaryData.totals?.total || 0}
             // Redirigir directamente al checkout con el ID de la reserva
             navigate(`/checkout/${data.reservaId}`);
         } catch (err) {
-            alert(`Error al guardar la reserva: ${err.message}`);
+            setFormError(`Error al guardar la reserva: ${err.message}`);
         } finally {
             setSummaryData(null);
         }
@@ -742,7 +758,7 @@ Total: $${summaryData.totals?.total || 0}
             
         } catch (error) {
             console.error('Error generando PDF:', error);
-            alert('Error al generar el PDF. Por favor, inténtalo de nuevo.');
+            setFormError('Error al generar el PDF. Por favor, inténtalo de nuevo.');
         }
     };
 
@@ -770,6 +786,11 @@ Total: $${summaryData.totals?.total || 0}
             <div className="reserva-wrapper">
                 <div className="reserva-container">
                     <form onSubmit={handleBookNow}>
+                        {formError && (
+                            <div className="form-error" role="alert">
+                                <p>{formError}</p>
+                            </div>
+                        )}
                         <div className="reserva-top-sections">
                             <div className="reserva-section reserva-section-half">
                                 <h3 className="reserva-title">Seleccione fecha</h3>

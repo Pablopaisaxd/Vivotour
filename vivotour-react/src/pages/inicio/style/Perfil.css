@@ -334,6 +334,16 @@
 .perfil-btn:active {
   transform: translateY(-1px);
 }
+  
+  /* Modal confirm overlay */
+  .overlay{ position:fixed; top:0; left:0; width:100%; height:100%; background: rgba(26,24,27,0.6); display:flex; justify-content:center; align-items:center; z-index:999 }
+  .confirm-modal{ background: var(--alice-blue); border: 2px solid var(--forest-green); border-radius:10px; padding:1.5rem 2rem; text-align:center; box-shadow:0 4px 20px var(--shadow-strong); color:var(--rich-black) }
+  .confirm-buttons{ margin-top:1rem; display:flex; justify-content:center; gap:1rem }
+  .btn-confirm, .btn-cancel{ border:none; border-radius:8px; padding:0.5rem 1.2rem; font-weight:600; cursor:pointer; transition:var(--transition) }
+  .btn-confirm{ background: linear-gradient(135deg, var(--forest-green), var(--golden-yellow)); color:#fff }
+  .btn-confirm:hover{ transform:translateY(-2px); box-shadow:0 6px 20px var(--shadow-hover) }
+  .btn-cancel{ background: var(--input-bg); color: var(--rich-black) }
+  .btn-cancel:hover{ background: var(--input-bg-focus) }
 
 @keyframes slideInUp {
   from {
