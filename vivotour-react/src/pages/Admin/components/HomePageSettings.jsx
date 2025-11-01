@@ -282,7 +282,7 @@ const HomePageSettings = () => {
         },
         imageCard: {
             textAlign: 'center',
-            
+            display: 'flex',
             flexDirection: 'column',
             alignItems: 'center',
             gap: '1rem',

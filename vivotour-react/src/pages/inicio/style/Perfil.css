@@ -181,6 +181,9 @@
   display: flex;
   flex-direction: column;
   justify-content: center;
+  width: 100%;
+  max-width: 100%;
+  overflow: visible;
 }
 
 .perfil-info-item label {
@@ -189,6 +192,15 @@
   color: var(--forest-green);
   margin-bottom: 0.3rem;
   font-size: 1rem;
+}
+
+.perfil-info-item > div {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  width: 100%;
+  max-width: 100%;
+  overflow: visible;
 }
 
 .perfil-info-content {
@@ -202,17 +214,19 @@
   color: var(--rich-black) !important;
   transition: var(--transition);
   width: 100%;
+  max-width: calc(100% - 46px);
   box-sizing: border-box;
   position: relative;
   min-height: 48px;
   gap: 0.5rem;
+  overflow: hidden;
 }
 
 .perfil-edit-input {
-  max-width: 180px;
+  max-width: 160px;
   min-width: 0;
   flex: 1;
-  font-size: 1rem;
+  font-size: 0.95rem;
   border-radius: 8px;
   border: 1px solid var(--input-border);
   box-sizing: border-box;
